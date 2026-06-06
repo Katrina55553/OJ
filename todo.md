@@ -3,8 +3,8 @@
 ## 一、安全修复（优先级：🔴 紧急）
 
 ### 1.1 后端凭据泄露
-- [ ] `oj-backend/.../application.yml` 中硬编码了 JDoodle API 密钥（`fdc3701b...` / `1deb28aa...`）和 MySQL 密码（`123456`）— 移至环境变量或 `.env` 文件，并加入 `.gitignore`
-- [ ] 清理 git 历史中的敏感信息（需用 `git filter-repo` 或 BFG）
+- [x] `oj-backend/.../application.yml` 中硬编码了 JDoodle API 密钥（`fdc3701b...` / `1deb28aa...`）和 MySQL 密码（`123456`）— 移至环境变量或 `.env` 文件，并加入 `.gitignore`
+- [x] 清理 git 历史中的敏感信息（需用 `git filter-repo` 或 BFG）
 
 ### 1.2 前端 XSS 风险
 - [ ] `MdPreview.vue` — `markdown-it` 启用了 `html: true`，用户提交的 Markdown 可注入任意脚本。建议：禁用 `html` 选项，或引入 DOMPurify 对输出做 sanitize
