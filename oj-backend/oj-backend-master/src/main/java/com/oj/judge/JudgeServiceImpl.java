@@ -1,0 +1,133 @@
+package com.oj.judge;
+
+import cn.hutool.json.JSONUtil;
+import com.oj.common.ErrorCode;
+import com.oj.exception.BusinessException;
+import com.oj.judge.codesandbox.JdoodleApiClient;
+import com.oj.judge.codesandbox.model.ExecuteCodeRequest;
+import com.oj.judge.codesandbox.model.ExecuteCodeResponse;
+import com.oj.judge.strategy.JudgeContext;
+import com.oj.model.dto.question.JudgeCase;
+import com.oj.judge.codesandbox.model.JudgeInfo;
+import com.oj.model.entity.Question;
+import com.oj.model.entity.QuestionSubmit;
+import com.oj.model.enums.QuestionSubmitStatusEnum;
+import com.oj.service.QuestionService;
+import com.oj.service.QuestionSubmitService;
+import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+public class JudgeServiceImpl implements JudgeService {
+
+    @Resource
+    private QuestionService questionService;
+
+    @Resource
+    private QuestionSubmitService questionSubmitService;
+
+    @Resource
+    private JudgeManager judgeManager;
+
+    @Resource
+    private JdoodleApiClient jdoodleApiClient;
+
+    @Override
+    public QuestionSubmit doJudge(long questionSubmitId) {
+        // 1）获取提交信息和题目
+        QuestionSubmit questionSubmit = questionSubmitService.getById(questionSubmitId);
+        if (questionSubmit == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "提交信息不存在");
+        }
+
+        Long questionId = questionSubmit.getQuestionId();
+        Question question = questionService.getById(questionId);
+        if (question == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "题目不存在");
+        }
+
+        // 2）检查状态
+        if (!questionSubmit.getStatus().equals(QuestionSubmitStatusEnum.WAITING.getValue())) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "题目正在判题中");
+        }
+
+        // 3）更新状态为判题中
+        QuestionSubmit questionSubmitUpdate = new QuestionSubmit();
+        questionSubmitUpdate.setId(questionSubmitId);
+        questionSubmitUpdate.setStatus(QuestionSubmitStatusEnum.RUNNING.getValue());
+        boolean update = questionSubmitService.updateById(questionSubmitUpdate);
+        if (!update) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目状态更新错误");
+        }
+
+        try {
+            // 4）获取测试用例
+            String judgeCaseStr = question.getJudgeCase();
+            List<JudgeCase> judgeCaseList = JSONUtil.toList(judgeCaseStr, JudgeCase.class);
+            List<String> inputList = judgeCaseList.stream().map(JudgeCase::getInput).collect(Collectors.toList());
+
+            System.out.println("测试用例输入: " + inputList);
+
+            // 5）调用 Piston API 执行代码
+            ExecuteCodeRequest executeCodeRequest = ExecuteCodeRequest.builder()
+                    .code(questionSubmit.getCode())
+                    .language(questionSubmit.getLanguage())
+                    .inputList(inputList)
+                    .build();
+
+            ExecuteCodeResponse executeCodeResponse = jdoodleApiClient.executeCode(executeCodeRequest);
+
+            System.out.println("Piston 执行结果: " + JSONUtil.toJsonStr(executeCodeResponse));
+
+            // 6）获取期望输出列表
+            List<String> expectedOutputList = judgeCaseList.stream()
+                    .map(JudgeCase::getOutput)
+                    .collect(Collectors.toList());
+
+            System.out.println("期望输出: " + expectedOutputList);
+            System.out.println("实际输出: " + executeCodeResponse.getOutputList());
+
+            // 7）判题
+            JudgeContext judgeContext = new JudgeContext();
+            judgeContext.setJudgeInfo(executeCodeResponse.getJudgeInfo());
+            judgeContext.setInputList(inputList);
+            judgeContext.setOutputList(executeCodeResponse.getOutputList());
+            judgeContext.setExpectedOutputList(expectedOutputList);  // 需要确保 JudgeContext 有这个字段
+            judgeContext.setJudgeCaseList(judgeCaseList);
+            judgeContext.setQuestion(question);
+            judgeContext.setQuestionSubmit(questionSubmit);
+
+            JudgeInfo judgeInfo = judgeManager.doJudge(judgeContext);
+
+            System.out.println("判题结果: " + JSONUtil.toJsonStr(judgeInfo));
+
+            // 8）更新数据库
+            questionSubmitUpdate = new QuestionSubmit();
+            questionSubmitUpdate.setId(questionSubmitId);
+            questionSubmitUpdate.setStatus(QuestionSubmitStatusEnum.SUCCEED.getValue());
+            questionSubmitUpdate.setJudgeInfo(JSONUtil.toJsonStr(judgeInfo));
+
+            update = questionSubmitService.updateById(questionSubmitUpdate);
+            if (!update) {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目状态更新错误");
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+
+            // 判题失败，更新状态
+            questionSubmitUpdate = new QuestionSubmit();
+            questionSubmitUpdate.setId(questionSubmitId);
+            questionSubmitUpdate.setStatus(QuestionSubmitStatusEnum.FAILED.getValue());
+            questionSubmitUpdate.setJudgeInfo("{\"message\":\"" + e.getMessage() + "\"}");
+            questionSubmitService.updateById(questionSubmitUpdate);
+
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "判题失败: " + e.getMessage());
+        }
+
+        return questionSubmitService.getById(questionSubmitId);
+    }
+}

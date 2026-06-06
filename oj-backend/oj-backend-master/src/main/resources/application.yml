@@ -1,0 +1,95 @@
+# 公共配置文件
+spring:
+  application:
+    name: oj-backend
+
+  # 默认 dev 环境
+  profiles:
+    active: dev
+
+  # MVC
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+
+  # Session（✅ 这里关 Redis）
+  session:
+    store-type: none
+    timeout: 2592000
+
+  # 数据库配置（通过环境变量注入，本地开发可设置系统环境变量或使用 application-dev.yml）
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://localhost:3306/yuoj}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+
+  # redis:
+  #   database: 1
+  #   host: localhost
+  #   port: 6379
+  #   timeout: 5000
+  #   password: 123456
+
+  # 文件上传
+  servlet:
+    multipart:
+      max-file-size: 10MB
+
+server:
+  address: 0.0.0.0
+  port: 8101
+  servlet:
+    context-path: /api
+    # cookie 30 天过期
+    session:
+      cookie:
+        max-age: 2592000
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      id-type: auto
+# 微信相关
+wx:
+  # 微信公众平台
+  # todo 需替换配置
+  mp:
+    token: xxx
+    aesKey: xxx
+    appId: xxx
+    secret: xxx
+    config-storage:
+      http-client-type: HttpClient
+      key-prefix: wx
+      redis:
+        host: 127.0.0.1
+        port: 6379
+      type: Memory
+  # 微信开放平台
+  # todo 需替换配置
+  open:
+    appId: xxx
+    appSecret: xxx
+# 对象存储
+# todo 需替换配置
+cos:
+  client:
+    accessKey: xxx
+    secretKey: xxx
+    region: xxx
+    bucket: xxx
+# 代码沙箱配置
+codesandbox:
+  type: local
+
+
+# JDoodle API Credentials（通过环境变量注入）
+jdoodle:
+  client-id: ${JDOODLE_CLIENT_ID:}
+  client-secret: ${JDOODLE_CLIENT_SECRET:}

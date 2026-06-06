@@ -1,0 +1,26 @@
+# 线上配置文件
+server:
+  port: 8101
+spring:
+  # 数据库配置（通过环境变量注入）
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: ${DB_URL:jdbc:mysql://localhost:3306/my_db}
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:}
+  # Redis 配置（通过环境变量注入）
+  redis:
+    database: 1
+    host: ${REDIS_HOST:localhost}
+    port: 6379
+    timeout: 5000
+    password: ${REDIS_PASSWORD:}
+  # Elasticsearch 配置（通过环境变量注入）
+  elasticsearch:
+    uris: ${ES_URL:http://localhost:9200}
+    username: ${ES_USERNAME:root}
+    password: ${ES_PASSWORD:}
+mybatis-plus:
+  configuration:
+    # 生产环境关闭日志
+    log-impl: ''

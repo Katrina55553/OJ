@@ -1,0 +1,30 @@
+# === Java / Maven ===
+oj-backend/oj-backend-master/target/
+*.class
+*.jar
+*.war
+*.log
+
+# === Node.js ===
+oj-frontend/node_modules/
+oj-frontend/dist/
+
+# === IDE ===
+.idea/
+*.iml
+.vscode/
+*.swp
+*.swo
+
+# === Archives ===
+*.zip
+
+# === OS ===
+.DS_Store
+Thumbs.db
+
+# === Env / Secrets ===
+.env
+.env.*
+*.env.local
+!.env.example
