@@ -34,11 +34,13 @@ export const routes: Array<RouteRecordRaw> = [
     path: "/question",
     name: "题库",
     component: () => import("@/views/question/QuestionListView.vue"),
+    meta: { access: ACCESS_ENUM.NOT_LOGIN },
   },
   {
     path: "/competition",
     name: "比赛",
     component: () => import("@/views/contest/ContestListView.vue"),
+    meta: { access: ACCESS_ENUM.NOT_LOGIN },
   },
   {
     path: "/submission",
@@ -52,7 +54,7 @@ export const routes: Array<RouteRecordRaw> = [
     path: "/profile",
     name: "我的",
     component: () => import("@/views/user/UserProfileView.vue"),
-    meta: { hideInMenu: true },
+    meta: { hideInMenu: true, access: ACCESS_ENUM.USER },
   },
   {
     path: "/hide",
@@ -83,7 +85,7 @@ export const routes: Array<RouteRecordRaw> = [
     path: "/ai/assistant",
     name: "AI智能体",
     component: () => import("@/views/AIAssistantView.vue"),
-    meta: { title: "AI 编程助手" },
+    meta: { title: "AI 编程助手", access: ACCESS_ENUM.NOT_LOGIN },
   },
   {
     path: "/about",
@@ -104,18 +106,18 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/question/:id",
     component: () => import("@/views/question/QuestionDetailsView.vue"),
-    meta: { hideInMenu: true },
+    meta: { hideInMenu: true, access: ACCESS_ENUM.NOT_LOGIN },
   },
   {
     path: "/contest/:id",
     component: () => import("@/views/contest/ContestDetailView.vue"),
-    meta: { hideInMenu: true },
+    meta: { hideInMenu: true, access: ACCESS_ENUM.NOT_LOGIN },
   },
   {
     path: "/submit/view/:id",
     name: "SubmitView",
     component: () => import("@/views/SubmissionListView.vue"),
-    meta: { hideInMenu: true },
+    meta: { hideInMenu: true, access: ACCESS_ENUM.USER },
   },
   {
     path: "/admin",
@@ -132,5 +134,11 @@ export const routes: Array<RouteRecordRaw> = [
     meta: {
       access: ACCESS_ENUM.ADMIN,
     },
+  },
+  {
+    path: "/:pathMatch(.*)*",
+    name: "404",
+    component: () => import("@/views/NotFoundView.vue"),
+    meta: { hideInMenu: true },
   },
 ];

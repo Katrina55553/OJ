@@ -30,9 +30,9 @@
 - [x] `AnswerServiceImpl.java` — 文件不存在，跳过
 
 ### 2.3 拆分过长函数（前端）
-- [ ] `QuestionAdminView.vue` — `loadData`（70 行）拆分为请求 + JSON 解析 + 数据转换
-- [ ] `SubmissionListView.vue` — `fetchData`（90 行）拆分为请求 + 状态映射
-- [ ] `LanguageStats.vue` — `updateChart`（110 行）的 ECharts 配置提取为独立配置对象
+- [x] `QuestionAdminView.vue` — `loadData` 拆分为 buildQueryParams + transformQuestionRecord
+- [x] `SubmissionListView.vue` — `fetchData` 拆分为 buildQueryParams + transformSubmitRecord + parseJudgeInfo + getDisplayStatus
+- [x] `LanguageStats.vue` — `updateChart` 拆分为 buildChartOption + buildTooltipHtml
 
 ### 2.4 TypeScript 类型安全
 - [ ] 修复 `any` 类型滥用：`checkAccess.ts`、`store/user.ts`、`ContestListView.vue`、`ContestDetailView.vue`、`QuestionDetailsView.vue`、`QuestionAdminView.vue`、`SubmissionListView.vue`、`FeedbackView.vue` 等 12+ 处

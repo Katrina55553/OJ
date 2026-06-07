@@ -88,6 +88,7 @@ import checkAccess from "@/access/checkAccess";
 import ACCESS_ENUM from "@/access/ACCESS_ENUM";
 import { IconUser, IconExport, IconDown } from "@arco-design/web-vue/es/icon";
 import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
+import { UserControllerService } from "../../../generated/index";
 
 const router = useRouter();
 const store = useStore();
@@ -138,10 +139,15 @@ const toLogin = () => {
   router.push("/user/login");
 };
 
-const handleSelect = (value: string) => {
+const handleSelect = async (value: string) => {
   if (value === "userCenter") {
     router.push("/profile");
   } else if (value === "logout") {
+    try {
+      await UserControllerService.userLogoutUsingPost();
+    } catch {
+      // 即使后端调用失败，也清除本地状态
+    }
     store.commit("user/updateUser", {
       userName: "未登录",
       userRole: ACCESS_ENUM.NOT_LOGIN,
