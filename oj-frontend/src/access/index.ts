@@ -1,13 +1,15 @@
 import router from "@/router";
 import store from "@/store";
+import type { RootState } from "@/store";
 import ACCESS_ENUM from "@/access/ACCESS_ENUM";
 import checkAccess from "@/access/checkAccess";
 
 router.beforeEach(async (to, from, next) => {
-  let loginUser = store.state.user.loginUser;
+  const state = store.state as RootState;
+  let loginUser = state.user.loginUser;
   if (!loginUser || !loginUser.userRole) {
     await store.dispatch("user/getLoginUser");
-    loginUser = store.state.user.loginUser;
+    loginUser = (store.state as RootState).user.loginUser;
   }
   const needAccess = (to.meta?.access as string) ?? ACCESS_ENUM.NOT_LOGIN;
   if (needAccess !== ACCESS_ENUM.NOT_LOGIN) {

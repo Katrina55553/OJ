@@ -35,9 +35,9 @@
 - [x] `LanguageStats.vue` — `updateChart` 拆分为 buildChartOption + buildTooltipHtml
 
 ### 2.4 TypeScript 类型安全
-- [ ] 修复 `any` 类型滥用：`checkAccess.ts`、`store/user.ts`、`ContestListView.vue`、`ContestDetailView.vue`、`QuestionDetailsView.vue`、`QuestionAdminView.vue`、`SubmissionListView.vue`、`FeedbackView.vue` 等 12+ 处
-- [ ] `LanguageStats.vue` 补充 `lang="ts"` 和类型注解
-- [ ] 用类型守卫替代不安全的类型断言（`QuestionDetailsView.vue:299`、`QuestionEditModal.vue:259`）
+- [x] 修复 `any` 类型滥用（8 个文件，添加 LoginUser/UserState/QuestionDetail/RunResult/ContestInfo/SubmitRecord 等接口）
+- [x] `LanguageStats.vue` 补充 `lang="ts"` 和类型注解（项 2.3 已完成）
+- [x] 用类型守卫替代不安全的类型断言（QuestionEditModal.vue）
 
 ### 2.5 清理调试代码
 - [x] 移除前端所有 `console.log`（8 处）
