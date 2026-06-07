@@ -32,11 +32,10 @@ public class JdoodleApiClient {
 
     private static final String JD_API_URL = "https://api.jdoodle.com/v1/execute";
 
-    // 验证配置是否加载
     @PostConstruct
     public void validateConfig() {
         if (StrUtil.isBlank(clientId) || StrUtil.isBlank(clientSecret)) {
-            throw new IllegalStateException("JDoodle clientId or clientSecret is missing in application.properties");
+            log.warn("JDoodle clientId 或 clientSecret 未配置，判题功能将不可用。请设置环境变量 JDOODLE_CLIENT_ID 和 JDOODLE_CLIENT_SECRET");
         }
     }
 
@@ -44,6 +43,9 @@ public class JdoodleApiClient {
      * 执行代码（支持多测试用例）
      */
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest request) {
+        if (StrUtil.isBlank(clientId) || StrUtil.isBlank(clientSecret)) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "JDoodle API 未配置，请设置环境变量 JDOODLE_CLIENT_ID 和 JDOODLE_CLIENT_SECRET");
+        }
         List<String> inputList = request.getInputList();
         List<String> outputList = new ArrayList<>();
         long totalCpuTime = 0;
