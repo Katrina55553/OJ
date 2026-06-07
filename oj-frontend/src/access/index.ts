@@ -4,8 +4,6 @@ import ACCESS_ENUM from "@/access/ACCESS_ENUM";
 import checkAccess from "@/access/checkAccess";
 
 router.beforeEach(async (to, from, next) => {
-  console.log(store.state.user.loginUser);
-
   let loginUser = store.state.user.loginUser;
   if (!loginUser || !loginUser.userRole) {
     await store.dispatch("user/getLoginUser");

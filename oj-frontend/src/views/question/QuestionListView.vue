@@ -156,8 +156,6 @@ const loadData = async () => {
       tags: queryTags.length > 0 ? queryTags : undefined,
     };
 
-    console.log("正在请求 API, 参数:", requestBody);
-
     const res = await QuestionControllerService.listQuestionVoByPageUsingPost(
       requestBody
     );

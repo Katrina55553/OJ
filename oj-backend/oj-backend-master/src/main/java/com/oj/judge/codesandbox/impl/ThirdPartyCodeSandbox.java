@@ -10,7 +10,6 @@ import com.oj.judge.codesandbox.model.ExecuteCodeResponse;
 public class ThirdPartyCodeSandbox implements CodeSandbox {
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest executeCodeRequest) {
-        System.out.println("第三方代码沙箱");
-        return null;
+        throw new UnsupportedOperationException("第三方代码沙箱未实现");
     }
 }

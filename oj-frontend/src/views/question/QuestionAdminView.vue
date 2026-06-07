@@ -115,8 +115,6 @@ const loadData = async () => {
       tags: finalTags.length > 0 ? finalTags : undefined,
     };
 
-    console.log("管理员搜索参数:", queryParams); // 调试用
-
     const res = await QuestionControllerService.listQuestionByPageUsingPost(
       queryParams
     );

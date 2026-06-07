@@ -199,8 +199,6 @@ const sendMessage = async () => {
   let aiContent = "";
 
   eventSource.onmessage = (event) => {
-    console.log("收到 SSE 消息:", event.data);
-    console.log("AI 内容已更新为:", messages.value[aiIndex].content);
     aiContent += event.data;
     messages.value[aiIndex].content = aiContent;
     scrollToBottom();

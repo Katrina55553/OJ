@@ -25,7 +25,6 @@ const store = useStore();
  * 全局初始化函数 每次刷新页面都会执行
  */
 const doInit = () => {
-  console.log("App 启动，尝试获取登录用户信息...");
   store.dispatch("user/getLoginUser");
 };
 

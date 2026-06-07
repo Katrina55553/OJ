@@ -221,10 +221,7 @@ const currentLanguage = ref("");
 const currentSource = ref("");
 
 const getStatusColor = (status: string) => {
-  console.log("获取状态颜色:", status); // 添加调试
-  const color = STATUS_MAP[status]?.color || "gray";
-  console.log("返回颜色:", color);
-  return color;
+  return STATUS_MAP[status]?.color || "gray";
 };
 
 const formatMemory = (kb?: number) => {

@@ -14,12 +14,14 @@ import com.oj.model.entity.QuestionSubmit;
 import com.oj.model.enums.QuestionSubmitStatusEnum;
 import com.oj.service.QuestionService;
 import com.oj.service.QuestionSubmitService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class JudgeServiceImpl implements JudgeService {
 
@@ -69,9 +71,9 @@ public class JudgeServiceImpl implements JudgeService {
             List<JudgeCase> judgeCaseList = JSONUtil.toList(judgeCaseStr, JudgeCase.class);
             List<String> inputList = judgeCaseList.stream().map(JudgeCase::getInput).collect(Collectors.toList());
 
-            System.out.println("测试用例输入: " + inputList);
+            log.debug("测试用例输入: {}", inputList);
 
-            // 5）调用 Piston API 执行代码
+            // 5）调用 JDoodle API 执行代码
             ExecuteCodeRequest executeCodeRequest = ExecuteCodeRequest.builder()
                     .code(questionSubmit.getCode())
                     .language(questionSubmit.getLanguage())
@@ -80,15 +82,15 @@ public class JudgeServiceImpl implements JudgeService {
 
             ExecuteCodeResponse executeCodeResponse = jdoodleApiClient.executeCode(executeCodeRequest);
 
-            System.out.println("Piston 执行结果: " + JSONUtil.toJsonStr(executeCodeResponse));
+            log.debug("JDoodle 执行结果: {}", JSONUtil.toJsonStr(executeCodeResponse));
 
             // 6）获取期望输出列表
             List<String> expectedOutputList = judgeCaseList.stream()
                     .map(JudgeCase::getOutput)
                     .collect(Collectors.toList());
 
-            System.out.println("期望输出: " + expectedOutputList);
-            System.out.println("实际输出: " + executeCodeResponse.getOutputList());
+            log.debug("期望输出: {}", expectedOutputList);
+            log.debug("实际输出: {}", executeCodeResponse.getOutputList());
 
             // 7）判题
             JudgeContext judgeContext = new JudgeContext();
@@ -102,7 +104,7 @@ public class JudgeServiceImpl implements JudgeService {
 
             JudgeInfo judgeInfo = judgeManager.doJudge(judgeContext);
 
-            System.out.println("判题结果: " + JSONUtil.toJsonStr(judgeInfo));
+            log.debug("判题结果: {}", JSONUtil.toJsonStr(judgeInfo));
 
             // 8）更新数据库
             questionSubmitUpdate = new QuestionSubmit();
