@@ -1,17 +1,30 @@
-import { StoreOptions } from "vuex";
 import ACCESS_ENUM from "@/access/ACCESS_ENUM";
 import { UserControllerService } from "../../generated";
 
+interface UserState {
+  loginUser: {
+    userName: string;
+    userRole: string;
+    [key: string]: unknown;
+  };
+}
+
 export default {
   namespaced: true,
-  state: () => ({
+  state: (): UserState => ({
     loginUser: {
       userName: "未登录",
       userRole: ACCESS_ENUM.NOT_LOGIN,
     },
   }),
   actions: {
-    async getLoginUser({ commit, state }, payload) {
+    async getLoginUser({
+      commit,
+      state,
+    }: {
+      commit: (type: string, payload?: unknown) => void;
+      state: UserState;
+    }) {
       try {
         const res = await UserControllerService.getLoginUserUsingGet();
         if (res.code === 0) {
@@ -22,7 +35,7 @@ export default {
             userRole: ACCESS_ENUM.NOT_LOGIN,
           });
         }
-      } catch (error) {
+      } catch {
         commit("updateUser", {
           ...state.loginUser,
           userRole: ACCESS_ENUM.NOT_LOGIN,
@@ -31,8 +44,8 @@ export default {
     },
   },
   mutations: {
-    updateUser(state, payload) {
+    updateUser(state: UserState, payload: UserState["loginUser"]) {
       state.loginUser = payload;
     },
   },
-} as StoreOptions<any>;
+};

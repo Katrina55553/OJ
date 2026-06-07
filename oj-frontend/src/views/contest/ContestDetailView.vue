@@ -127,12 +127,30 @@ import { difficultyColor } from "@/utils/question";
 // TODO: 接口引入
 // import { ContestControllerService } from "@/generated";
 
+interface ContestInfo {
+  id: number;
+  title: string;
+  description: string;
+  status: string;
+  startTime: string;
+  endTime: string;
+  [key: string]: unknown;
+}
+
+interface ContestProblem {
+  id: number;
+  title: string;
+  difficulty: string;
+  status: string;
+  [key: string]: unknown;
+}
+
 const route = useRoute();
 const router = useRouter();
 const contestId = Number(route.params.id);
 
-const contest = ref<any>({});
-const problemList = ref<any[]>([]);
+const contest = ref<ContestInfo>({} as ContestInfo);
+const problemList = ref<ContestProblem[]>([]);
 
 const progressPercent = computed(() => {
   if (contest.value.status === "已结束") return 100;

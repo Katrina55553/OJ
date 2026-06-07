@@ -21,10 +21,9 @@ app.use(store);
 app.use(ArcoVueIcon);
 
 // 全局错误处理
-app.config.errorHandler = (err: any, vm, info) => {
-  console.error("🔥 Vue Error:", err);
-  console.error("🔥 Info:", info);
-  console.trace(err);
+app.config.errorHandler = (err: unknown, vm, info) => {
+  console.error("Vue Error:", err);
+  console.error("Info:", info);
 };
 
 // 挂载应用

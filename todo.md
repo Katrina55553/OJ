@@ -87,7 +87,7 @@
 - [ ] `HomeView.vue` — 当前仅为占位 `<h1>aaa</h1>`，需实现首页内容（推荐题目、公告、统计概览等）
 - [ ] `AdminView.vue` — 仅显示"管理员可见"，需实现管理员仪表盘
 - [ ] `NoAuthView.vue` — 仅显示"你没权限"，需设计友好的无权限页面
-- [ ] 缺少 404 页面 — 创建 `NotFoundView.vue`
+- [x] 缺少 404 页面 — 已创建 `NotFoundView.vue`（项 3.3）
 - [ ] `QuestionDiscussionView.vue` — 讨论功能使用硬编码模拟数据，需对接后端 API
 - [ ] `ContestListView.vue` / `ContestDetailView.vue` — 比赛功能使用硬编码数据，需对接后端
 - [ ] `FeedbackView.vue` — 反馈功能前端就绪，后端接口待实现

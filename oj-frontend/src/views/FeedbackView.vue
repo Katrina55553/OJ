@@ -164,8 +164,14 @@ const customUpload = (option: RequestOption) => {
 };
 
 // 提交表单
-const handleSubmit = async ({ errors, values }: any) => {
-  if (errors) return; // 验证未通过
+const handleSubmit = async ({
+  errors,
+  values,
+}: {
+  errors: Record<string, unknown> | null;
+  values: Record<string, unknown>;
+}) => {
+  if (errors) return;
 
   submitting.value = true;
   try {

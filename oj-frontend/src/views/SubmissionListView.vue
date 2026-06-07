@@ -199,8 +199,24 @@ const STATUS_MAP: Record<string, { color: string; hex: string }> = {
   Judging: { color: "arcoblue", hex: "#526ecc" },
 };
 
+interface SubmitRecord {
+  id: number;
+  problemId: number;
+  problemTitle: string;
+  username: string;
+  userAvatar: string;
+  status: string;
+  language: string;
+  timeCost: number;
+  memoryCost: number;
+  codeLength: number;
+  submitTime: string;
+  code: string;
+  judgeInfo: Record<string, unknown> | null;
+}
+
 const loading = ref(false);
-const renderData = ref<any[]>([]);
+const renderData = ref<SubmitRecord[]>([]);
 
 const pagination = reactive({
   current: 1,

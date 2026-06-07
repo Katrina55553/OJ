@@ -154,6 +154,27 @@ import {
   parseJsonArray,
 } from "@/utils/question";
 
+interface QuestionDetail {
+  id: number;
+  title: string;
+  content: string;
+  tags: string[];
+  difficulty: string;
+  passRate: number;
+  timeLimit: number;
+  memoryLimit: number;
+  submitNum: number;
+  acceptedNum: number;
+}
+
+interface RunResult {
+  status: string;
+  stdout: string;
+  stderr: string;
+  time: number;
+  memory: number;
+}
+
 const route = useRoute();
 const router = useRouter();
 const id = Number(route.params.id);
@@ -161,11 +182,11 @@ const id = Number(route.params.id);
 const loading = ref(true);
 const submitting = ref(false);
 const running = ref(false);
-const question = ref<any>(null);
+const question = ref<QuestionDetail | null>(null);
 const language = ref("cpp");
 const code = ref("");
 const customInput = ref("");
-const runResult = ref<any>(null);
+const runResult = ref<RunResult | null>(null);
 
 const loadQuestion = async () => {
   if (!id || isNaN(id)) {

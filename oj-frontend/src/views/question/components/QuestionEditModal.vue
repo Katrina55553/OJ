@@ -227,7 +227,7 @@ watch(
       title: newVal.title || "",
       content: newVal.content || "",
       tags: otherTags,
-      difficulty: foundDifficulty as any,
+      difficulty: (foundDifficulty as "简单" | "中等" | "困难") || "简单",
       answer: newVal.answer || "",
       timeLimit: newVal.timeLimit || 1000,
       memoryLimit: newVal.memoryLimit || 256,
