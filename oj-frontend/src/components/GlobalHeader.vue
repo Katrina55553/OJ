@@ -88,7 +88,7 @@ import checkAccess from "@/access/checkAccess";
 import ACCESS_ENUM from "@/access/ACCESS_ENUM";
 import { IconUser, IconExport, IconDown } from "@arco-design/web-vue/es/icon";
 import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
-import { UserControllerService } from "../../../generated/index";
+import { UserControllerService } from "@/generated/index";
 
 const router = useRouter();
 const store = useStore();

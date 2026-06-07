@@ -68,9 +68,9 @@
 - [ ] 实现全局 API 错误拦截器和统一的 loading 状态管理
 
 ### 3.3 路由完善
-- [ ] 添加 404 catch-all 路由（当前访问不存在的路径显示空白页）
-- [ ] 审查并补充缺失的 `meta.access` 权限定义：`/question`、`/competition`、`/profile`、`/ai/assistant`、`/question/:id`、`/contest/:id`、`/submit/view/:id`
-- [ ] 退出登录需调用后端接口销毁 Session，而非仅清除客户端状态
+- [x] 添加 404 catch-all 路由 + NotFoundView.vue
+- [x] 补充 7 个路由的 meta.access 权限定义
+- [x] 退出登录调用后端 /api/user/logout 销毁 Session
 
 ### 3.4 后端架构改进
 - [ ] 统一 API 路径风格：`/question_submit/do` 和 `/question_submit/list/page` 不一致
