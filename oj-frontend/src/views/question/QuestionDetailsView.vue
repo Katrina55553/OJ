@@ -148,7 +148,11 @@ import {
 import LanguageCodeEditor from "@/components/LanguageCodeEditor.vue";
 import MdPreview from "@/components/MdPreview.vue";
 import axios, { AxiosError } from "axios";
-import { difficultyColor, parseJudgeConfig, parseJsonArray } from "@/utils/question";
+import {
+  difficultyColor,
+  parseJudgeConfig,
+  parseJsonArray,
+} from "@/utils/question";
 
 const route = useRoute();
 const router = useRouter();

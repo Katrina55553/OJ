@@ -199,10 +199,7 @@ const localForm = ref({
 
 const judgeCasesJson = ref("[]");
 
-const allTags = ALL_TAGS;
-const algorithmTags = ALL_TAGS.filter(
-  (tag) => !DIFFICULTY_TAGS.includes(tag)
-);
+const algorithmTags = ALL_TAGS.filter((tag) => !DIFFICULTY_TAGS.includes(tag));
 
 const formRules = {
   title: [{ required: true, message: "请输入题目标题" }],
