@@ -1,13 +1,15 @@
-# Docker 镜像构建
-FROM maven:3.8.1-jdk-8-slim as builder
-
-# Copy local code to the container image.
+# 构建阶段
+FROM maven:3.8-eclipse-temurin-17 AS builder
 WORKDIR /app
 COPY pom.xml .
+RUN mvn dependency:go-offline -B
 COPY src ./src
+RUN mvn package -DskipTests -B
 
-# Build a release artifact.
-RUN mvn package -DskipTests
-
-# Run the web service on container startup.
-CMD ["java","-jar","/app/target/oj-backend-0.0.1-SNAPSHOT.jar","--spring.profiles.active=prod"]
+# 运行阶段
+FROM eclipse-temurin:17-jre-alpine
+WORKDIR /app
+COPY --from=builder /app/target/oj-backend-0.0.1-SNAPSHOT.jar app.jar
+EXPOSE 8101
+ENTRYPOINT ["java", "-jar", "app.jar"]
+CMD ["--spring.profiles.active=prod"]
