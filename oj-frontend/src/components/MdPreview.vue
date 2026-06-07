@@ -14,7 +14,7 @@ import "katex/dist/katex.min.css";
 let md: MarkdownIt;
 
 md = new MarkdownIt({
-  html: true,
+  html: false, // 禁用原始 HTML 渲染，防止 XSS 注入
   linkify: true,
   typographer: true,
   breaks: true,

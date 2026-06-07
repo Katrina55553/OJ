@@ -7,13 +7,13 @@
 - [x] 清理 git 历史中的敏感信息（需用 `git filter-repo` 或 BFG）
 
 ### 1.2 前端 XSS 风险
-- [ ] `MdPreview.vue` — `markdown-it` 启用了 `html: true`，用户提交的 Markdown 可注入任意脚本。建议：禁用 `html` 选项，或引入 DOMPurify 对输出做 sanitize
-- [ ] `LanguageStats.vue` ECharts tooltip 使用 HTML 模板字符串拼接用户输入 — 对 `params.name` 做转义
+- [x] `MdPreview.vue` — `markdown-it` 启用了 `html: true`，用户提交的 Markdown 可注入任意脚本。建议：禁用 `html` 选项，或引入 DOMPurify 对输出做 sanitize
+- [x] `LanguageStats.vue` ECharts tooltip 使用 HTML 模板字符串拼接用户输入 — 对 `params.name` 做转义
 
 ### 1.3 安全机制缺失
-- [ ] 后端无 CSRF 防护 — Spring Session 场景下需配置 CSRF Token
+- [x] 后端无 CSRF 防护 — Spring Session 场景下需配置 CSRF Token
 - [ ] 前端无 Content Security Policy (CSP) — 在 `vue.config.js` 或 nginx 层添加 CSP 响应头
-- [ ] `DailyCheckIn.vue.vue` — 签到状态存在 `localStorage`，用户可篡改 — 改为后端校验
+- [x] `DailyCheckIn.vue.vue` — 签到状态存在 `localStorage`，用户可篡改 — 已移除该组件
 - [ ] `QuestionDetailModal.vue` — 普通用户也能看到参考答案 — 后端接口需做权限过滤
 
 ---
@@ -44,7 +44,7 @@
 - [ ] 移除后端 `JudgeServiceImpl.java`、`QuestionSubmitController.java`、`QuestionController.java` 中的 `System.out.println` 调试输出
 
 ### 2.6 文件命名修复
-- [ ] `DailyCheckIn.vue.vue` → 重命名为 `DailyCheckIn.vue`（双后缀）
+- [x] `DailyCheckIn.vue.vue` → 已移除该组件
 
 ### 2.7 修复语法错误（后端）
 - [ ] `CodeController.java:29` — 方法名和括号不匹配（`doCodeExecutionByCodeSandBox(... {`）
@@ -123,7 +123,7 @@
 
 ### 5.2 可访问性
 - [ ] `ThemeSwitcher.vue` — 添加 `aria-label`
-- [ ] `DailyCheckIn.vue.vue` — 添加 `aria-label`
+- [x] `DailyCheckIn.vue.vue` — 已移除该组件
 - [ ] `UserLayout.vue:6` — 图片 `alt` 属性为空字符串，改为有意义的描述
 - [ ] `AIAssistantView.vue` — 聊天输入框添加 `aria-label`
 - [ ] `LanguageStats.vue` — 原生 HTML 控件改为 Arco Design 组件

@@ -35,9 +35,6 @@
     <a-col flex="180px">
       <div class="right-actions">
         <a-space size="large">
-          <!-- 每日签到组件 -->
-          <DailyCheckIn />
-
           <!-- 已登录状态 -->
           <div v-if="isLogin">
             <a-dropdown @select="handleSelect">
@@ -89,7 +86,6 @@ import { useStore } from "vuex";
 import { routes } from "@/router/routes";
 import checkAccess from "@/access/checkAccess";
 import ACCESS_ENUM from "@/access/ACCESS_ENUM";
-import DailyCheckIn from "@/components/DailyCheckIn.vue";
 import { IconUser, IconExport, IconDown } from "@arco-design/web-vue/es/icon";
 import ThemeSwitcher from "@/components/ThemeSwitcher.vue";
 

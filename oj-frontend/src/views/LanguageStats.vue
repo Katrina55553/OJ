@@ -218,6 +218,17 @@ const fetchData = async () => {
   }
 };
 
+/** 转义 HTML 特殊字符，防止 XSS */
+const escapeHtml = (str: string): string => {
+  if (!str) return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#39;");
+};
+
 const updateChart = () => {
   if (!chartRef.value) return;
 
@@ -249,9 +260,10 @@ const updateChart = () => {
       trigger: "item",
       formatter: (params) => {
         const percent = params.percent;
+        const safeName = escapeHtml(params.name);
         return `
           <div style="padding:8px 12px;font-family:system-ui">
-            <div style="font-weight:600;margin-bottom:4px">${params.name}</div>
+            <div style="font-weight:600;margin-bottom:4px">${safeName}</div>
             <div style="color:#666;font-size:13px">
               提交数：<strong style="color:#333">${params.value}</strong> 次
             </div>
