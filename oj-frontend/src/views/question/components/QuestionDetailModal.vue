@@ -67,6 +67,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { difficultyColor as getDifficultyColor } from "@/utils/question";
 
 const props = defineProps<{
   visible: boolean;
@@ -91,20 +92,6 @@ const visible = computed({
   get: () => props.visible,
   set: (val) => emit("update:visible", val),
 });
-
-// 难度颜色
-const getDifficultyColor = (difficulty: string) => {
-  switch (difficulty) {
-    case "简单":
-      return "green";
-    case "中等":
-      return "orange";
-    case "困难":
-      return "red";
-    default:
-      return "gray";
-  }
-};
 
 // 关闭模态框
 const handleCancel = () => {

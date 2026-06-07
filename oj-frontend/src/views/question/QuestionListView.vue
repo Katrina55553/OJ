@@ -111,6 +111,7 @@ import { IconCodeSquare, IconEdit } from "@arco-design/web-vue/es/icon";
 import { Message } from "@arco-design/web-vue";
 import QuestionSearchForm from "./components/QuestionSearchForm.vue";
 import { QuestionControllerService } from "../../../generated/index";
+import { difficultyColor, calculatePassRate } from "@/utils/question";
 
 const loading = ref(true);
 provide("questionListLoading", loading);
@@ -181,11 +182,6 @@ const loadData = async () => {
   }
 };
 
-const calculatePassRate = (acceptNum: number, submitNum: number): number => {
-  if (!submitNum || submitNum === 0) return 0;
-  return Math.round((acceptNum / submitNum) * 100 * 100) / 100;
-};
-
 onMounted(() => {
   loadData();
 });
@@ -202,13 +198,6 @@ const onPageChange = (page: number) => {
 
 const toProblemDetail = (id: number) => {
   router.push(`/question/${id}`);
-};
-
-const difficultyColor = (difficulty: string) => {
-  if (difficulty === "简单") return "green";
-  if (difficulty === "中等") return "orange";
-  if (difficulty === "困难") return "red";
-  return "gray";
 };
 </script>
 

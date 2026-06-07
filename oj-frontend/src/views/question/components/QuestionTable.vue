@@ -79,6 +79,7 @@
 <script setup lang="ts">
 import { IconEdit, IconEye, IconDelete } from "@arco-design/web-vue/es/icon";
 import type { TableColumnData } from "@arco-design/web-vue";
+import { difficultyColor as getDifficultyColor } from "@/utils/question";
 
 interface QuestionRecord {
   id: number;
@@ -110,20 +111,6 @@ const emit = defineEmits<{
   view: [record: QuestionRecord];
   delete: [record: QuestionRecord];
 }>();
-
-// 难度颜色函数
-const getDifficultyColor = (difficulty: string): string => {
-  switch (difficulty) {
-    case "简单":
-      return "green";
-    case "中等":
-      return "orange";
-    case "困难":
-      return "red";
-    default:
-      return "gray";
-  }
-};
 
 // 表格列定义（重点：题号列使用 pagination 和 rowIndex）
 const columns: TableColumnData[] = [

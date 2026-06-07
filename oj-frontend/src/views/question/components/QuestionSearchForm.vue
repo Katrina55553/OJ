@@ -71,6 +71,7 @@
 <script setup lang="ts">
 import { ref, watch, inject } from "vue";
 import { IconSearch, IconRotateLeft } from "@arco-design/web-vue/es/icon";
+import { ALGORITHM_TAGS } from "@/constants/question";
 
 const loading = inject("questionListLoading", ref(false));
 
@@ -91,29 +92,7 @@ const emit = defineEmits<{
 
 const formModel = ref({ ...props.modelValue });
 
-const allTags = [
-  "数组",
-  "字符串",
-  "链表",
-  "树",
-  "图论",
-  "动态规划",
-  "回溯",
-  "贪心",
-  "二分查找",
-  "栈",
-  "队列",
-  "哈希表",
-  "堆",
-  "排序",
-  "双指针",
-  "滑动窗口",
-  "前缀和",
-  "位运算",
-  "数学",
-  "矩阵",
-  "模拟",
-];
+const allTags = ALGORITHM_TAGS;
 
 watch(
   formModel,

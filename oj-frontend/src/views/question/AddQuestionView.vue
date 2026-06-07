@@ -137,6 +137,7 @@ import type { QuestionAddRequest } from "../../../generated";
 import type { FormInstance } from "@arco-design/web-vue";
 import MdEditor from "@/components/MdEditor.vue";
 import CodeEditor from "@/components/CodeEditor.vue";
+import { ALL_TAGS } from "@/constants/question";
 
 const router = useRouter();
 const formRef = ref<FormInstance>();
@@ -163,29 +164,7 @@ const formRules = {
   memoryLimit: [{ required: true, message: "请设置内存限制" }],
 };
 
-const allTags = [
-  "数组",
-  "字符串",
-  "链表",
-  "树",
-  "图论",
-  "动态规划",
-  "回溯",
-  "贪心",
-  "二分查找",
-  "栈",
-  "队列",
-  "哈希表",
-  "堆",
-  "排序",
-  "双指针",
-  "滑动窗口",
-  "前缀和",
-  "位运算",
-  "数学",
-  "矩阵",
-  "模拟",
-];
+const allTags = ALL_TAGS;
 
 const handleSubmit = async () => {
   try {

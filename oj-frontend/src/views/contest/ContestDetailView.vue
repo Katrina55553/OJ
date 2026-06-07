@@ -122,6 +122,7 @@ import {
   IconMinus,
   IconCode,
 } from "@arco-design/web-vue/es/icon";
+import { difficultyColor } from "@/utils/question";
 
 // TODO: 接口引入
 // import { ContestControllerService } from "@/generated";
@@ -194,12 +195,6 @@ const loadProblems = async () => {
 
 const goQuestion = (id: number) => {
   router.push(`/question/${id}?contestId=${contestId}`);
-};
-
-const difficultyColor = (d: string) => {
-  if (d === "简单") return "green";
-  if (d === "中等") return "orange";
-  return "red";
 };
 
 onMounted(() => {

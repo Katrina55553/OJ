@@ -147,6 +147,7 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from "vue";
 import { Message, type FormInstance } from "@arco-design/web-vue";
+import { ALL_TAGS, DIFFICULTY_TAGS } from "@/constants/question";
 import { QuestionControllerService } from "../../../../generated";
 import type {
   QuestionUpdateRequest,
@@ -198,35 +199,9 @@ const localForm = ref({
 
 const judgeCasesJson = ref("[]");
 
-const allTags = [
-  "简单",
-  "中等",
-  "困难",
-  "数组",
-  "字符串",
-  "链表",
-  "树",
-  "图论",
-  "动态规划",
-  "回溯",
-  "贪心",
-  "二分查找",
-  "栈",
-  "队列",
-  "哈希表",
-  "堆",
-  "排序",
-  "双指针",
-  "滑动窗口",
-  "前缀和",
-  "位运算",
-  "数学",
-  "矩阵",
-  "模拟",
-];
-
-const algorithmTags = allTags.filter(
-  (tag) => !["简单", "中等", "困难"].includes(tag)
+const allTags = ALL_TAGS;
+const algorithmTags = ALL_TAGS.filter(
+  (tag) => !DIFFICULTY_TAGS.includes(tag)
 );
 
 const formRules = {
@@ -245,11 +220,10 @@ watch(
   (newVal) => {
     if (!newVal) return;
 
-    const difficultyTags = ["简单", "中等", "困难"];
     const foundDifficulty =
-      difficultyTags.find((tag) => newVal.tags?.includes(tag)) || "简单";
+      DIFFICULTY_TAGS.find((tag) => newVal.tags?.includes(tag)) || "简单";
     const otherTags =
-      newVal.tags?.filter((tag) => !difficultyTags.includes(tag)) || [];
+      newVal.tags?.filter((tag) => !DIFFICULTY_TAGS.includes(tag)) || [];
 
     localForm.value = {
       id: newVal.id || 0,

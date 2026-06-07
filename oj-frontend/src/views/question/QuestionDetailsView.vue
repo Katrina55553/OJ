@@ -148,6 +148,7 @@ import {
 import LanguageCodeEditor from "@/components/LanguageCodeEditor.vue";
 import MdPreview from "@/components/MdPreview.vue";
 import axios, { AxiosError } from "axios";
+import { difficultyColor, parseJudgeConfig, parseJsonArray } from "@/utils/question";
 
 const route = useRoute();
 const router = useRouter();
@@ -162,38 +163,6 @@ const code = ref("");
 const customInput = ref("");
 const runResult = ref<any>(null);
 
-// 安全解析 tags
-const parseTags = (tags: any): string[] => {
-  if (Array.isArray(tags)) return tags;
-  if (typeof tags === "string") {
-    try {
-      return JSON.parse(tags) || [];
-    } catch {
-      return [];
-    }
-  }
-  return [];
-};
-
-// 安全解析 judgeConfig
-const toJudgeConfig = (config: any) => {
-  if (!config) return { timeLimit: 1000, memoryLimit: 256 };
-  if (typeof config === "string") {
-    try {
-      return JSON.parse(config);
-    } catch {
-      return { timeLimit: 1000, memoryLimit: 256 };
-    }
-  }
-  return config;
-};
-
-const difficultyColor = (diff: string) => {
-  if (diff === "简单") return "green";
-  if (diff === "中等") return "orange";
-  return "red";
-};
-
 const loadQuestion = async () => {
   if (!id || isNaN(id)) {
     Message.error("无效的题目 ID");
@@ -206,9 +175,9 @@ const loadQuestion = async () => {
 
     if (res.code === 0 && res.data) {
       const data = res.data;
-      const judgeConfig = toJudgeConfig(data.judgeConfig);
+      const judgeConfig = parseJudgeConfig(data.judgeConfig);
 
-      const allTags = parseTags(data.tags);
+      const allTags = parseJsonArray<string>(data.tags);
       const difficultyKeywords = ["简单", "中等", "困难"];
       const difficultyTag =
         allTags.find((tag) => difficultyKeywords.includes(tag)) || "未知";

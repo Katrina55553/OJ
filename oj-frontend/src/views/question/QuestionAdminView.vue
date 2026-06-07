@@ -64,6 +64,7 @@ import QuestionEditModal from "@/views/question/components/QuestionEditModal.vue
 import QuestionDetailModal from "@/views/question/components/QuestionDetailModal.vue";
 
 import { QuestionControllerService } from "../../../generated/index";
+import { calculatePassRate, parseJudgeConfig } from "@/utils/question";
 import type {
   QuestionQueryRequest,
   DeleteRequest,
@@ -145,8 +146,8 @@ const loadData = async () => {
             item.submitNum || 0
           ),
           answer: item.answer || "",
-          timeLimit: getTimeLimitFromConfig(item.judgeConfig),
-          memoryLimit: getMemoryLimitFromConfig(item.judgeConfig),
+          timeLimit: parseJudgeConfig(item.judgeConfig).timeLimit,
+          memoryLimit: parseJudgeConfig(item.judgeConfig).memoryLimit,
           judgeCases: item.judgeCase ? JSON.parse(item.judgeCase) : [],
           updateTime: item.updateTime || new Date().toISOString(),
         };
@@ -208,36 +209,6 @@ const formData = reactive({
 
 const currentDetail = ref<any>(null);
 
-// 工具函数
-const calculatePassRate = (acceptedNum: number, submitNum: number): number => {
-  if (!submitNum || submitNum === 0) return 0;
-  return Math.round((acceptedNum / submitNum) * 10000) / 100;
-};
-
-const getTimeLimitFromConfig = (
-  judgeConfig: string | null | undefined
-): number => {
-  try {
-    if (!judgeConfig) return 1000;
-    const config = JSON.parse(judgeConfig);
-    return config.timeLimit || 1000;
-  } catch {
-    return 1000;
-  }
-};
-
-const getMemoryLimitFromConfig = (
-  judgeConfig: string | null | undefined
-): number => {
-  try {
-    if (!judgeConfig) return 256;
-    const config = JSON.parse(judgeConfig);
-    return config.memoryLimit || 256;
-  } catch {
-    return 256;
-  }
-};
-
 // 操作相关
 const handleAdd = () => {
   router.push("/question/add");
@@ -284,8 +255,8 @@ const handleView = async (record: any) => {
           res.data.acceptedNum || 0,
           res.data.submitNum || 0
         ),
-        timeLimit: getTimeLimitFromConfig(res.data.judgeConfig),
-        memoryLimit: getMemoryLimitFromConfig(res.data.judgeConfig),
+        timeLimit: parseJudgeConfig(res.data.judgeConfig).timeLimit,
+        memoryLimit: parseJudgeConfig(res.data.judgeConfig).memoryLimit,
         answer: res.data.answer || "",
       };
       detailVisible.value = true;
