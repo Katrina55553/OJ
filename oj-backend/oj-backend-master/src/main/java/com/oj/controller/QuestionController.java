@@ -3,6 +3,7 @@ package com.oj.controller;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
 import com.oj.annotation.AuthCheck;
+import com.oj.annotation.RateLimit;
 import com.oj.common.BaseResponse;
 import com.oj.common.DeleteRequest;
 import com.oj.common.ErrorCode;
@@ -303,6 +304,7 @@ public class QuestionController {
      * @return 提交记录的 id
      */
     @PostMapping("/question_submit/do")
+    @RateLimit(count = 10, windowSeconds = 60, key = "question_submit")
     public BaseResponse<Long> doQuestionSubmit(@RequestBody QuestionSubmitAddRequest questionSubmitAddRequest,
                                                HttpServletRequest request) {
         if (questionSubmitAddRequest == null || questionSubmitAddRequest.getQuestionId() <= 0) {

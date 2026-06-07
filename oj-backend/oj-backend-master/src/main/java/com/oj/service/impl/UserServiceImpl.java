@@ -15,9 +15,11 @@ import com.oj.model.vo.LoginUserVO;
 import com.oj.model.vo.UserVO;
 import com.oj.service.UserService;
 import com.oj.utils.JwtUtils;
+import com.oj.utils.RedisCacheUtils;
 import com.oj.utils.SqlUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -38,11 +40,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 盐值，混淆密码
      */
     private static final String SALT = "Katrina";
+    private static final String USER_CACHE_KEY = "user:id:";
+    private static final long USER_CACHE_EXPIRE_MINUTES = 30;
 
     private final JwtUtils jwtUtils;
+    private final RedisCacheUtils redisCacheUtils;
 
-    public UserServiceImpl(JwtUtils jwtUtils) {
+    public UserServiceImpl(JwtUtils jwtUtils, RedisCacheUtils redisCacheUtils) {
         this.jwtUtils = jwtUtils;
+        this.redisCacheUtils = redisCacheUtils;
     }
 
     @Override
@@ -137,6 +143,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 获取当前登录用户（从 JwtInterceptor 设置的 Request Attribute 中读取）
+     * 优先从 Redis 缓存获取，未命中再查数据库
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
@@ -144,10 +151,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userId == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-        User currentUser = this.getById(userId);
+
+        // 1. 先查缓存
+        String cacheKey = USER_CACHE_KEY + userId;
+        User currentUser = redisCacheUtils.get(cacheKey, User.class);
+        if (currentUser != null) {
+            return currentUser;
+        }
+
+        // 2. 缓存未命中，查数据库
+        currentUser = this.getById(userId);
         if (currentUser == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
+
+        // 3. 写入缓存
+        redisCacheUtils.set(cacheKey, currentUser, USER_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
         return currentUser;
     }
 
@@ -157,7 +176,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userId == null) {
             return null;
         }
-        return this.getById(userId);
+        // 先查缓存
+        String cacheKey = USER_CACHE_KEY + userId;
+        User user = redisCacheUtils.get(cacheKey, User.class);
+        if (user != null) {
+            return user;
+        }
+        // 缓存未命中，查数据库
+        user = this.getById(userId);
+        if (user != null) {
+            redisCacheUtils.set(cacheKey, user, USER_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+        }
+        return user;
     }
 
     @Override
@@ -177,6 +207,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public boolean userLogout(HttpServletRequest request) {
         return true;
+    }
+
+    @Override
+    public void clearUserCache(Long userId) {
+        if (userId != null) {
+            redisCacheUtils.delete(USER_CACHE_KEY + userId);
+        }
     }
 
     @Override

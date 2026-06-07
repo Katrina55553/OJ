@@ -2,6 +2,7 @@ package com.oj.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.oj.annotation.AuthCheck;
+import com.oj.annotation.RateLimit;
 import com.oj.common.BaseResponse;
 import com.oj.common.DeleteRequest;
 import com.oj.common.ErrorCode;
@@ -60,6 +61,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/register")
+    @RateLimit(count = 3, windowSeconds = 60, key = "user_register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
         if (userRegisterRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -82,6 +84,7 @@ public class UserController {
      * @return
      */
     @PostMapping("/login")
+    @RateLimit(count = 5, windowSeconds = 60, key = "user_login")
     public BaseResponse<LoginUserVO> userLogin(@RequestBody UserLoginRequest userLoginRequest, HttpServletRequest request) {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -303,6 +306,8 @@ public class UserController {
         user.setId(loginUser.getId());
         boolean result = userService.updateById(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
+        // 清除用户缓存
+        userService.clearUserCache(loginUser.getId());
         return ResultUtils.success(true);
     }
 }

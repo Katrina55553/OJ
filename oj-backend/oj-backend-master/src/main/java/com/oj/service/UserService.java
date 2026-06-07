@@ -85,6 +85,13 @@ public interface UserService extends IService<User> {
     boolean userLogout(HttpServletRequest request);
 
     /**
+     * 清除用户缓存
+     *
+     * @param userId 用户 ID
+     */
+    void clearUserCache(Long userId);
+
+    /**
      * 获取脱敏的已登录用户信息
      *
      * @return
