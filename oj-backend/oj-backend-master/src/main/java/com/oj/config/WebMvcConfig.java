@@ -18,16 +18,17 @@ public class WebMvcConfig implements WebMvcConfigurer {
 
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
+        // context-path 已经是 /api，拦截器匹配的是内部路径（不含 /api 前缀）
         registry.addInterceptor(jwtInterceptor)
-                .addPathPatterns("/api/**")
+                .addPathPatterns("/**")
                 .excludePathPatterns(
-                        "/api/user/login",
-                        "/api/user/register",
-                        "/api/doc.html",
-                        "/api/webjars/**",
-                        "/api/swagger-resources/**",
-                        "/api/v2/api-docs",
-                        "/api/v3/api-docs"
+                        "/user/login",
+                        "/user/register",
+                        "/doc.html",
+                        "/webjars/**",
+                        "/swagger-resources/**",
+                        "/v2/api-docs",
+                        "/v3/api-docs"
                 );
     }
 }
