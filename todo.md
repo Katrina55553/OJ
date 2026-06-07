@@ -47,9 +47,9 @@
 - [x] `DailyCheckIn.vue.vue` → 已移除该组件
 
 ### 2.7 修复语法错误（后端）
-- [ ] `CodeController.java:29` — 方法名和括号不匹配（`doCodeExecutionByCodeSandBox(... {`）
-- [ ] `CodeController.java:38` — 多余的右大括号 `}`
-- [ ] `QuestionSubmitQueryRequest.java:14` — 分号后缺少右大括号
+- [x] `CodeController.java` — 文件不存在，误报
+- [x] `QuestionSubmitQueryRequest.java` — 语法正确，误报
+- [x] `CodeExecutionController.java` — 已删除（硬编码密钥 + 与 JdoodleApiClient 重复）
 
 ---
 
