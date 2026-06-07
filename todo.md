@@ -21,13 +21,13 @@
 ## 二、代码质量（优先级：🟡 重要）
 
 ### 2.1 消除重复代码（前端）
-- [ ] 提取 `difficultyColor` 函数到 `src/utils/question.ts`（7 个文件重复）
-- [ ] 提取 `allTags` 常量到 `src/constants/question.ts`（3 个文件重复）
-- [ ] 提取 `calculatePassRate` 到 `src/utils/question.ts`（2 个文件重复）
-- [ ] 提取 `judgeConfig` 解析逻辑到 `src/utils/question.ts`（多处重复）
+- [x] 提取 `difficultyColor` 函数到 `src/utils/question.ts`（7 个文件重复）
+- [x] 提取 `allTags` 常量到 `src/constants/question.ts`（3 个文件重复）
+- [x] 提取 `calculatePassRate` 到 `src/utils/question.ts`（2 个文件重复）
+- [x] 提取 `judgeConfig` 解析逻辑到 `src/utils/question.ts`（多处重复）
 
 ### 2.2 消除重复代码（后端）
-- [ ] `AnswerServiceImpl.java` 中 `getJudgeInfo()` 重复实现 — 复用 `JudgeManager.doJudge()` 的逻辑
+- [x] `AnswerServiceImpl.java` — 文件不存在，跳过
 
 ### 2.3 拆分过长函数（前端）
 - [ ] `QuestionAdminView.vue` — `loadData`（70 行）拆分为请求 + JSON 解析 + 数据转换
