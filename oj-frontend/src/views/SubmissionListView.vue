@@ -259,80 +259,70 @@ const openCodeModal = (record: any) => {
   codeModalVisible.value = true;
 };
 
-// 核心：获取提交记录 + 补全题目名称 + 补全真实用户名 & 头像
+/** 解析 judgeInfo（兼容字符串和对象） */
+const parseJudgeInfo = (raw: any) => {
+  if (!raw) return null;
+  if (typeof raw === "string") {
+    try {
+      return JSON.parse(raw);
+    } catch {
+      return null;
+    }
+  }
+  return raw;
+};
+
+/** 根据 status 和 judgeInfo 确定显示状态 */
+const getDisplayStatus = (status: number, judgeInfo: any) => {
+  if (status === 2) return judgeInfo?.message || "Accepted";
+  if (status === 3) return "Wrong Answer";
+  if (status === 1) return "Judging";
+  if (status === 0) return "Pending";
+  return `Unknown(${status})`;
+};
+
+/** 将后端提交记录转为前端表格行 */
+const transformSubmitRecord = (item: any) => {
+  const judgeInfo = parseJudgeInfo(item.judgeInfo);
+  return {
+    id: item.id,
+    problemId: item.questionId,
+    problemTitle: item.questionVO?.title,
+    username: item.userVO?.userName || `用户${item.userId}`,
+    userAvatar: item.userVO?.userAvatar || "",
+    status: getDisplayStatus(item.status, judgeInfo),
+    language: item.language || "Unknown",
+    timeCost: item.status === 2 ? judgeInfo?.time || 0 : 0,
+    memoryCost: item.status === 2 ? judgeInfo?.memory || 0 : 0,
+    codeLength: item.code?.length || 0,
+    submitTime: item.createTime
+      ? dayjs(item.createTime).local().format("YYYY-MM-DD HH:mm:ss")
+      : "未知时间",
+    code: item.code,
+    judgeInfo,
+  };
+};
+
+/** 构造查询参数 */
+const buildQueryParams = (): QuestionSubmitQueryRequest => ({
+  current: pagination.current,
+  pageSize: pagination.pageSize,
+  questionId: formModel.problemId ? Number(formModel.problemId) : undefined,
+  status: formModel.status ? getStatusInt(formModel.status) : undefined,
+});
+
+/** 获取提交记录列表 */
 const fetchData = async () => {
   loading.value = true;
   try {
-    const queryRequest: QuestionSubmitQueryRequest = {
-      current: pagination.current,
-      pageSize: pagination.pageSize,
-      questionId: formModel.problemId ? Number(formModel.problemId) : undefined,
-      status: formModel.status ? getStatusInt(formModel.status) : undefined,
-    };
-
     const res =
       await QuestionControllerService.listQuestionSubmitByPageUsingPost(
-        queryRequest
+        buildQueryParams()
       );
 
     if (res.code === 0 && res.data) {
       const pageData = res.data;
-
-      renderData.value = pageData.records.map((item: any) => {
-        // 解析 judgeInfo
-        let judgeInfo = null;
-        let displayStatus = "Unknown";
-        let timeCost = 0;
-        let memoryCost = 0;
-
-        // 处理 judgeInfo
-        if (item.judgeInfo) {
-          if (typeof item.judgeInfo === "string") {
-            try {
-              judgeInfo = JSON.parse(item.judgeInfo);
-            } catch (e) {
-              console.warn("解析 judgeInfo 失败", e);
-            }
-          } else {
-            judgeInfo = item.judgeInfo;
-          }
-        }
-
-        // 关键：根据 status 和 judgeInfo 确定显示状态
-        if (item.status === 2) {
-          // 判题完成，从 judgeInfo 获取具体状态
-          displayStatus = judgeInfo?.message || "Accepted";
-          timeCost = judgeInfo?.time || 0;
-          memoryCost = judgeInfo?.memory || 0;
-        } else if (item.status === 3) {
-          displayStatus = "Wrong Answer";
-        } else if (item.status === 1) {
-          displayStatus = "Judging";
-        } else if (item.status === 0) {
-          displayStatus = "Pending";
-        } else {
-          displayStatus = `Unknown(${item.status})`;
-        }
-
-        return {
-          id: item.id,
-          problemId: item.questionId,
-          problemTitle: item.questionVO?.title,
-          username: item.userVO?.userName || `用户${item.userId}`,
-          userAvatar: item.userVO?.userAvatar || "",
-          status: displayStatus,
-          language: item.language || "Unknown",
-          timeCost: timeCost,
-          memoryCost: memoryCost,
-          codeLength: item.code?.length || 0,
-          submitTime: item.createTime
-            ? dayjs(item.createTime).local().format("YYYY-MM-DD HH:mm:ss")
-            : "未知时间",
-          code: item.code,
-          judgeInfo: judgeInfo,
-        };
-      });
-
+      renderData.value = pageData.records.map(transformSubmitRecord);
       pagination.total = pageData.total || 0;
       pagination.current = pageData.current || 1;
       pagination.pageSize = pageData.size || 20;
@@ -342,7 +332,6 @@ const fetchData = async () => {
       pagination.total = 0;
     }
   } catch (e: any) {
-    console.error("请求失败:", e);
     Message.error("请求失败");
     renderData.value = [];
   } finally {

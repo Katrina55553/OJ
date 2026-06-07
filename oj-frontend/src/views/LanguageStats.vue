@@ -229,6 +229,108 @@ const escapeHtml = (str: string): string => {
     .replace(/'/g, "&#39;");
 };
 
+/** 配色方案 */
+const CHART_COLORS = [
+  "#5470C6",
+  "#91CC75",
+  "#FAC858",
+  "#EE6666",
+  "#73C0DE",
+  "#3BA272",
+  "#FC8452",
+  "#9A60B4",
+];
+
+/** 生成饼图 tooltip HTML */
+const buildTooltipHtml = (params: any): string => {
+  const safeName = escapeHtml(params.name);
+  const color = CHART_COLORS[params.dataIndex % CHART_COLORS.length];
+  return `
+    <div style="padding:8px 12px;font-family:system-ui">
+      <div style="font-weight:600;margin-bottom:4px">${safeName}</div>
+      <div style="color:#666;font-size:13px">
+        提交数：<strong style="color:#333">${params.value}</strong> 次
+      </div>
+      <div style="color:#666;font-size:13px">
+        占比：<strong style="color:${color}">${params.percent}%</strong>
+      </div>
+    </div>
+  `;
+};
+
+/** 构造 ECharts 配置项 */
+const buildChartOption = () => ({
+  color: CHART_COLORS,
+  tooltip: {
+    trigger: "item",
+    formatter: buildTooltipHtml,
+    backgroundColor: "rgba(255,255,255,0.95)",
+    borderColor: "#eee",
+    borderWidth: 1,
+    textStyle: { color: "#333" },
+  },
+  legend: {
+    orient: "vertical",
+    right: "5%",
+    top: "middle",
+    type: "scroll",
+    itemWidth: 12,
+    itemHeight: 12,
+    formatter: (name: string) => {
+      const item = chartData.value.find((d) => d.name === name);
+      return item ? `${name} (${item.value})` : name;
+    },
+    textStyle: { color: "#666", fontSize: 12 },
+  },
+  series: [
+    {
+      name: "提交语言",
+      type: "pie",
+      radius: ["50%", "75%"],
+      center: ["40%", "50%"],
+      avoidLabelOverlap: true,
+      itemStyle: {
+        borderRadius: 10,
+        borderColor: "#fff",
+        borderWidth: 3,
+        shadowBlur: 10,
+        shadowColor: "rgba(0,0,0,0.1)",
+      },
+      label: {
+        show: true,
+        position: "outside",
+        formatter: "{b}",
+        fontSize: 12,
+        color: "#666",
+        fontWeight: 500,
+      },
+      labelLine: {
+        show: true,
+        length: 15,
+        length2: 20,
+        smooth: true,
+        lineStyle: { width: 1, color: "#ddd" },
+      },
+      emphasis: {
+        scale: true,
+        scaleSize: 10,
+        label: {
+          show: true,
+          fontSize: 14,
+          fontWeight: "bold",
+          formatter: "{b}\n{c}次 ({d}%)",
+        },
+        itemStyle: {
+          shadowBlur: 20,
+          shadowColor: "rgba(0,0,0,0.3)",
+        },
+      },
+      data: chartData.value,
+    },
+  ],
+});
+
+/** 更新图表 */
 const updateChart = () => {
   if (!chartRef.value) return;
 
@@ -242,104 +344,7 @@ const updateChart = () => {
     myChart.value = echarts.init(chartRef.value);
   }
 
-  // 🎨 专业配色方案
-  const colors = [
-    "#5470C6",
-    "#91CC75",
-    "#FAC858",
-    "#EE6666",
-    "#73C0DE",
-    "#3BA272",
-    "#FC8452",
-    "#9A60B4",
-  ];
-
-  myChart.value.setOption({
-    color: colors,
-    tooltip: {
-      trigger: "item",
-      formatter: (params) => {
-        const percent = params.percent;
-        const safeName = escapeHtml(params.name);
-        return `
-          <div style="padding:8px 12px;font-family:system-ui">
-            <div style="font-weight:600;margin-bottom:4px">${safeName}</div>
-            <div style="color:#666;font-size:13px">
-              提交数：<strong style="color:#333">${params.value}</strong> 次
-            </div>
-            <div style="color:#666;font-size:13px">
-              占比：<strong style="color:${
-                colors[params.dataIndex % colors.length]
-              }">${percent}%</strong>
-            </div>
-          </div>
-        `;
-      },
-      backgroundColor: "rgba(255,255,255,0.95)",
-      borderColor: "#eee",
-      borderWidth: 1,
-      textStyle: { color: "#333" },
-    },
-    legend: {
-      orient: "vertical",
-      right: "5%",
-      top: "middle",
-      type: "scroll",
-      itemWidth: 12,
-      itemHeight: 12,
-      formatter: (name) => {
-        const item = chartData.value.find((d) => d.name === name);
-        return item ? `${name} (${item.value})` : name;
-      },
-      textStyle: { color: "#666", fontSize: 12 },
-    },
-    series: [
-      {
-        name: "提交语言",
-        type: "pie",
-        radius: ["50%", "75%"],
-        center: ["40%", "50%"],
-        avoidLabelOverlap: true,
-        itemStyle: {
-          borderRadius: 10,
-          borderColor: "#fff",
-          borderWidth: 3,
-          shadowBlur: 10,
-          shadowColor: "rgba(0,0,0,0.1)",
-        },
-        label: {
-          show: true,
-          position: "outside",
-          formatter: "{b}",
-          fontSize: 12,
-          color: "#666",
-          fontWeight: 500,
-        },
-        labelLine: {
-          show: true,
-          length: 15,
-          length2: 20,
-          smooth: true,
-          lineStyle: { width: 1, color: "#ddd" },
-        },
-        emphasis: {
-          scale: true,
-          scaleSize: 10,
-          label: {
-            show: true,
-            fontSize: 14,
-            fontWeight: "bold",
-            formatter: "{b}\n{c}次 ({d}%)",
-          },
-          itemStyle: {
-            shadowBlur: 20,
-            shadowColor: "rgba(0,0,0,0.3)",
-          },
-        },
-        data: chartData.value,
-      },
-    ],
-  });
+  myChart.value.setOption(buildChartOption());
 };
 
 const handleResize = () => {

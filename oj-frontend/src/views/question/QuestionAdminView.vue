@@ -64,7 +64,11 @@ import QuestionEditModal from "@/views/question/components/QuestionEditModal.vue
 import QuestionDetailModal from "@/views/question/components/QuestionDetailModal.vue";
 
 import { QuestionControllerService } from "../../../generated/index";
-import { calculatePassRate, parseJudgeConfig } from "@/utils/question";
+import {
+  calculatePassRate,
+  parseJudgeConfig,
+  parseJsonArray,
+} from "@/utils/question";
 import type {
   QuestionQueryRequest,
   DeleteRequest,
@@ -93,69 +97,58 @@ const searchParams = ref({
   tags: [] as string[],
 });
 
-// 数据加载
+/** 构造查询参数 */
+const buildQueryParams = (): QuestionQueryRequest => {
+  const params = searchParams.value;
+  const finalTags = [...(params.tags || [])];
+  if (params.difficulty) {
+    finalTags.push(params.difficulty);
+  }
+  return {
+    current: pagination.current,
+    pageSize: pagination.pageSize,
+    id: params.id ? Number(params.id) : undefined,
+    title: params.title ? params.title.trim() : undefined,
+    tags: finalTags.length > 0 ? finalTags : undefined,
+  };
+};
+
+/** 将后端题目记录转为前端表格行 */
+const transformQuestionRecord = (item: any) => {
+  const tagsArr = parseJsonArray<string>(item.tags);
+  const difficultyKeywords = ["简单", "中等", "困难"];
+  return {
+    id: item.id || 0,
+    title: item.title || "",
+    content: item.content || "",
+    tags: tagsArr,
+    difficulty:
+      tagsArr.find((t: string) => difficultyKeywords.includes(t)) || "未知",
+    submitNum: item.submitNum || 0,
+    acceptedNum: item.acceptedNum || 0,
+    passRate: calculatePassRate(item.acceptedNum || 0, item.submitNum || 0),
+    answer: item.answer || "",
+    timeLimit: parseJudgeConfig(item.judgeConfig).timeLimit,
+    memoryLimit: parseJudgeConfig(item.judgeConfig).memoryLimit,
+    judgeCases: parseJsonArray(item.judgeCase),
+    updateTime: item.updateTime || new Date().toISOString(),
+  };
+};
+
+/** 加载题目列表 */
 const loadData = async () => {
   loading.value = true;
   try {
-    const params = searchParams.value; // 取出当前值
-
-    const finalTags = [...(params.tags || [])];
-    if (params.difficulty) {
-      finalTags.push(params.difficulty);
-    }
-
-    // 构造请求对象
-    const queryParams: QuestionQueryRequest = {
-      current: pagination.current,
-      pageSize: pagination.pageSize,
-      // ID 转数字，空串转 undefined
-      id: params.id ? Number(params.id) : undefined,
-      title: params.title ? params.title.trim() : undefined,
-      // 只有 tags 有内容才传
-      tags: finalTags.length > 0 ? finalTags : undefined,
-    };
-
     const res = await QuestionControllerService.listQuestionByPageUsingPost(
-      queryParams
+      buildQueryParams()
     );
-
     if (res.code === 0 && res.data) {
-      tableData.value = res.data.records.map((item: any) => {
-        // 解析 tags (后端存的是 JSON 字符串)
-        let tagsArr = [];
-        try {
-          tagsArr = item.tags ? JSON.parse(item.tags) : [];
-        } catch (e) {
-          tagsArr = [];
-        }
-
-        return {
-          id: item.id || 0,
-          title: item.title || "",
-          content: item.content || "",
-          tags: tagsArr,
-          difficulty:
-            tagsArr.find((t: string) => ["简单", "中等", "困难"].includes(t)) ||
-            "未知",
-          submitNum: item.submitNum || 0,
-          acceptedNum: item.acceptedNum || 0,
-          passRate: calculatePassRate(
-            item.acceptedNum || 0,
-            item.submitNum || 0
-          ),
-          answer: item.answer || "",
-          timeLimit: parseJudgeConfig(item.judgeConfig).timeLimit,
-          memoryLimit: parseJudgeConfig(item.judgeConfig).memoryLimit,
-          judgeCases: item.judgeCase ? JSON.parse(item.judgeCase) : [],
-          updateTime: item.updateTime || new Date().toISOString(),
-        };
-      });
+      tableData.value = res.data.records.map(transformQuestionRecord);
       pagination.total = Number(res.data.total) || 0;
     } else {
       Message.error(res.message || "加载题目列表失败");
     }
   } catch (error: any) {
-    console.error("加载数据失败:", error);
     Message.error("网络错误，请检查连接");
   } finally {
     loading.value = false;

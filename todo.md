@@ -40,8 +40,8 @@
 - [ ] 用类型守卫替代不安全的类型断言（`QuestionDetailsView.vue:299`、`QuestionEditModal.vue:259`）
 
 ### 2.5 清理调试代码
-- [ ] 移除前端所有 `console.log`：`QuestionListView.vue:158`、`SubmissionListView.vue:224-226`、`QuestionAdminView.vue:117`、`access/index.ts:7`、`App.vue:28`
-- [ ] 移除后端 `JudgeServiceImpl.java`、`QuestionSubmitController.java`、`QuestionController.java` 中的 `System.out.println` 调试输出
+- [x] 移除前端所有 `console.log`（8 处）
+- [x] 移除后端 `System.out.println`（7 处，改用 @Slf4j + log.debug）
 
 ### 2.6 文件命名修复
 - [x] `DailyCheckIn.vue.vue` → 已移除该组件
