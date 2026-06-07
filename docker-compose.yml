@@ -1,0 +1,105 @@
+version: "3.8"
+
+services:
+  # ========== MySQL ==========
+  mysql:
+    image: mysql:8.0
+    container_name: oj-mysql
+    restart: unless-stopped
+    ports:
+      - "3306:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-123456}
+      MYSQL_DATABASE: yuoj
+      MYSQL_CHARSET: utf8mb4
+      TZ: Asia/Shanghai
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./oj-backend/oj-backend-master/sql/create_table.sql:/docker-entrypoint-initdb.d/init.sql:ro
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-123456}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - oj-network
+
+  # ========== Redis ==========
+  redis:
+    image: redis:7-alpine
+    container_name: oj-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - oj-network
+
+  # ========== 后端 API ==========
+  backend:
+    build:
+      context: ./oj-backend/oj-backend-master
+      dockerfile: Dockerfile
+    container_name: oj-backend
+    restart: unless-stopped
+    ports:
+      - "8101:8101"
+    environment:
+      # 数据库
+      DB_URL: jdbc:mysql://mysql:3306/yuoj?useUnicode=true&characterEncoding=utf8mb4&serverTimezone=Asia/Shanghai
+      DB_USERNAME: root
+      DB_PASSWORD: ${DB_PASSWORD:-123456}
+      # Redis
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      # JWT
+      JWT_SECRET: ${JWT_SECRET:-oj-default-secret-key-must-be-at-least-256-bits-long-for-hs256}
+      # JDoodle
+      JDOODLE_CLIENT_ID: ${JDOODLE_CLIENT_ID:-}
+      JDOODLE_CLIENT_SECRET: ${JDOODLE_CLIENT_SECRET:-}
+      # Spring
+      SPRING_PROFILES_ACTIVE: prod
+    depends_on:
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - oj-network
+
+  # ========== 前端 ==========
+  frontend:
+    build:
+      context: ./oj-frontend
+      dockerfile: Dockerfile
+    container_name: oj-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    networks:
+      - oj-network
+
+# 数据持久化
+volumes:
+  mysql-data:
+    driver: local
+  redis-data:
+    driver: local
+
+# 网络
+networks:
+  oj-network:
+    driver: bridge
