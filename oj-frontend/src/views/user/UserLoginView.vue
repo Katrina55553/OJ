@@ -80,6 +80,11 @@ const handleSubmit = async () => {
     if (res.code === 0 && res.data) {
       Message.success("登录成功");
 
+      // 存储 JWT Token
+      if (res.data.token) {
+        localStorage.setItem("token", res.data.token);
+      }
+
       store.commit("user/updateUser", res.data);
 
       router.push({ path: "/", replace: true });

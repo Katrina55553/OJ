@@ -36,6 +36,8 @@ export default {
           });
         }
       } catch {
+        // Token 无效或过期，清除本地存储
+        localStorage.removeItem("token");
         commit("updateUser", {
           ...state.loginUser,
           userRole: ACCESS_ENUM.NOT_LOGIN,

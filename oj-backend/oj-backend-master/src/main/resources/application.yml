@@ -12,11 +12,6 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
 
-  # Session（✅ 这里关 Redis）
-  session:
-    store-type: none
-    timeout: 2592000
-
   # 数据库配置（通过环境变量注入，本地开发可设置系统环境变量或使用 application-dev.yml）
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
@@ -41,10 +36,11 @@ server:
   port: 8101
   servlet:
     context-path: /api
-    # cookie 30 天过期
-    session:
-      cookie:
-        max-age: 2592000
+
+# JWT 配置
+jwt:
+  secret: ${JWT_SECRET:oj-default-secret-key-must-be-at-least-256-bits-long-for-hs256}
+  expiration: 604800000  # 7 天（毫秒）
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: false

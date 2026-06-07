@@ -105,7 +105,7 @@
 - [ ] 添加 E2E 测试覆盖核心用户流程
 
 ### 4.4 运维与部署
-- [ ] 后端 Dockerfile 使用 `maven:3.8.1-jdk-8-slim` 但 `pom.xml` 要求 Java 17 — 修复基础镜像
+- [x] 后端 Dockerfile 使用 `maven:3.8.1-jdk-8-slim` 但 `pom.xml` 要求 Java 17 — 修复基础镜像
 - [ ] 前端缺少 Dockerfile 和 nginx 部署配置
 - [ ] 添加 `docker-compose.yml` 编排前后端 + MySQL + Redis
 - [ ] 配置 CI/CD 流水线（GitHub Actions）

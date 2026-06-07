@@ -148,6 +148,8 @@ const handleSelect = async (value: string) => {
     } catch {
       // 即使后端调用失败，也清除本地状态
     }
+    // 清除 JWT Token
+    localStorage.removeItem("token");
     store.commit("user/updateUser", {
       userName: "未登录",
       userRole: ACCESS_ENUM.NOT_LOGIN,
