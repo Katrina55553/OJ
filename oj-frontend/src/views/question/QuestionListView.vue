@@ -166,7 +166,7 @@ const loadData = async () => {
         title: item.title,
         difficulty: item.difficulty || item.tags?.[0] || "未知",
         tags: item.tags || [],
-        passRate: calculatePassRate(item.acceptNum, item.submitNum),
+        passRate: calculatePassRate(item.acceptedNum, item.submitNum),
       }));
       total.value = Number(res.data.total) || 0;
     } else {
