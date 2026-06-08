@@ -12,6 +12,7 @@ RUN mvn dependency:go-offline -B
 
 # 复制源码并构建
 COPY src ./src
+COPY sandbox ./sandbox
 RUN mvn package -DskipTests -B
 
 # 运行阶段

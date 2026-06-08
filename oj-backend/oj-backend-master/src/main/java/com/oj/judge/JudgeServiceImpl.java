@@ -3,7 +3,7 @@ package com.oj.judge;
 import cn.hutool.json.JSONUtil;
 import com.oj.common.ErrorCode;
 import com.oj.exception.BusinessException;
-import com.oj.judge.codesandbox.JdoodleApiClient;
+import com.oj.judge.codesandbox.CodeSandbox;
 import com.oj.judge.codesandbox.model.ExecuteCodeRequest;
 import com.oj.judge.codesandbox.model.ExecuteCodeResponse;
 import com.oj.judge.strategy.JudgeContext;
@@ -15,6 +15,7 @@ import com.oj.model.enums.QuestionSubmitStatusEnum;
 import com.oj.service.QuestionService;
 import com.oj.service.QuestionSubmitService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
@@ -34,8 +35,11 @@ public class JudgeServiceImpl implements JudgeService {
     @Resource
     private JudgeManager judgeManager;
 
+    @Value("${codesandbox.type:docker}")
+    private String sandboxType;
+
     @Resource
-    private JdoodleApiClient jdoodleApiClient;
+    private com.oj.judge.codesandbox.impl.DockerCodeSandbox dockerCodeSandbox;
 
     @Override
     public QuestionSubmit doJudge(long questionSubmitId) {
@@ -73,16 +77,18 @@ public class JudgeServiceImpl implements JudgeService {
 
             log.debug("测试用例输入: {}", inputList);
 
-            // 5）调用 JDoodle API 执行代码
+            // 5）调用代码沙箱执行代码
             ExecuteCodeRequest executeCodeRequest = ExecuteCodeRequest.builder()
                     .code(questionSubmit.getCode())
                     .language(questionSubmit.getLanguage())
                     .inputList(inputList)
                     .build();
 
-            ExecuteCodeResponse executeCodeResponse = jdoodleApiClient.executeCode(executeCodeRequest);
+            // 根据配置选择沙箱类型
+            CodeSandbox codeSandbox = getCodeSandbox();
+            ExecuteCodeResponse executeCodeResponse = codeSandbox.executeCode(executeCodeRequest);
 
-            log.debug("JDoodle 执行结果: {}", JSONUtil.toJsonStr(executeCodeResponse));
+            log.debug("沙箱执行结果: {}", JSONUtil.toJsonStr(executeCodeResponse));
 
             // 6）获取期望输出列表
             List<String> expectedOutputList = judgeCaseList.stream()
@@ -131,5 +137,13 @@ public class JudgeServiceImpl implements JudgeService {
         }
 
         return questionSubmitService.getById(questionSubmitId);
+    }
+
+    /**
+     * 根据配置获取代码沙箱实例
+     */
+    private CodeSandbox getCodeSandbox() {
+        // 直接使用注入的 Docker 沙箱
+        return dockerCodeSandbox;
     }
 }

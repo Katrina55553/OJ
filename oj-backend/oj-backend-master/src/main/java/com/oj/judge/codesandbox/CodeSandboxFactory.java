@@ -1,5 +1,6 @@
 package com.oj.judge.codesandbox;
 
+import com.oj.judge.codesandbox.impl.DockerCodeSandbox;
 import com.oj.judge.codesandbox.impl.ExampleCodeSandbox;
 import com.oj.judge.codesandbox.impl.RemoteCodeSandbox;
 import com.oj.judge.codesandbox.impl.ThirdPartyCodeSandbox;
@@ -23,6 +24,8 @@ public class CodeSandboxFactory {
                 return new RemoteCodeSandbox();
             case "thirdParty":
                 return new ThirdPartyCodeSandbox();
+            case "docker":
+                return new DockerCodeSandbox();
             default:
                 return new ExampleCodeSandbox();
         }

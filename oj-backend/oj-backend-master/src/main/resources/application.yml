@@ -99,10 +99,14 @@ cos:
     bucket: xxx
 # 代码沙箱配置
 codesandbox:
-  type: local
+  type: docker
+  docker:
+    timeout: 10        # 执行超时（秒）
+    memory: 256m       # 内存限制
+    cpu: "1"           # CPU 限制
 
 
-# JDoodle API Credentials（通过环境变量注入）
+# JDoodle API Credentials（通过环境变量注入，备用）
 jdoodle:
   client-id: ${JDOODLE_CLIENT_ID:}
   client-secret: ${JDOODLE_CLIENT_SECRET:}

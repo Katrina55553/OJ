@@ -102,6 +102,9 @@ services:
     restart: unless-stopped
     ports:
       - "8101:8101"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock  # Docker Socket（代码沙箱需要）
+      - ./oj-backend/oj-backend-master/sandbox:/app/sandbox  # 沙箱 Dockerfile
     environment:
       # 数据库
       DB_URL: jdbc:mysql://mysql:3306/yuoj?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
