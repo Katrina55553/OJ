@@ -30,6 +30,7 @@ public class JwtInterceptor implements HandlerInterceptor {
             return true;
         }
 
+        // 尝试解析 Token，有则设置用户信息，无则跳过（不拦截）
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
@@ -39,14 +40,10 @@ public class JwtInterceptor implements HandlerInterceptor {
             if (userId != null) {
                 request.setAttribute(ATTR_USER_ID, userId);
                 request.setAttribute(ATTR_USER_ROLE, userRole);
-                return true;
             }
         }
 
-        // 未携带有效 Token，返回 401
-        response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-        response.setContentType("application/json;charset=UTF-8");
-        response.getWriter().write("{\"code\":40100,\"message\":\"未登录\"}");
-        return false;
+        // 放行所有请求，具体的登录校验由 Service 层的 getLoginUser 处理
+        return true;
     }
 }
