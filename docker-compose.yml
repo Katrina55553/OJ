@@ -64,6 +64,35 @@ services:
     networks:
       - oj-network
 
+  # ========== RabbitMQ ==========
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: oj-rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"    # AMQP
+      - "15672:15672"  # 管理界面
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 128M
+    networks:
+      - oj-network
+
   # ========== 后端 API ==========
   backend:
     build:
@@ -81,6 +110,10 @@ services:
       # Redis
       REDIS_HOST: redis
       REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      # RabbitMQ
+      RABBITMQ_HOST: rabbitmq
+      RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
+      RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
       # JWT
       JWT_SECRET: ${JWT_SECRET:-oj-default-secret-key-must-be-at-least-256-bits-long-for-hs256}
       # JDoodle
@@ -94,6 +127,8 @@ services:
       mysql:
         condition: service_healthy
       redis:
+        condition: service_healthy
+      rabbitmq:
         condition: service_healthy
     deploy:
       resources:
@@ -133,6 +168,8 @@ volumes:
   mysql-data:
     driver: local
   redis-data:
+    driver: local
+  rabbitmq-data:
     driver: local
 
 # 网络

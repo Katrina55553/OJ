@@ -27,6 +27,22 @@ spring:
     timeout: 5000
     password: ${REDIS_PASSWORD:}
 
+  # RabbitMQ 配置
+  rabbitmq:
+    host: ${RABBITMQ_HOST:localhost}
+    port: 5672
+    username: ${RABBITMQ_USERNAME:guest}
+    password: ${RABBITMQ_PASSWORD:guest}
+    virtual-host: /
+    listener:
+      simple:
+        prefetch: 1
+        acknowledge-mode: manual
+        retry:
+          enabled: true
+          max-attempts: 3
+          initial-interval: 3000
+
   # 文件上传
   servlet:
     multipart:
