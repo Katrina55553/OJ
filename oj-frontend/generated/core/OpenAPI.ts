@@ -20,7 +20,8 @@ export type OpenAPIConfig = {
 };
 
 export const OpenAPI: OpenAPIConfig = {
-    BASE: 'http://localhost:8101',
+    // 生产环境使用相对路径（走 nginx 代理），开发环境直连后端
+    BASE: process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8101',
     VERSION: '1.0',
     WITH_CREDENTIALS: false,
     CREDENTIALS: 'omit',
