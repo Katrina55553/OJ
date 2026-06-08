@@ -22,6 +22,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "1.0"
+          memory: 512M
+        reservations:
+          cpus: "0.25"
+          memory: 256M
     networks:
       - oj-network
 
@@ -35,6 +43,8 @@ services:
     command: >
       redis-server
       --appendonly yes
+      --maxmemory 256mb
+      --maxmemory-policy allkeys-lru
       ${REDIS_PASSWORD:+--requirepass ${REDIS_PASSWORD}}
     volumes:
       - redis-data:/data
@@ -43,6 +53,14 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 256M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
     networks:
       - oj-network
 
@@ -70,11 +88,21 @@ services:
       JDOODLE_CLIENT_SECRET: ${JDOODLE_CLIENT_SECRET:-}
       # Spring
       SPRING_PROFILES_ACTIVE: prod
+    # JVM 内存限制
+    entrypoint: ["java", "-Xms256m", "-Xmx512m", "-jar", "app.jar"]
     depends_on:
       mysql:
         condition: service_healthy
       redis:
         condition: service_healthy
+    deploy:
+      resources:
+        limits:
+          cpus: "2.0"
+          memory: 768M
+        reservations:
+          cpus: "0.5"
+          memory: 512M
     networks:
       - oj-network
 
@@ -89,6 +117,14 @@ services:
       - "80:80"
     depends_on:
       - backend
+    deploy:
+      resources:
+        limits:
+          cpus: "0.5"
+          memory: 128M
+        reservations:
+          cpus: "0.1"
+          memory: 64M
     networks:
       - oj-network
 
