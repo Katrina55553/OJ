@@ -23,7 +23,7 @@ public class StatisticsController {
 
     // ==================== 语言分布 ====================
 
-    @GetMapping("/api/statistics/language-distribution")
+    @GetMapping("/statistics/language-distribution")
     public Map<String, Object> getLanguageDistribution(
             @RequestParam(required = false) String judge_message,
             @RequestParam(defaultValue = "0") int min_count) {
@@ -66,7 +66,7 @@ public class StatisticsController {
 
     // ==================== 判题结果分布 ====================
 
-    @GetMapping("/api/statistics/judge-distribution")
+    @GetMapping("/statistics/judge-distribution")
     public Map<String, Object> getJudgeDistribution(
             @RequestParam(required = false) String language,
             @RequestParam(defaultValue = "0") int min_count) {
@@ -109,7 +109,7 @@ public class StatisticsController {
 
     // ==================== 用户热力图 ====================
 
-    @GetMapping("/api/user/question/statistics/heatmap")
+    @GetMapping("/user/question/statistics/heatmap")
     public Map<String, Object> getHeatmap(
             @RequestParam long user_id,
             @RequestParam(defaultValue = "365") int days) {
@@ -175,7 +175,7 @@ public class StatisticsController {
 
     // ==================== 热力图摘要 ====================
 
-    @GetMapping("/api/user/question/statistics/heatmap/summary")
+    @GetMapping("/user/question/statistics/heatmap/summary")
     public Map<String, Object> getHeatmapSummary(
             @RequestParam long user_id,
             @RequestParam(defaultValue = "365") int days) {
