@@ -147,8 +147,6 @@ import * as echarts from "echarts";
 import axios from "axios";
 import QuestionHeatmap from "@/views/question/QuestionHeatmap.vue";
 
-const API_BASE = "";
-
 const filters = ref({
   judge_message: null,
   min_count: 0,
@@ -190,10 +188,10 @@ const fetchData = async () => {
       params.min_count = filters.value.min_count;
     }
 
-    const response = await axios.get(
-      `${API_BASE}/api/statistics/language-distribution`,
-      { params, timeout: 10000 }
-    );
+    const response = await axios.get(`/api/statistics/language-distribution`, {
+      params,
+      timeout: 10000,
+    });
 
     const result = response.data;
 

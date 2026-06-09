@@ -75,13 +75,10 @@ const loadHeatmapData = async (userId?: number) => {
     const uid = userId || props.userId || 1; // 🔴 替换为你的用户获取逻辑
     const days = props.days || 365;
 
-    const response = await axios.get(
-      "/api/user/question/statistics/heatmap",
-      {
-        params: { user_id: uid, days },
-        timeout: 10000,
-      }
-    );
+    const response = await axios.get("/api/user/question/statistics/heatmap", {
+      params: { user_id: uid, days },
+      timeout: 10000,
+    });
 
     const result = response.data;
 
