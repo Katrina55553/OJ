@@ -149,7 +149,7 @@ import axios, { AxiosError } from "axios";
 interface MessageItem {
   role: "user" | "assistant";
   content: string;
-  createdAt?: string;
+  createTime?: string;
 }
 
 const messages = ref<MessageItem[]>([]);
@@ -191,7 +191,7 @@ const sendMessage = async () => {
 
   const aiIndex = messages.value.push({ role: "assistant", content: "" }) - 1;
 
-  const url = `http://localhost:8001/stream?prompt=${encodeURIComponent(
+  const url = `/api/ai/stream?prompt=${encodeURIComponent(
     userMessage
   )}`;
   const eventSource = new EventSource(url);
@@ -225,7 +225,7 @@ const copyMessage = async (text: string) => {
 
 const loadHistory = async () => {
   try {
-    const res = await axios.get("http://localhost:8001/messages");
+    const res = await axios.get("/api/ai/messages");
     messages.value = res.data;
   } catch (err) {
     if (err instanceof AxiosError) {

@@ -110,3 +110,9 @@ codesandbox:
 jdoodle:
   client-id: ${JDOODLE_CLIENT_ID:}
   client-secret: ${JDOODLE_CLIENT_SECRET:}
+
+# AI 聊天配置（Ollama）
+ai:
+  ollama:
+    base-url: ${OLLAMA_BASE_URL:http://localhost:11434}
+    model: ${OLLAMA_MODEL:deepseek-r1:7b}

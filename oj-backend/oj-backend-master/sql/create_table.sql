@@ -102,3 +102,12 @@ create table if not exists post_favour
     index idx_postId (postId),
     index idx_userId (userId)
 ) comment '帖子收藏';
+
+-- AI 聊天消息表
+create table if not exists ai_message
+(
+    id         bigint auto_increment comment 'id' primary key,
+    role       varchar(16)                        not null comment '角色: user/assistant',
+    content    text                               not null comment '消息内容',
+    createTime datetime default CURRENT_TIMESTAMP not null comment '创建时间'
+) comment 'AI 聊天消息';
