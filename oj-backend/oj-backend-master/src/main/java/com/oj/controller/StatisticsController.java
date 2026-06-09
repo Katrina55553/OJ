@@ -119,25 +119,24 @@ public class StatisticsController {
         cal.add(Calendar.DAY_OF_YEAR, -days + 1);
         String startDate = new SimpleDateFormat("yyyy-MM-dd").format(cal.getTime());
 
-        // 查询有提交的日期
-        QueryWrapper<QuestionSubmit> qw = new QueryWrapper<>();
-        qw.select("DATE(createTime) as submit_date", "COUNT(*) as cnt");
-        qw.eq("userId", user_id);
-        qw.eq("isDelete", 0);
-        qw.ge("DATE(createTime)", startDate);
-        qw.le("DATE(createTime)", endDate);
-        qw.groupBy("DATE(createTime)");
+        // 调试：先查总数，定位是 userId 不匹配还是 GROUP BY 问题
+        long totalCount = questionSubmitService.count(
+                new QueryWrapper<QuestionSubmit>().eq("userId", user_id));
+        log.info("热力图调试: userId={}, totalCount={}", user_id, totalCount);
 
-        List<Map<String, Object>> rows = questionSubmitService.listMaps(qw);
-        log.info("热力图查询: userId={}, range=[{} ~ {}], rows={}", user_id, startDate, endDate, rows.size());
-
-        // 构建日期-数量映射
         Map<String, Integer> countMap = new LinkedHashMap<>();
-        for (Map<String, Object> row : rows) {
+        questionSubmitService.getBaseMapper().selectMaps(
+                new QueryWrapper<QuestionSubmit>()
+                        .select("DATE(createTime) as submit_date", "COUNT(*) as cnt")
+                        .eq("userId", user_id)
+                        .ge("DATE(createTime)", startDate)
+                        .le("DATE(createTime)", endDate)
+                        .groupBy("DATE(createTime)")
+        ).forEach(row -> {
             String date = row.get("submit_date") != null ? row.get("submit_date").toString() : "";
             int cnt = ((Number) row.getOrDefault("cnt", 0)).intValue();
             countMap.put(date, cnt);
-        }
+        });
 
         // 填充每一天
         List<Map<String, Object>> data = new ArrayList<>();
