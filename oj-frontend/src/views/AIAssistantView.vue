@@ -191,9 +191,7 @@ const sendMessage = async () => {
 
   const aiIndex = messages.value.push({ role: "assistant", content: "" }) - 1;
 
-  const url = `/api/ai/stream?prompt=${encodeURIComponent(
-    userMessage
-  )}`;
+  const url = `/api/ai/stream?prompt=${encodeURIComponent(userMessage)}`;
   const eventSource = new EventSource(url);
 
   let aiContent = "";
