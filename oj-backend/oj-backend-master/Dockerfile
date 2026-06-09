@@ -18,6 +18,12 @@ RUN mvn package -DskipTests -B
 # 运行阶段
 FROM m.daocloud.io/docker.io/library/eclipse-temurin:17-jre
 WORKDIR /app
+
+# 安装 Docker CLI（代码沙箱需要）
+RUN apt-get update && \
+    apt-get install -y docker.io && \
+    rm -rf /var/lib/apt/lists/*
+
 COPY --from=builder /app/target/oj-backend-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8101
 ENTRYPOINT ["java", "-jar", "app.jar"]
