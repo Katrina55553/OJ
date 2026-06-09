@@ -8,10 +8,12 @@ import com.oj.judge.codesandbox.CodeSandbox;
 import com.oj.judge.codesandbox.model.ExecuteCodeRequest;
 import com.oj.judge.codesandbox.model.ExecuteCodeResponse;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.stereotype.Component;
 
 /**
  * 远程代码沙箱（实际调用接口的沙箱）
  */
+@Component
 public class RemoteCodeSandbox implements CodeSandbox {
 
     // 定义鉴权请求头和密钥
