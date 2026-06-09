@@ -137,7 +137,7 @@ public class DockerCodeSandbox implements CodeSandbox {
         pb.redirectErrorStream(true);
         Process process = pb.start();
 
-        String output = readProcessOutput(process);
+        String output = readProcessOutput(process.getInputStream());
         boolean finished = process.waitFor(60, TimeUnit.SECONDS);
 
         if (!finished) {
