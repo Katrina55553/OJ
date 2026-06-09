@@ -76,7 +76,7 @@ const loadHeatmapData = async (userId?: number) => {
     const days = props.days || 365;
 
     const response = await axios.get(
-      "http://127.0.0.1:8000/api/user/question/statistics/heatmap",
+      "/api/user/question/statistics/heatmap",
       {
         params: { user_id: uid, days },
         timeout: 10000,

@@ -147,7 +147,7 @@ import * as echarts from "echarts";
 import axios from "axios";
 import QuestionHeatmap from "@/views/question/QuestionHeatmap.vue";
 
-const API_BASE = "http://127.0.0.1:8000";
+const API_BASE = "";
 
 const filters = ref({
   judge_message: null,
