@@ -271,10 +271,10 @@ public class DockerCodeSandbox implements CodeSandbox {
             pb.redirectErrorStream(true);
             Process process = pb.start();
             String output = readProcessOutput(process.getInputStream()).trim();
-            int exitCode = process.waitFor(5, TimeUnit.SECONDS);
+            boolean finished = process.waitFor(5, TimeUnit.SECONDS);
 
-            // 容器已停止或不存在
-            if (exitCode != 0 || output.isEmpty()) {
+            // 容器已停止或不存在（finished=false 表示超时）
+            if (!finished || output.isEmpty()) {
                 return -1;
             }
 
