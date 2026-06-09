@@ -104,9 +104,14 @@ public class AiChatController {
 
         } catch (Exception e) {
             log.error("AI 聊天异常", e);
+            String errMsg = e.getMessage();
+            if (errMsg == null || errMsg.isEmpty()) {
+                // 连接拒绝、DNS 失败等异常没有 message，用 toString()
+                errMsg = e.toString();
+            }
             try {
                 if (os != null) {
-                    os.write(("data:🔌 AI 服务异常: " + e.getMessage() + "\n\n").getBytes(StandardCharsets.UTF_8));
+                    os.write(("data:🔌 AI 服务异常: " + errMsg + "\n\n").getBytes(StandardCharsets.UTF_8));
                     os.flush();
                 }
             } catch (Exception ignored) {}
@@ -146,6 +151,20 @@ public class AiChatController {
         try (OutputStream os = conn.getOutputStream()) {
             os.write(body.getBytes(StandardCharsets.UTF_8));
             os.flush();
+        }
+
+        int status = conn.getResponseCode();
+        if (status != 200) {
+            // 读取 Ollama 返回的错误信息
+            String errorBody = "";
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getErrorStream(), StandardCharsets.UTF_8))) {
+                StringBuilder sb = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) sb.append(line);
+                errorBody = sb.toString();
+            } catch (Exception ignored) {}
+            throw new RuntimeException("Ollama HTTP " + status + ": " + errorBody);
         }
 
         return conn;
