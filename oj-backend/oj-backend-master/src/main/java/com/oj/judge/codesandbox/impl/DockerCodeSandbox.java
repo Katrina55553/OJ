@@ -15,7 +15,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 
 /**
  * Docker 代码沙箱
@@ -154,10 +156,13 @@ public class DockerCodeSandbox implements CodeSandbox {
      * 运行 Docker 容器
      */
     private ContainerResult runContainer(String imageTag, String input) throws IOException, InterruptedException {
+        // 生成唯一容器名，避免冲突
+        String containerName = "oj-run-" + UUID.randomUUID().toString().substring(0, 8);
+
         List<String> cmd = new ArrayList<>();
         cmd.add("docker");
         cmd.add("run");
-        cmd.add("--rm");
+        cmd.add("--name=" + containerName);
         cmd.add("--memory=" + memoryLimit);
         cmd.add("--cpus=" + cpuLimit);
         cmd.add("--network=none");
@@ -180,6 +185,10 @@ public class DockerCodeSandbox implements CodeSandbox {
             }
         }
 
+        // 启动后台线程，在容器运行期间轮询采集内存使用
+        AtomicLong maxMemoryBytes = new AtomicLong(0);
+        Thread statsCollector = startMemoryStatsCollector(containerName, maxMemoryBytes);
+
         // 读取输出
         String stdout = readProcessOutput(process.getInputStream());
         String stderr = readProcessOutput(process.getErrorStream());
@@ -187,26 +196,139 @@ public class DockerCodeSandbox implements CodeSandbox {
         // 等待执行完成（带超时）
         boolean finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
 
+        // 停止内存采集
+        stopMemoryStatsCollector(statsCollector);
+
         if (!finished) {
             process.destroyForcibly();
-            return new ContainerResult(-1, "", "Time Limit Exceeded", 0);
+            removeContainer(containerName);
+            return new ContainerResult(-1, "", "Time Limit Exceeded", maxMemoryBytes.get());
         }
 
         int exitCode = process.exitValue();
+        long memoryUsage = maxMemoryBytes.get();
 
-        // 尝试获取内存使用（通过 docker stats）
-        long memoryUsage = getContainerMemoryUsage(imageTag);
+        removeContainer(containerName);
 
         return new ContainerResult(exitCode, stdout.trim(), stderr.trim(), memoryUsage);
     }
 
     /**
-     * 获取容器内存使用量（简化版本，返回估算值）
+     * 启动后台线程轮询 docker stats 采集容器内存峰值
      */
-    private long getContainerMemoryUsage(String imageTag) {
-        // 简化实现：返回固定估算值
-        // 实际生产中可通过 docker stats --no-stream 获取精确值
-        return 50 * 1024 * 1024; // 50MB 估算
+    private Thread startMemoryStatsCollector(String containerName, AtomicLong maxMemoryBytes) {
+        Thread thread = new Thread(() -> {
+            try {
+                // 等待容器启动（给 docker 一点时间初始化）
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                return;
+            }
+
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    long mem = pollContainerMemory(containerName);
+                    if (mem > 0) {
+                        maxMemoryBytes.updateAndGet(current -> Math.max(current, mem));
+                    }
+                    Thread.sleep(500); // 每 500ms 采样一次
+                } catch (InterruptedException e) {
+                    break;
+                } catch (Exception e) {
+                    // 容器已停止或查询失败，终止轮询
+                    break;
+                }
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+        return thread;
+    }
+
+    /**
+     * 停止内存采集线程
+     */
+    private void stopMemoryStatsCollector(Thread thread) {
+        if (thread != null && thread.isAlive()) {
+            thread.interrupt();
+            try {
+                thread.join(2000);
+            } catch (InterruptedException ignored) {
+            }
+        }
+    }
+
+    /**
+     * 查询容器当前内存使用量（单次采样），容器停止则返回 -1
+     */
+    private long pollContainerMemory(String containerName) {
+        try {
+            ProcessBuilder pb = new ProcessBuilder(
+                    "docker", "stats", "--no-stream",
+                    "--format={{.MemUsage}}",
+                    containerName
+            );
+            pb.redirectErrorStream(true);
+            Process process = pb.start();
+            String output = readProcessOutput(process.getInputStream()).trim();
+            int exitCode = process.waitFor(5, TimeUnit.SECONDS);
+
+            // 容器已停止或不存在
+            if (exitCode != 0 || output.isEmpty()) {
+                return -1;
+            }
+
+            // 格式: "15.5MiB / 256MiB"，取斜杠前的实际使用值
+            String usagePart = output.split("/")[0].trim();
+            return parseMemoryToBytes(usagePart);
+        } catch (Exception e) {
+            return -1; // 查询失败，通知调用方终止轮询
+        }
+    }
+
+    /**
+     * 解析 docker 内存格式（如 "15.5MiB", "256KiB", "1.2GiB"）为字节数
+     */
+    private long parseMemoryToBytes(String memStr) {
+        try {
+            memStr = memStr.trim();
+            double value;
+            long multiplier;
+
+            if (memStr.endsWith("GiB")) {
+                value = Double.parseDouble(memStr.replace("GiB", "").trim());
+                multiplier = 1024L * 1024 * 1024;
+            } else if (memStr.endsWith("MiB")) {
+                value = Double.parseDouble(memStr.replace("MiB", "").trim());
+                multiplier = 1024L * 1024;
+            } else if (memStr.endsWith("KiB")) {
+                value = Double.parseDouble(memStr.replace("KiB", "").trim());
+                multiplier = 1024L;
+            } else if (memStr.endsWith("B")) {
+                value = Double.parseDouble(memStr.replace("B", "").trim());
+                multiplier = 1;
+            } else {
+                return 0;
+            }
+            return (long) (value * multiplier);
+        } catch (NumberFormatException e) {
+            log.warn("解析内存字符串失败: {}", memStr);
+            return 0;
+        }
+    }
+
+    /**
+     * 删除容器（忽略错误，容器可能已不存在）
+     */
+    private void removeContainer(String containerName) {
+        try {
+            new ProcessBuilder("docker", "rm", "-f", containerName)
+                    .redirectErrorStream(true)
+                    .start()
+                    .waitFor(5, TimeUnit.SECONDS);
+        } catch (Exception e) {
+            log.debug("清理容器失败（可能已自动删除）: containerName={}", containerName);
+        }
     }
 
     /**

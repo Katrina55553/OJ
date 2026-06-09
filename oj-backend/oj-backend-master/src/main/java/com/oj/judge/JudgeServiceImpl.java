@@ -130,7 +130,11 @@ public class JudgeServiceImpl implements JudgeService {
             questionSubmitUpdate = new QuestionSubmit();
             questionSubmitUpdate.setId(questionSubmitId);
             questionSubmitUpdate.setStatus(QuestionSubmitStatusEnum.FAILED.getValue());
-            questionSubmitUpdate.setJudgeInfo("{\"message\":\"" + e.getMessage() + "\"}");
+
+            // 使用 JudgeInfo + JSONUtil 构建合法 JSON，避免手写字符串拼接导致非法 JSON
+            JudgeInfo errorJudgeInfo = new JudgeInfo();
+            errorJudgeInfo.setMessage(e.getMessage() != null ? e.getMessage() : "Unknown Error");
+            questionSubmitUpdate.setJudgeInfo(JSONUtil.toJsonStr(errorJudgeInfo));
             questionSubmitService.updateById(questionSubmitUpdate);
 
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "判题失败: " + e.getMessage());
