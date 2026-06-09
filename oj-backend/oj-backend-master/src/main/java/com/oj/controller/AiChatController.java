@@ -43,23 +43,30 @@ public class AiChatController {
      * 直接写 HttpServletResponse，绕过 @RestControllerAdvice 的 BaseResponse 包装
      */
     @GetMapping("/stream")
-    public void stream(@RequestParam String prompt, HttpServletResponse response) throws Exception {
+    public void stream(@RequestParam String prompt, HttpServletResponse response) {
         response.setContentType("text/event-stream;charset=UTF-8");
         response.setCharacterEncoding("UTF-8");
         response.setHeader("Cache-Control", "no-cache");
         response.setHeader("Connection", "keep-alive");
-
-        // 保存用户消息
-        AiMessage userMsg = new AiMessage();
-        userMsg.setRole("user");
-        userMsg.setContent(prompt);
-        userMsg.setCreateTime(new Date());
-        aiMessageService.save(userMsg);
+        response.setHeader("X-Accel-Buffering", "no"); // 禁用 nginx 缓冲
 
         StringBuilder fullResponse = new StringBuilder();
-        OutputStream os = response.getOutputStream();
+        OutputStream os = null;
 
         try {
+            os = response.getOutputStream();
+
+            // 立即发送注释行，防止 EventSource 超时断开
+            os.write(":ok\n\n".getBytes(StandardCharsets.UTF_8));
+            os.flush();
+
+            // 保存用户消息
+            AiMessage userMsg = new AiMessage();
+            userMsg.setRole("user");
+            userMsg.setContent(prompt);
+            userMsg.setCreateTime(new Date());
+            aiMessageService.save(userMsg);
+
             HttpURLConnection conn = callOllama(prompt);
 
             try (BufferedReader reader = new BufferedReader(
@@ -82,24 +89,32 @@ public class AiChatController {
                     if (done) break;
                 }
             }
+
+            // 保存 AI 回复
+            String aiContent = fullResponse.toString();
+            if (!aiContent.isEmpty()) {
+                AiMessage aiMsg = new AiMessage();
+                aiMsg.setRole("assistant");
+                aiMsg.setContent(aiContent);
+                aiMsg.setCreateTime(new Date());
+                aiMessageService.save(aiMsg);
+            }
+
+            log.info("AI 聊天完成: promptLength={}, responseLength={}", prompt.length(), aiContent.length());
+
         } catch (Exception e) {
             log.error("AI 聊天异常", e);
-            os.write(("event:error\ndata:" + e.getMessage() + "\n\n").getBytes(StandardCharsets.UTF_8));
-            os.flush();
+            try {
+                if (os != null) {
+                    os.write(("data:🔌 AI 服务异常: " + e.getMessage() + "\n\n").getBytes(StandardCharsets.UTF_8));
+                    os.flush();
+                }
+            } catch (Exception ignored) {}
+        } finally {
+            if (os != null) {
+                try { os.close(); } catch (Exception ignored) {}
+            }
         }
-
-        // 保存 AI 回复
-        String aiContent = fullResponse.toString();
-        if (!aiContent.isEmpty()) {
-            AiMessage aiMsg = new AiMessage();
-            aiMsg.setRole("assistant");
-            aiMsg.setContent(aiContent);
-            aiMsg.setCreateTime(new Date());
-            aiMessageService.save(aiMsg);
-        }
-
-        os.close();
-        log.info("AI 聊天完成: promptLength={}, responseLength={}", prompt.length(), aiContent.length());
     }
 
     /**
