@@ -12,10 +12,7 @@ interface UserState {
 export default {
   namespaced: true,
   state: (): UserState => ({
-    loginUser: {
-      userName: "未登录",
-      userRole: ACCESS_ENUM.NOT_LOGIN,
-    },
+    loginUser: null as unknown as UserState["loginUser"],
   }),
   actions: {
     async getLoginUser({
@@ -31,7 +28,7 @@ export default {
           commit("updateUser", res.data);
         } else {
           commit("updateUser", {
-            ...state.loginUser,
+            userName: "",
             userRole: ACCESS_ENUM.NOT_LOGIN,
           });
         }
@@ -39,7 +36,7 @@ export default {
         // Token 无效或过期，清除本地存储
         localStorage.removeItem("token");
         commit("updateUser", {
-          ...state.loginUser,
+          userName: "",
           userRole: ACCESS_ENUM.NOT_LOGIN,
         });
       }
