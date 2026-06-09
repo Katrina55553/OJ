@@ -1,4 +1,4 @@
-FROM python:3.11-slim
+FROM m.daocloud.io/docker.io/library/python:3.11-slim
 WORKDIR /code
 COPY solution.py .
 CMD ["python3", "solution.py"]

@@ -1,5 +1,5 @@
 # 构建阶段
-FROM maven:3.8-eclipse-temurin-17 AS builder
+FROM m.daocloud.io/docker.io/library/maven:3.8-eclipse-temurin-17 AS builder
 WORKDIR /app
 
 # 配置 Maven 使用阿里云镜像（加速依赖下载）
@@ -16,7 +16,7 @@ COPY sandbox ./sandbox
 RUN mvn package -DskipTests -B
 
 # 运行阶段
-FROM eclipse-temurin:17-jre
+FROM m.daocloud.io/docker.io/library/eclipse-temurin:17-jre
 WORKDIR /app
 COPY --from=builder /app/target/oj-backend-0.0.1-SNAPSHOT.jar app.jar
 EXPOSE 8101

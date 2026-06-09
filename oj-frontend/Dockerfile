@@ -1,5 +1,5 @@
 # 构建阶段
-FROM node:18-alpine AS builder
+FROM m.daocloud.io/docker.io/library/node:18-alpine AS builder
 WORKDIR /app
 
 # 先复制依赖文件，利用缓存
@@ -16,7 +16,7 @@ COPY . .
 RUN npm run build
 
 # 运行阶段
-FROM nginx:alpine
+FROM m.daocloud.io/docker.io/library/nginx:alpine
 COPY --from=builder /app/dist /usr/share/nginx/html
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 EXPOSE 80
