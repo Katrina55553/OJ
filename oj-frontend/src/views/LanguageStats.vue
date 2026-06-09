@@ -1,16 +1,5 @@
 <template>
   <div class="dashboard-page">
-    <!-- 🗓️ 提交热力图 -->
-    <section class="card heatmap-section">
-      <div class="card-header">
-        <h3 class="card-title">📅 提交热力图</h3>
-        <span class="card-subtitle">最近一年的提交活跃度</span>
-      </div>
-      <div class="card-body">
-        <QuestionHeatmap :userId="loginUserId" />
-      </div>
-    </section>
-
     <!-- 📊 语言分布统计 -->
     <section class="card stats-section">
       <div class="card-header">
@@ -142,14 +131,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick, computed } from "vue";
-import { useStore } from "vuex";
+import { ref, onMounted, onUnmounted, nextTick } from "vue";
 import * as echarts from "echarts";
 import axios from "axios";
-import QuestionHeatmap from "@/views/question/QuestionHeatmap.vue";
-
-const store = useStore();
-const loginUserId = computed(() => store.state.user?.loginUser?.id);
 
 const filters = ref({
   judge_message: null,
