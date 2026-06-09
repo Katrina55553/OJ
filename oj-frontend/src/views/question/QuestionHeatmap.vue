@@ -81,7 +81,12 @@ const loadHeatmapData = async (userId?: number) => {
     });
 
     const result = response.data;
-    console.log("热力图返回:", { userId: uid, days, count: result.data?.length, total: result.total });
+    console.log("热力图返回:", {
+          userId: uid,
+          days,
+          count: result.data?.length,
+          total: result.total,
+        });
 
     if (result.success && Array.isArray(result.data)) {
       data.value = result.data; // ✅ 后端返回格式已匹配，直接赋值
