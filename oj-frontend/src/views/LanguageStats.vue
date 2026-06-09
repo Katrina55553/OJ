@@ -7,7 +7,7 @@
         <span class="card-subtitle">最近一年的提交活跃度</span>
       </div>
       <div class="card-body">
-        <QuestionHeatmap />
+        <QuestionHeatmap :userId="loginUserId" />
       </div>
     </section>
 
@@ -142,10 +142,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, onMounted, onUnmounted, nextTick, computed } from "vue";
+import { useStore } from "vuex";
 import * as echarts from "echarts";
 import axios from "axios";
 import QuestionHeatmap from "@/views/question/QuestionHeatmap.vue";
+
+const store = useStore();
+const loginUserId = computed(() => store.state.user?.loginUser?.id);
 
 const filters = ref({
   judge_message: null,

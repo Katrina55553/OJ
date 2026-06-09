@@ -57,7 +57,7 @@
 
       <!-- 右侧数据展示区域保持不变 -->
       <a-col :xs="24" :md="16" :lg="18">
-        <QuestionHeatmap />
+        <QuestionHeatmap :userId="loginUser.id" />
 
         <a-card title="最近提交记录" :bordered="false">
           <a-empty description="暂无提交记录" />
