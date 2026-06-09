@@ -6,21 +6,18 @@ import com.oj.model.entity.AiMessage;
 import com.oj.service.AiMessageService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import javax.annotation.Resource;
+import javax.servlet.http.HttpServletResponse;
 import java.io.BufferedReader;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
 import java.util.List;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 /**
  * AI 聊天接口 — SSE 流式响应 + 历史消息
@@ -40,71 +37,69 @@ public class AiChatController {
     private String ollamaModel;
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-    private final ExecutorService executor = Executors.newCachedThreadPool();
 
     /**
      * SSE 流式聊天
+     * 直接写 HttpServletResponse，绕过 @RestControllerAdvice 的 BaseResponse 包装
      */
-    @GetMapping(value = "/stream", produces = MediaType.TEXT_EVENT_STREAM_VALUE)
-    public SseEmitter stream(@RequestParam String prompt) {
-        SseEmitter emitter = new SseEmitter(300_000L); // 5 分钟超时
+    @GetMapping("/stream")
+    public void stream(@RequestParam String prompt, HttpServletResponse response) throws Exception {
+        response.setContentType("text/event-stream;charset=UTF-8");
+        response.setCharacterEncoding("UTF-8");
+        response.setHeader("Cache-Control", "no-cache");
+        response.setHeader("Connection", "keep-alive");
 
-        executor.execute(() -> {
-            try {
-                // 保存用户消息
-                AiMessage userMsg = new AiMessage();
-                userMsg.setRole("user");
-                userMsg.setContent(prompt);
-                userMsg.setCreateTime(new Date());
-                aiMessageService.save(userMsg);
+        // 保存用户消息
+        AiMessage userMsg = new AiMessage();
+        userMsg.setRole("user");
+        userMsg.setContent(prompt);
+        userMsg.setCreateTime(new Date());
+        aiMessageService.save(userMsg);
 
-                // 调用 Ollama API
-                HttpURLConnection conn = callOllama(prompt);
-                StringBuilder fullResponse = new StringBuilder();
+        StringBuilder fullResponse = new StringBuilder();
+        OutputStream os = response.getOutputStream();
 
-                try (BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
+        try {
+            HttpURLConnection conn = callOllama(prompt);
 
-                    String line;
-                    while ((line = reader.readLine()) != null) {
-                        if (line.isEmpty()) continue;
+            try (BufferedReader reader = new BufferedReader(
+                    new InputStreamReader(conn.getInputStream(), StandardCharsets.UTF_8))) {
 
-                        JsonNode node = objectMapper.readTree(line);
-                        String token = node.has("response") ? node.get("response").asText() : "";
-                        boolean done = node.has("done") && node.get("done").asBoolean();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if (line.isEmpty()) continue;
 
-                        if (!token.isEmpty()) {
-                            fullResponse.append(token);
-                            emitter.send(SseEmitter.event().name("message").data(token));
-                        }
+                    JsonNode node = objectMapper.readTree(line);
+                    String token = node.has("response") ? node.get("response").asText() : "";
+                    boolean done = node.has("done") && node.get("done").asBoolean();
 
-                        if (done) break;
+                    if (!token.isEmpty()) {
+                        fullResponse.append(token);
+                        os.write(("data:" + token + "\n\n").getBytes(StandardCharsets.UTF_8));
+                        os.flush();
                     }
+
+                    if (done) break;
                 }
-
-                // 保存 AI 回复
-                String aiContent = fullResponse.toString();
-                if (!aiContent.isEmpty()) {
-                    AiMessage aiMsg = new AiMessage();
-                    aiMsg.setRole("assistant");
-                    aiMsg.setContent(aiContent);
-                    aiMsg.setCreateTime(new Date());
-                    aiMessageService.save(aiMsg);
-                }
-
-                emitter.complete();
-                log.info("AI 聊天完成: promptLength={}, responseLength={}", prompt.length(), aiContent.length());
-
-            } catch (Exception e) {
-                log.error("AI 聊天异常", e);
-                try {
-                    emitter.send(SseEmitter.event().name("error").data("AI 服务异常: " + e.getMessage()));
-                } catch (Exception ignored) {}
-                emitter.completeWithError(e);
             }
-        });
+        } catch (Exception e) {
+            log.error("AI 聊天异常", e);
+            os.write(("event:error\ndata:" + e.getMessage() + "\n\n").getBytes(StandardCharsets.UTF_8));
+            os.flush();
+        }
 
-        return emitter;
+        // 保存 AI 回复
+        String aiContent = fullResponse.toString();
+        if (!aiContent.isEmpty()) {
+            AiMessage aiMsg = new AiMessage();
+            aiMsg.setRole("assistant");
+            aiMsg.setContent(aiContent);
+            aiMsg.setCreateTime(new Date());
+            aiMessageService.save(aiMsg);
+        }
+
+        os.close();
+        log.info("AI 聊天完成: promptLength={}, responseLength={}", prompt.length(), aiContent.length());
     }
 
     /**
@@ -116,7 +111,7 @@ public class AiChatController {
     }
 
     /**
-     * 调用 Ollama generate API（非流式由 API 参数控制，这里固定用流式）
+     * 调用 Ollama generate API
      */
     private HttpURLConnection callOllama(String prompt) throws Exception {
         URL url = new URL(ollamaBaseUrl + "/api/generate");
