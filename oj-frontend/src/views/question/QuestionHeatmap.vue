@@ -50,7 +50,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed } from "vue";
+import { ref, onMounted, computed, watch } from "vue";
 import { Message } from "@arco-design/web-vue";
 import dayjs from "dayjs";
 import axios from "axios";
@@ -81,6 +81,7 @@ const loadHeatmapData = async (userId?: number) => {
     });
 
     const result = response.data;
+    console.log("热力图返回:", { userId: uid, days, count: result.data?.length, total: result.total });
 
     if (result.success && Array.isArray(result.data)) {
       data.value = result.data; // ✅ 后端返回格式已匹配，直接赋值
@@ -162,6 +163,14 @@ const formatTooltip = (day: { date: string; count: number }) => {
 onMounted(() => {
   loadHeatmapData().catch(console.error);
 });
+
+// userId 变化时重新请求
+watch(
+  () => props.userId,
+  (newId) => {
+    if (newId) loadHeatmapData(newId);
+  }
+);
 </script>
 
 <style scoped>
