@@ -129,6 +129,7 @@ public class StatisticsController {
         qw.groupBy("DATE(createTime)");
 
         List<Map<String, Object>> rows = questionSubmitService.listMaps(qw);
+        log.info("热力图查询: userId={}, range=[{} ~ {}], rows={}", user_id, startDate, endDate, rows.size());
 
         // 构建日期-数量映射
         Map<String, Integer> countMap = new LinkedHashMap<>();
