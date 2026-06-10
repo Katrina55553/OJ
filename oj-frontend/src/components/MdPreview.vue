@@ -63,7 +63,7 @@ const rendered = computed(() => {
   padding: 24px;
   background: #161b22;
   border-radius: 12px;
-  border: 1px solid #e5e6eb;
+  border: 1px solid #30363d;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
@@ -104,7 +104,7 @@ const rendered = computed(() => {
 .md-preview :deep(th),
 .md-preview :deep(td) {
   padding: 8px 16px;
-  border: 1px solid #e5e6eb;
+  border: 1px solid #30363d;
 }
 
 .md-preview :deep(th) {

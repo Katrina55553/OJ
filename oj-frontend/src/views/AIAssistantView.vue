@@ -289,7 +289,7 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(22, 27, 34, 0.9);
   backdrop-filter: blur(10px);
   z-index: 10;
 }

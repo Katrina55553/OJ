@@ -559,7 +559,7 @@ onMounted(() => {
   justify-content: space-between;
   padding: 16px 24px;
   background: #161b22;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #30363d;
   margin: -24px -24px 20px -24px;
 }
 

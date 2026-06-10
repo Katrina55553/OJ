@@ -87,7 +87,7 @@
           <!-- 自测运行 -->
           <div
             class="input-area"
-            style="padding: 16px; border-top: 1px solid #f0f0f0"
+            style="padding: 16px; border-top: 1px solid #30363d"
           >
             <div style="margin-bottom: 8px">
               <span style="font-weight: 500">自测输入：</span>

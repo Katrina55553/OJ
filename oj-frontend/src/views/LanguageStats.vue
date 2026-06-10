@@ -471,10 +471,10 @@ onUnmounted(() => {
 .filter-input {
   width: 100%;
   padding: 10px 14px;
-  border: 2px solid #e2e8f0;
+  border: 2px solid #30363d;
   border-radius: 10px;
   font-size: 14px;
-  color: #1e293b;
+  color: #c9d1d9;
   background: #161b22;
   transition: all 0.2s ease;
   appearance: none;
@@ -556,13 +556,13 @@ onUnmounted(() => {
 
 .btn-secondary {
   background: #21262d;
-  color: #475569;
-  border: 2px solid #e2e8f0;
+  color: #8b949e;
+  border: 2px solid #30363d;
 }
 
 .btn-secondary:hover {
-  background: #e2e8f0;
-  color: #1e293b;
+  background: #30363d;
+  color: #c9d1d9;
 }
 
 .btn-sm {
@@ -621,13 +621,13 @@ onUnmounted(() => {
   gap: 16px;
   background: #161b22;
   border-radius: 12px;
-  border: 2px dashed #e2e8f0;
+  border: 2px dashed #30363d;
 }
 
 .loading-spinner {
   width: 40px;
   height: 40px;
-  border: 3px solid #e2e8f0;
+  border: 3px solid #30363d;
   border-top-color: #3b82f6;
   border-radius: 50%;
   animation: spin 1s linear infinite;
@@ -736,7 +736,7 @@ onUnmounted(() => {
 .summary-divider {
   width: 1px;
   height: 32px;
-  background: #cbd5e1;
+  background: #30363d;
 }
 
 @media (max-width: 768px) {

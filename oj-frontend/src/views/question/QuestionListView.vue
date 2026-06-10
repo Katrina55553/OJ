@@ -206,7 +206,7 @@ const toProblemDetail = (id: number) => {
 }
 
 .banner {
-  background: linear-gradient(135deg, #f0f6fc 0%, #293448 100%);
+  background: linear-gradient(135deg, #1a2a3a 0%, #293448 100%);
   color: #161b22;
   padding: 60px 20px 80px;
   text-align: center;
@@ -255,7 +255,7 @@ const toProblemDetail = (id: number) => {
   background: #161b22;
   padding: 16px 24px;
   border-radius: 8px;
-  border: 1px solid #e5e6eb;
+  border: 1px solid #30363d;
   transition: all 0.2s ease;
   cursor: pointer;
 }
