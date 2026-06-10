@@ -409,3 +409,53 @@ hr, .arco-divider {
   background: #0d1117 !important;
 }
 
+/* ---- Select 下拉框完整暗色覆盖 ---- */
+.arco-select-view,
+.arco-select-view-value,
+.arco-select-view-label,
+.arco-select-view input,
+.arco-select-view-icon {
+  background: #0d1117 !important;
+  color: #c9d1d9 !important;
+  border-color: #30363d !important;
+}
+
+/* 下拉弹出层 */
+.arco-select-popup,
+.arco-select-dropdown,
+.arco-select-option {
+  background: #161b22 !important;
+  color: #c9d1d9 !important;
+  border-color: #30363d !important;
+}
+.arco-select-option:hover,
+.arco-select-option.arco-select-option-selected,
+.arco-select-option-active {
+  background: #21262d !important;
+  color: #f0f6fc !important;
+}
+
+/* Select 禁用选项 */
+.arco-select-option-disabled {
+  color: #6e7681 !important;
+}
+
+/* Select 搜索框 */
+.arco-select-view-search {
+  background: #0d1117 !important;
+  color: #c9d1d9 !important;
+}
+
+/* Select 触发器右侧箭头 */
+.arco-select-view-arrow {
+  color: #8b949e !important;
+}
+
+/* Select 多选 tag */
+.arco-select-view-tag {
+  background: #21262d !important;
+  color: #c9d1d9 !important;
+  border-color: #30363d !important;
+}
+}
+
