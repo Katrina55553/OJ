@@ -148,17 +148,52 @@ html, body, #app {
   background: #21262d !important;
 }
 
-/* 输入框 */
-.arco-input, .arco-textarea, .arco-select-view {
-  background: #0d1117 !important;
+/* 输入框 — 全局捕获所有 arco 输入组件 */
+.arco-input,
+.arco-textarea,
+.arco-select-view,
+.arco-input-wrapper,
+.arco-input-wrapper input,
+.arco-picker-input,
+.arco-form-item-control,
+.arco-form-item-control input,
+input[class*="arco-input"],
+.arco-input-wrapper .arco-input-wrapper {
+  background-color: #0d1117 !important;
   border-color: #30363d !important;
   color: #c9d1d9 !important;
+  box-shadow: none !important;
+  outline: none !important;
 }
-.arco-input:focus, .arco-textarea:focus {
+.arco-input:focus,
+.arco-textarea:focus,
+.arco-select-view:focus,
+.arco-input-wrapper input:focus,
+input[class*="arco-input"]:focus {
   border-color: #58a6ff !important;
+  box-shadow: 0 0 0 1px #58a6ff !important;
 }
-.arco-input::placeholder, .arco-textarea::placeholder {
+.arco-input:hover,
+.arco-textarea:hover,
+.arco-input-wrapper:hover {
+  border-color: #484f58 !important;
+}
+.arco-input::placeholder,
+.arco-textarea::placeholder {
   color: #6e7681 !important;
+}
+
+/* 表单项控制层 */
+.arco-form-item-control {
+  background: transparent !important;
+}
+
+/* Select 触发器 */
+.arco-select-view-value {
+  color: #c9d1d9 !important;
+}
+.arco-select-view-icon {
+  color: #8b949e !important;
 }
 
 /* 按钮 */
@@ -299,5 +334,27 @@ code, pre {
 /* ---- 分割线 ---- */
 hr, .arco-divider {
   border-color: #30363d !important;
+}
+
+/* ---- 最强输入框覆盖（兜底所有漏网之鱼）---- */
+.arco-input-wrapper,
+.arco-input-wrapper input,
+.arco-input,
+.arco-input input,
+.arco-textarea,
+.arco-select-view,
+.arco-select-view input {
+  background-color: #0d1117 !important;
+  border-color: #30363d !important;
+  color: #c9d1d9 !important;
+}
+.arco-input-wrapper input::placeholder {
+  color: #6e7681 !important;
+}
+
+/* 搜索框容器背景 */
+.arco-input-wrapper .arco-input-wrapper,
+.arco-input-wrapper .arco-input {
+  background: #0d1117 !important;
 }
 
