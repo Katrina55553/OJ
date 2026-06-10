@@ -179,7 +179,7 @@ const handleSelect = async (value: string) => {
 
 <style scoped>
 #globalHeader {
-  background: #fff;
+  background: #161b22;
   z-index: 100;
   height: 100%;
 }
@@ -194,7 +194,7 @@ const handleSelect = async (value: string) => {
   margin-right: 12px;
 }
 .title {
-  color: #1d2129;
+  color: #f0f6fc;
   font-size: 18px;
   font-weight: 600;
 }
@@ -209,13 +209,13 @@ const handleSelect = async (value: string) => {
   cursor: pointer;
   display: flex;
   align-items: center;
-  color: #1d2129;
+  color: #c9d1d9;
   padding: 4px 8px;
   border-radius: 4px;
   transition: all 0.2s;
 }
 .user-avatar-trigger:hover {
-  background-color: #f2f3f5;
+  background-color: #21262d;
 }
 .user-name-text {
   margin-left: 8px;
@@ -226,6 +226,7 @@ const handleSelect = async (value: string) => {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  color: #c9d1d9;
 }
 .login-btn {
   border-radius: 4px;

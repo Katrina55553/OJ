@@ -117,23 +117,23 @@ onMounted(() => {
 .login-form-container {
   width: 100%;
   max-width: 400px;
-  background: #ffffff;
+  background: #161b22;
   padding: 32px 40px;
   border-radius: 8px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border: 1px solid #30363d;
 }
 
 .login-title {
   text-align: center;
   margin-bottom: 8px;
-  color: #1d2129;
+  color: #f0f6fc;
   font-weight: bold;
   font-size: 24px;
 }
 
 .login-sub-title {
   text-align: center;
-  color: #86909c;
+  color: #8b949e;
   margin-bottom: 32px;
   font-size: 14px;
 }

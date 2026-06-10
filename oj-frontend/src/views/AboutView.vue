@@ -61,13 +61,14 @@
   margin: 0 auto;
   padding: 24px;
   line-height: 1.6;
+  color: #c9d1d9;
 }
 .about-section {
   margin-bottom: 32px;
 }
 .about-section h2 {
   margin-bottom: 12px;
-  color: #1d2129;
+  color: #f0f6fc;
 }
 .about-section ul {
   padding-left: 20px;

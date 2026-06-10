@@ -29,14 +29,14 @@ const router = useRouter();
 .error-code {
   font-size: 96px;
   font-weight: 700;
-  color: #e5e6eb;
+  color: #30363d;
   margin: 0;
   line-height: 1;
 }
 
 .error-text {
   font-size: 18px;
-  color: #86909c;
+  color: #8b949e;
   margin: 16px 0 32px;
 }
 </style>

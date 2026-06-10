@@ -27,10 +27,7 @@
 <style scoped>
 #userLayout {
   text-align: center;
-  background: url("https://gw.alipayobjects.com/zos/rmsportal/FfdJeJRQWjEeGTpqgBKj.png")
-    0% 0% / 100% 100%;
-  background-size: cover;
-  background-position: center;
+  background: #0d1117;
 }
 
 #userLayout :deep(.arco-layout),
@@ -52,7 +49,7 @@
 
 #userLayout .title {
   font-size: 33px;
-  color: #1d2129;
+  color: #f0f6fc;
   font-weight: 600;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
     "Helvetica Neue", Arial, sans-serif;
@@ -63,14 +60,12 @@
   padding: 24px;
   display: flex;
   justify-content: center;
-  /* 如果想让登录框垂直居中，可以打开下面的注释，否则就是靠上显示 */
-  /* align-items: center; */
 }
 
 #userLayout .footer {
   padding: 16px;
   text-align: center;
-  color: rgba(0, 0, 0, 0.45);
+  color: #484f58;
   font-size: 14px;
   position: sticky;
   bottom: 0;

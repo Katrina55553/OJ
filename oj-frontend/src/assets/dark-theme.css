@@ -1,0 +1,262 @@
+/* ========================================
+   OJ 暗夜电竞主题 — GitHub Dark + VS Code
+   ======================================== */
+
+/* ---- Arco Design CSS 变量覆盖 ---- */
+:root {
+  /* 背景色系 */
+  --color-bg-1: #0d1117;
+  --color-bg-2: #161b22;
+  --color-bg-3: #21262d;
+  --color-bg-4: #30363d;
+  --color-bg-5: #484f58;
+
+  /* 文字色系 */
+  --color-text-1: #f0f6fc;
+  --color-text-2: #c9d1d9;
+  --color-text-3: #8b949e;
+  --color-text-4: #6e7681;
+
+  /* 边框 */
+  --color-border-1: #30363d;
+  --color-border-2: #21262d;
+  --color-border-3: #484f58;
+
+  /* 品牌/主色 */
+  --color-primary-light-1: #1f6feb;
+  --color-primary-light-2: #388bfd;
+  --color-primary-light-3: #58a6ff;
+  --color-primary-light-4: #79c0ff;
+  --color-primary: #58a6ff;
+
+  /* 功能色 */
+  --color-success: #3fb950;
+  --color-warning: #f0883e;
+  --color-danger: #f85149;
+  --color-link: #58a6ff;
+
+  /* 阴影用深色 */
+  --color-neutral-1: #0d1117;
+  --color-neutral-2: #161b22;
+  --color-neutral-3: #21262d;
+  --color-neutral-4: #30363d;
+  --color-neutral-5: #484f58;
+  --color-neutral-6: #6e7681;
+  --color-neutral-7: #8b949e;
+  --color-neutral-8: #c9d1d9;
+
+  /* 滚动条 */
+  --scrollbar-bg: #161b22;
+  --scrollbar-thumb: #30363d;
+  --scrollbar-thumb-hover: #484f58;
+}
+
+/* ---- 全局 HTML 基底 ---- */
+html, body, #app {
+  background: #0d1117;
+  color: #c9d1d9;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ---- Arco 组件暗色覆盖 ---- */
+
+/* 菜单 */
+.arco-menu {
+  background: #161b22 !important;
+}
+.arco-menu .arco-menu-item {
+  color: #c9d1d9 !important;
+}
+.arco-menu .arco-menu-item:hover {
+  background: #21262d !important;
+  color: #f0f6fc !important;
+}
+.arco-menu .arco-menu-item.arco-menu-selected {
+  color: #58a6ff !important;
+}
+
+/* 卡片 */
+.arco-card {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+}
+.arco-card .arco-card-header {
+  border-bottom-color: #30363d !important;
+  color: #f0f6fc !important;
+}
+.arco-card .arco-card-body {
+  color: #c9d1d9 !important;
+}
+
+/* 表格 */
+.arco-table {
+  background: #161b22 !important;
+}
+.arco-table th {
+  background: #0d1117 !important;
+  color: #8b949e !important;
+  border-bottom-color: #30363d !important;
+}
+.arco-table td {
+  background: #161b22 !important;
+  color: #c9d1d9 !important;
+  border-bottom-color: #21262d !important;
+}
+.arco-table tr:hover td {
+  background: #21262d !important;
+}
+
+/* 输入框 */
+.arco-input, .arco-textarea, .arco-select-view {
+  background: #0d1117 !important;
+  border-color: #30363d !important;
+  color: #c9d1d9 !important;
+}
+.arco-input:focus, .arco-textarea:focus {
+  border-color: #58a6ff !important;
+}
+.arco-input::placeholder, .arco-textarea::placeholder {
+  color: #6e7681 !important;
+}
+
+/* 按钮 */
+.arco-btn-primary {
+  background: #238636 !important;
+  border-color: #238636 !important;
+}
+.arco-btn-primary:hover {
+  background: #2ea043 !important;
+}
+.arco-btn-secondary {
+  background: #21262d !important;
+  border-color: #30363d !important;
+  color: #c9d1d9 !important;
+}
+.arco-btn-secondary:hover {
+  background: #30363d !important;
+}
+.arco-btn-outline {
+  border-color: #30363d !important;
+  color: #c9d1d9 !important;
+}
+.arco-btn-outline:hover {
+  background: #21262d !important;
+  color: #58a6ff !important;
+  border-color: #58a6ff !important;
+}
+
+/* 标签 */
+.arco-tag {
+  border-color: transparent !important;
+}
+
+/* 分页 */
+.arco-pagination .arco-pagination-item {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+  color: #c9d1d9 !important;
+}
+.arco-pagination .arco-pagination-item:hover,
+.arco-pagination .arco-pagination-item.arco-pagination-item-active {
+  background: #1f6feb !important;
+  border-color: #1f6feb !important;
+  color: #fff !important;
+}
+
+/* 弹窗 */
+.arco-modal {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+}
+.arco-modal .arco-modal-header {
+  border-bottom-color: #30363d !important;
+  color: #f0f6fc !important;
+}
+.arco-modal .arco-modal-body {
+  color: #c9d1d9 !important;
+}
+
+/* 下拉菜单 */
+.arco-dropdown-menu {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+}
+.arco-dropdown-menu .arco-dropdown-option {
+  color: #c9d1d9 !important;
+}
+.arco-dropdown-menu .arco-dropdown-option:hover {
+  background: #21262d !important;
+}
+
+/* 面包屑 */
+.arco-breadcrumb .arco-breadcrumb-item {
+  color: #8b949e !important;
+}
+
+/* 空状态 */
+.arco-empty .arco-empty-description {
+  color: #8b949e !important;
+}
+
+/* 通知 */
+.arco-notification {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+  color: #c9d1d9 !important;
+}
+
+/* Tab 切换 */
+.arco-tabs .arco-tabs-tab {
+  color: #8b949e !important;
+}
+.arco-tabs .arco-tabs-tab:hover {
+  color: #c9d1d9 !important;
+}
+.arco-tabs .arco-tabs-tab.arco-tabs-tab-active {
+  color: #58a6ff !important;
+}
+
+/* 步骤条 */
+.arco-steps .arco-steps-item-title {
+  color: #8b949e !important;
+}
+
+/* ---- 自定义滚动条 ---- */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--scrollbar-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+}
+
+/* ---- 全局链接 ---- */
+a {
+  color: #58a6ff;
+  text-decoration: none;
+}
+a:hover {
+  color: #79c0ff;
+}
+
+/* ---- 代码块通用 ---- */
+code, pre {
+  font-family: "JetBrains Mono", "Fira Code", "Cascadia Code", Consolas, monospace;
+  background: #161b22;
+  border: 1px solid #30363d;
+  border-radius: 4px;
+}
+
+/* ---- 分割线 ---- */
+hr, .arco-divider {
+  border-color: #30363d !important;
+}
