@@ -5,7 +5,12 @@
       <div class="post-box">
         <h2 class="section-title">参与讨论</h2>
         <div class="editor-container">
-          <MdEditor v-model="newCommentContent" />
+          <a-input
+            v-model="newCommentContent"
+            type="textarea"
+            :rows="4"
+            placeholder="说点什么吧…支持 Markdown"
+          />
         </div>
         <div class="post-actions">
           <a-button
@@ -25,89 +30,68 @@
       <!-- 列表：评论展示区 -->
       <div class="comment-list-wrapper">
         <div class="list-header">
-          <h2 class="section-title">全部评论 ({{ commentList.length }})</h2>
-          <a-radio-group type="button" v-model="sortOrder" size="small">
-            <a-radio value="newest">最新</a-radio>
-            <a-radio value="hottest">最热</a-radio>
-          </a-radio-group>
+          <h2 class="section-title">全部评论 ({{ total }})</h2>
         </div>
 
-        <a-list :bordered="false" :data="commentList" class="custom-list">
+        <a-list
+          :bordered="false"
+          :data="commentList"
+          :loading="loading"
+          class="custom-list"
+        >
           <template #item="{ item }">
             <a-list-item class="comment-item">
               <a-comment
                 :author="item.userName"
-                :datetime="item.createTime"
+                :datetime="formatTime(item.createTime)"
                 align="right"
               >
                 <!-- 头像 -->
                 <template #avatar>
                   <a-avatar>
-                    <img alt="avatar" :src="item.userAvatar" />
+                    <img alt="avatar" :src="item.userAvatar || defaultAvatar" />
                   </a-avatar>
                 </template>
 
-                <!-- 评论内容：使用 MdPreview 渲染 -->
+                <!-- 评论内容 -->
                 <template #content>
-                  <div class="comment-content">
-                    <MdPreview :value="item.content" />
-                  </div>
+                  <div class="comment-content">{{ item.content }}</div>
                 </template>
 
                 <!-- 底部操作栏 -->
                 <template #actions>
                   <span class="action" @click="handleLike(item)">
                     <icon-heart
-                      :style="{ color: item.isLiked ? '#f53f3f' : '' }"
+                      :style="{ color: item.hasThumb ? '#f53f3f' : '' }"
                     />
-                    {{ item.likes }}
-                  </span>
-                  <span class="action" @click="toggleReply(item)">
-                    <icon-message /> 回复
+                    {{ item.thumbNum }}
                   </span>
                   <span
-                    v-if="item.isMyComment"
+                    v-if="isMyComment(item)"
                     class="action delete"
                     @click="handleDelete(item)"
                   >
                     <icon-delete /> 删除
                   </span>
                 </template>
-
-                <!-- 回复输入框 (点击回复后显示) -->
-                <div v-if="item.showReplyInput" class="reply-box">
-                  <a-textarea
-                    v-model="item.replyContent"
-                    placeholder="请输入回复内容..."
-                    :auto-size="{ minRows: 2, maxRows: 4 }"
-                    style="margin-bottom: 8px"
-                  />
-                  <div style="text-align: right">
-                    <a-space>
-                      <a-button
-                        size="small"
-                        @click="item.showReplyInput = false"
-                        >取消</a-button
-                      >
-                      <a-button
-                        type="primary"
-                        size="small"
-                        @click="submitReply(item)"
-                        >回复</a-button
-                      >
-                    </a-space>
-                  </div>
-                </div>
               </a-comment>
             </a-list-item>
           </template>
         </a-list>
 
+        <!-- 分页 -->
+        <div v-if="total > pageSize" class="pagination-wrapper">
+          <a-pagination
+            :total="total"
+            :current="current"
+            :page-size="pageSize"
+            show-total
+            @change="handlePageChange"
+          />
+        </div>
+
         <!-- 空状态 -->
-        <a-empty
-          v-if="commentList.length === 0"
-          description="暂无评论，快来抢沙发吧~"
-        />
+        <a-empty v-if="!loading && commentList.length === 0" description="暂无评论，快来抢沙发吧~" />
       </div>
     </div>
   </div>
@@ -115,140 +99,172 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from "vue";
-import { Message } from "@arco-design/web-vue";
+import { Message, Modal } from "@arco-design/web-vue";
 import {
   IconHeart,
-  IconMessage,
   IconDelete,
 } from "@arco-design/web-vue/es/icon";
-import MdEditor from "@/components/MdEditor.vue";
-import MdPreview from "@/components/MdPreview.vue";
+import { useStore } from "vuex";
+import axios from "axios";
 
-// --- 状态定义 ---
+const store = useStore();
+const currentUserId = ref<number | null>(null);
+
 const submitting = ref(false);
+const loading = ref(false);
 const newCommentContent = ref("");
-const sortOrder = ref("newest");
+const commentList = ref<any[]>([]);
+const total = ref(0);
+const current = ref(1);
+const pageSize = ref(10);
 
-// 模拟数据
-interface CommentItem {
-  id: number;
-  userName: string;
-  userAvatar: string;
-  content: string;
-  createTime: string;
-  likes: number;
-  isLiked: boolean;
-  isMyComment: boolean;
-  showReplyInput?: boolean;
-  replyContent?: string;
-}
+const defaultAvatar =
+  "https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/3ee5f13fb09879ecb5185e440cef6eb9.png~tplv-uwbnlip3yd-webp.webp";
 
-const commentList = ref<CommentItem[]>([]);
-
-// --- 方法 ---
-
-// 加载评论列表
-const loadComments = () => {
-  // TODO: 调用后端 API 获取评论
-  // 模拟数据
-  commentList.value = [
-    {
-      id: 1,
-      userName: "CodeMaster",
-      userAvatar:
-        "https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/3ee5f13fb09879ecb5185e440cef6eb9.png~tplv-uwbnlip3yd-webp.webp",
-      content:
-        "这道题的关键在于使用 **动态规划**。\n\n状态转移方程为：\n$$ dp[i] = max(dp[i-1], dp[i-2] + nums[i]) $$",
-      createTime: "1小时前",
-      likes: 24,
-      isLiked: false,
-      isMyComment: false,
-    },
-    {
-      id: 2,
-      userName: "菜鸟小白",
-      userAvatar:
-        "https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/a8c8cdb109cb051163646151a4a5083b.png~tplv-uwbnlip3yd-webp.webp",
-      content:
-        "为什么我的代码会超时？有没有大佬帮忙看看？\n```cpp\n// 暴力解法...\n```",
-      createTime: "2小时前",
-      likes: 5,
-      isLiked: true,
-      isMyComment: true,
-    },
-  ];
+// 判断是否是自己的评论
+const isMyComment = (item: any) => {
+  return currentUserId.value && item.userId === currentUserId.value;
 };
 
-// 提交主评论
+// 时间格式化
+const formatTime = (time: string) => {
+  if (!time) return "";
+  const date = new Date(time);
+  const now = new Date();
+  const diff = (now.getTime() - date.getTime()) / 1000; // 秒
+  if (diff < 60) return "刚刚";
+  if (diff < 3600) return `${Math.floor(diff / 60)} 分钟前`;
+  if (diff < 86400) return `${Math.floor(diff / 3600)} 小时前`;
+  if (diff < 604800) return `${Math.floor(diff / 86400)} 天前`;
+  return date.toLocaleDateString("zh-CN");
+};
+
+// 加载评论列表
+const loadComments = async () => {
+  loading.value = true;
+  try {
+    const res = await axios.post("/api/post/list/page/vo", {
+      current: current.value,
+      pageSize: pageSize.value,
+      sortField: "createTime",
+      sortOrder: "descend",
+    });
+    if (res.data?.code === 0) {
+      commentList.value = res.data.data.records || [];
+      total.value = Number(res.data.data.total) || 0;
+    } else {
+      Message.error(res.data?.message || "加载失败");
+    }
+  } catch (e: any) {
+    Message.error("加载评论失败：" + (e.message || "网络错误"));
+  } finally {
+    loading.value = false;
+  }
+};
+
+// 提交评论
 const handleSubmit = async () => {
-  if (!newCommentContent.value.trim()) {
+  const content = newCommentContent.value.trim();
+  if (!content) {
     Message.warning("评论内容不能为空");
     return;
   }
 
   submitting.value = true;
   try {
-    // TODO: 调用后端提交 API
-    await new Promise((r) => setTimeout(r, 800)); // 模拟请求
-
-    // 模拟插入新评论
-    commentList.value.unshift({
-      id: Date.now(),
-      userName: "当前用户",
-      userAvatar:
-        "https://p1-arco.byteimg.com/tos-cn-i-uwbnlip3yd/3ee5f13fb09879ecb5185e440cef6eb9.png~tplv-uwbnlip3yd-webp.webp",
-      content: newCommentContent.value,
-      createTime: "刚刚",
-      likes: 0,
-      isLiked: false,
-      isMyComment: true,
+    const res = await axios.post("/api/post/add", {
+      title: content.substring(0, 30), // 取前 30 字作为标题（必填）
+      content,
+      tags: [],
     });
-
-    newCommentContent.value = ""; // 清空输入框
-    Message.success("评论发表成功");
-  } catch (e) {
-    Message.error("发表失败");
+    if (res.data?.code === 0) {
+      Message.success("评论发表成功");
+      newCommentContent.value = "";
+      current.value = 1;
+      await loadComments();
+    } else {
+      Message.error(res.data?.message || "发表失败");
+    }
+  } catch (e: any) {
+    Message.error("发表失败：" + (e.message || "网络错误"));
   } finally {
     submitting.value = false;
   }
 };
 
-// 点赞
-const handleLike = (item: CommentItem) => {
-  item.isLiked = !item.isLiked;
-  item.likes += item.isLiked ? 1 : -1;
-};
-
-// 切换回复框
-const toggleReply = (item: CommentItem) => {
-  item.showReplyInput = !item.showReplyInput;
-  item.replyContent = ""; // 清空之前的输入
-};
-
-// 提交回复
-const submitReply = (item: CommentItem) => {
-  if (!item.replyContent?.trim()) return Message.warning("请输入内容");
-
-  Message.success("回复成功");
-  item.showReplyInput = false;
+// 点赞 / 取消点赞
+const handleLike = async (item: any) => {
+  try {
+    const res = await axios.post("/api/post_thumb/", {
+      postId: item.id,
+    });
+    if (res.data?.code === 0) {
+      // result: 1=点赞成功, 0=取消点赞, -1=未登录
+      const result = res.data.data;
+      if (result === 1) {
+        item.hasThumb = true;
+        item.thumbNum = (item.thumbNum || 0) + 1;
+      } else if (result === 0) {
+        item.hasThumb = false;
+        item.thumbNum = Math.max(0, (item.thumbNum || 0) - 1);
+      } else if (result === -1) {
+        Message.warning("请先登录");
+      }
+    } else {
+      Message.error(res.data?.message || "操作失败");
+    }
+  } catch (e: any) {
+    Message.error("点赞失败：" + (e.message || "网络错误"));
+  }
 };
 
 // 删除评论
-const handleDelete = (item: CommentItem) => {
-  // TODO: 调用后端删除 API
-  commentList.value = commentList.value.filter((c) => c.id !== item.id);
-  Message.success("删除成功");
+const handleDelete = (item: any) => {
+  Modal.confirm({
+    title: "确认删除",
+    content: "删除后不可恢复，确认删除该评论？",
+    okText: "确认",
+    cancelText: "取消",
+    onOk: async () => {
+      try {
+        const res = await axios.post("/api/post/delete", { id: item.id });
+        if (res.data?.code === 0) {
+          Message.success("删除成功");
+          await loadComments();
+        } else {
+          Message.error(res.data?.message || "删除失败");
+        }
+      } catch (e: any) {
+        Message.error("删除失败：" + (e.message || "网络错误"));
+      }
+    },
+  });
 };
 
-onMounted(() => {
+// 分页切换
+const handlePageChange = (page: number) => {
+  current.value = page;
   loadComments();
+};
+
+// 获取当前用户信息
+const loadCurrentUser = () => {
+  const user = store.state.user?.loginUser;
+  if (user?.id) {
+    currentUserId.value = user.id;
+  }
+};
+
+onMounted(async () => {
+  loadCurrentUser();
+  await loadComments();
 });
 </script>
 
 <style scoped>
 .discussion-view {
   min-height: 100vh;
-  background: #161b22;
+  background: #0d1117;
   padding: 24px;
 }
 
@@ -262,7 +278,8 @@ onMounted(() => {
   background: #161b22;
   padding: 24px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #30363d;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
 }
 
 .section-title {
@@ -285,7 +302,7 @@ onMounted(() => {
   background: #161b22;
   padding: 24px;
   border-radius: 8px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border: 1px solid #30363d;
   margin-top: 24px;
 }
 
@@ -303,37 +320,39 @@ onMounted(() => {
   border-bottom: 1px solid #21262d;
 }
 
-/* 评论内容容器：防止 Markdown 溢出 */
 .comment-content {
   margin-top: 8px;
   max-width: 100%;
   overflow: hidden;
+  color: #c9d1d9;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 /* 操作栏样式 */
 .action {
   cursor: pointer;
   color: #8b949e;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 4px;
   font-size: 13px;
+  margin-right: 16px;
   transition: all 0.2s;
 }
 
 .action:hover {
-  color: #165dff;
+  color: #58a6ff;
 }
 
 .action.delete:hover {
-  color: #f53f3f;
+  color: #f85149;
 }
 
-/* 回复框 */
-.reply-box {
-  margin-top: 12px;
-  background: #161b22;
-  padding: 12px;
-  border-radius: 4px;
+/* 分页 */
+.pagination-wrapper {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
 }
 </style>
