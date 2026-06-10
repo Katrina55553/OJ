@@ -303,7 +303,7 @@ onMounted(() => {
 .bot-icon {
   width: 36px;
   height: 36px;
-  background: linear-gradient(135deg, #e0f2fe 0%, #165dff 100%);
+  background: linear-gradient(135deg, #1a2a3a 0%, #165dff 100%);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -405,14 +405,14 @@ onMounted(() => {
 }
 
 .ai-avatar {
-  background-color: #fff;
+  background-color: #161b22;
   color: #165dff;
   border: 1px solid #30363d;
 }
 
 .user-avatar {
   background: linear-gradient(135deg, #165dff 0%, #0e42d2 100%);
-  color: #fff;
+  color: #161b22;
 }
 
 .content-col {
@@ -436,7 +436,7 @@ onMounted(() => {
 
 /* AI Bubble */
 .assistant .bubble {
-  background: #fff;
+  background: #161b22;
   border: 1px solid #30363d;
   border-top-left-radius: 2px; /* 气泡角 */
   color: #f0f6fc;
@@ -446,7 +446,7 @@ onMounted(() => {
 /* User Bubble */
 .user .bubble {
   background: linear-gradient(135deg, #165dff 0%, #3a7afe 100%);
-  color: #fff;
+  color: #161b22;
   border-top-right-radius: 2px;
   box-shadow: 0 4px 10px rgba(22, 93, 255, 0.2);
 }
@@ -528,7 +528,7 @@ onMounted(() => {
 /* --- Input Area --- */
 .input-wrapper {
   padding: 24px;
-  background: #fff;
+  background: #161b22;
   border-top: 1px solid rgba(0, 0, 0, 0.05);
 }
 
@@ -536,7 +536,7 @@ onMounted(() => {
   border: 1px solid #30363d;
   border-radius: 12px;
   padding: 12px;
-  background: #fff;
+  background: #161b22;
   transition: all 0.3s;
   display: flex;
   flex-direction: column;

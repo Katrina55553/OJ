@@ -160,7 +160,7 @@ const progressPercent = computed(() => {
 
 const progressColor = computed(() => {
   if (contest.value.status === "进行中") return "#00b42a"; // 绿色
-  if (contest.value.status === "已结束") return "#86909c"; // 灰色
+  if (contest.value.status === "已结束") return "#8b949e"; // 灰色
   return "#165dff"; // 蓝色
 });
 
@@ -225,7 +225,7 @@ onMounted(() => {
 <style scoped>
 .contest-detail-view {
   min-height: 100vh;
-  background-color: #f7f8fa;
+  background-color: #161b22;
 }
 
 .no-contest-placeholder {
@@ -238,7 +238,7 @@ onMounted(() => {
 
 .contest-header {
   background: linear-gradient(135deg, #165dff 0%, #722ed1 100%);
-  color: #fff;
+  color: #161b22;
   padding: 40px 20px 100px;
   text-align: center;
 }
@@ -290,7 +290,7 @@ onMounted(() => {
 }
 
 :deep(.arco-progress-text) {
-  color: #fff !important;
+  color: #161b22 !important;
 }
 
 .main-container {
@@ -309,7 +309,7 @@ onMounted(() => {
 .card-title {
   font-size: 18px;
   font-weight: 600;
-  color: #1d2129;
+  color: #f0f6fc;
   display: flex;
   align-items: center;
 }
@@ -338,11 +338,11 @@ onMounted(() => {
 
 .do-btn:hover {
   background-color: #165dff;
-  color: #fff;
+  color: #161b22;
 }
 
 :deep(.arco-table-th) {
-  background-color: #f7f8fa;
+  background-color: #161b22;
   font-weight: 600;
 }
 </style>

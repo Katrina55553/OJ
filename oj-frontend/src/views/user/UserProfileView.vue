@@ -198,7 +198,7 @@ onMounted(() => {
 .username {
   margin: 16px 0 8px;
   font-size: 22px;
-  color: #1d2129;
+  color: #f0f6fc;
 }
 .info-list {
   text-align: left;
@@ -211,13 +211,13 @@ onMounted(() => {
   font-size: 14px;
 }
 .info-item .label {
-  color: #86909c;
+  color: #8b949e;
   display: flex;
   align-items: center;
   gap: 8px;
 }
 .info-item .value {
-  color: #1d2129;
+  color: #f0f6fc;
   font-weight: 500;
 }
 </style>

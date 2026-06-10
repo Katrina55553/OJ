@@ -230,14 +230,14 @@ const handleCancel = () => {
   max-width: 1200px;
   margin: 0 auto;
   padding: 0 16px;
-  background: #f7f8fa;
+  background: #161b22;
   min-height: 100vh;
 }
 
 .page-header {
   margin-bottom: 24px;
   padding: 20px 24px;
-  background: white;
+  background: #161b22;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
@@ -252,7 +252,7 @@ const handleCancel = () => {
 
 .form-card {
   padding: 32px;
-  background: white;
+  background: #161b22;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }

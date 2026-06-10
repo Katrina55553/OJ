@@ -362,7 +362,7 @@ onMounted(() => loadQuestion());
 <style scoped>
 .question-view {
   height: 100%;
-  background: #f2f3f5;
+  background: #21262d;
   padding: 16px;
   box-sizing: border-box;
   overflow: hidden;
@@ -386,7 +386,7 @@ onMounted(() => loadQuestion());
 }
 
 .left-panel {
-  background: #fff;
+  background: #161b22;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -408,7 +408,7 @@ onMounted(() => loadQuestion());
   margin-bottom: 12px;
   display: flex;
   gap: 8px;
-  color: #86909c;
+  color: #8b949e;
   font-size: 13px;
 }
 
@@ -423,7 +423,7 @@ onMounted(() => loadQuestion());
 }
 
 .right-panel {
-  background: #fff;
+  background: #161b22;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -449,7 +449,7 @@ onMounted(() => loadQuestion());
 .submit-bar {
   flex-shrink: 0;
   padding: 16px;
-  border-top: 1px solid #f2f3f5;
+  border-top: 1px solid #21262d;
   text-align: right;
 }
 .run-result {
@@ -458,7 +458,7 @@ onMounted(() => loadQuestion());
 }
 
 .output-pre {
-  background: #f8f8f8;
+  background: #21262d;
   padding: 12px;
   border-radius: 6px;
   white-space: pre-wrap;
@@ -467,7 +467,7 @@ onMounted(() => loadQuestion());
 }
 
 .error-pre {
-  background: #fff1f0;
+  background: #3d1f1a;
   color: #cf1322;
   padding: 12px;
   border-radius: 6px;

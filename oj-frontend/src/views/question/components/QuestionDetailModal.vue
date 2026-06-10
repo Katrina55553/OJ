@@ -106,11 +106,11 @@ const handleCancel = () => {
 }
 .detail-content h3 {
   margin-top: 0;
-  color: #1d2129;
+  color: #f0f6fc;
 }
 .detail-meta {
   margin: 12px 0;
-  color: #86909c;
+  color: #8b949e;
 }
 .detail-tags {
   margin: 16px 0;
@@ -120,11 +120,11 @@ const handleCancel = () => {
 }
 .detail-section h4 {
   margin-bottom: 12px;
-  color: #1d2129;
+  color: #f0f6fc;
 }
 .content-box {
   padding: 16px;
-  background: #f7f8fa;
+  background: #161b22;
   border-radius: 4px;
   white-space: pre-wrap;
   line-height: 1.6;

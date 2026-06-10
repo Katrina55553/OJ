@@ -180,7 +180,7 @@ watch(
 
 <style scoped>
 .question-heatmap {
-  background: white;
+  background: #161b22;
   padding: 24px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -205,7 +205,7 @@ watch(
   justify-content: space-between;
   width: 30px;
   font-size: 12px;
-  color: #86909c;
+  color: #8b949e;
   padding-top: 20px;
   text-align: right;
   margin-right: 8px;
@@ -282,7 +282,7 @@ watch(
 
 .month-label {
   font-size: 12px;
-  color: #86909c;
+  color: #8b949e;
   min-width: 40px;
 }
 
@@ -292,7 +292,7 @@ watch(
   justify-content: flex-end;
   margin-top: 16px;
   font-size: 12px;
-  color: #86909c;
+  color: #8b949e;
 }
 
 .legend-blocks {

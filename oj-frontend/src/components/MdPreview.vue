@@ -59,9 +59,9 @@ const rendered = computed(() => {
   box-sizing: border-box;
   line-height: 1.8;
   font-size: 16px;
-  color: #1d2129;
+  color: #f0f6fc;
   padding: 24px;
-  background: #fff;
+  background: #161b22;
   border-radius: 12px;
   border: 1px solid #e5e6eb;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
@@ -108,7 +108,7 @@ const rendered = computed(() => {
 }
 
 .md-preview :deep(th) {
-  background-color: #f7f8fa;
+  background-color: #161b22;
   font-weight: 600;
 }
 

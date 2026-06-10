@@ -321,14 +321,14 @@ const handleCancel = () => {
 .tip {
   margin-top: 8px;
   font-size: 13px;
-  color: #86909c;
+  color: #8b949e;
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
 .tip code {
-  background: #f5f5f5;
+  background: #21262d;
   padding: 2px 6px;
   border-radius: 4px;
   font-family: monospace;

@@ -63,18 +63,58 @@ html, body, #app {
 /* ---- Arco 组件暗色覆盖 ---- */
 
 /* 菜单 */
-.arco-menu {
+.arco-menu,
+.arco-menu-inner,
+.arco-menu-light {
   background: #161b22 !important;
 }
 .arco-menu .arco-menu-item {
   color: #c9d1d9 !important;
+  background: transparent !important;
 }
 .arco-menu .arco-menu-item:hover {
   background: #21262d !important;
   color: #f0f6fc !important;
 }
-.arco-menu .arco-menu-item.arco-menu-selected {
+.arco-menu .arco-menu-item.arco-menu-selected,
+.arco-menu .arco-menu-item.arco-menu-active {
   color: #58a6ff !important;
+  background: #1a2a3a !important;
+}
+
+/* 菜单弹出层 */
+.arco-menu-pop,
+.arco-menu-pop-header {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+}
+
+/* 布局容器全暗 */
+.arco-layout,
+.arco-layout-content,
+.arco-layout-sider,
+.arco-layout-header,
+.arco-layout-footer {
+  background: #0d1117 !important;
+}
+
+/* select 下拉 */
+.arco-select-dropdown,
+.arco-select-popup {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+}
+.arco-select-option {
+  color: #c9d1d9 !important;
+}
+.arco-select-option:hover,
+.arco-select-option.arco-select-option-active {
+  background: #21262d !important;
+}
+
+/* 总体的反白：全部带arco前缀的背景都暗色 */
+[class*="arco"] {
+  color-scheme: dark;
 }
 
 /* 卡片 */
@@ -261,74 +301,3 @@ hr, .arco-divider {
   border-color: #30363d !important;
 }
 
-/* ======== 强力覆盖所有页面残留亮色 ======== */
-
-/* 所有常见的浅色背景 → 深色 */
-#app [class*="page"],
-#app [class*="view"],
-#app [class*="container"],
-#app [class*="wrapper"],
-#app [class*="content"],
-#app [class*="layout"],
-#app [class*="section"],
-#app [class*="card"]:not(.arco-card),
-#app section,
-#app [class*="dashboard"],
-#app [class*="profile"],
-#app [class*="detail"],
-#app [class*="list"],
-#app [class*="form"],
-#app [class*="header"]:not(.arco-layout-header),
-#app [class*="chat"],
-#app [class*="message"],
-#app [class*="filter"],
-#app [class*="toolbar"],
-#app [class*="summary"],
-#app [class*="user"] {
-  background-color: #0d1117 !important;
-  color: #c9d1d9 !important;
-}
-
-/* 二级容器 → 稍微亮一点 */
-#app [class*="card"],
-#app [class*="bubble"],
-#app [class*="box"],
-#app [class*="panel"],
-#app [class*="stat"] {
-  background-color: #161b22 !important;
-}
-
-/* 题目详情页的代码区 */
-#app [class*="editor"],
-#app [class*="code"],
-#app [class*="monaco"] {
-  background-color: #0d1117 !important;
-}
-
-/* 亮色文字强制转暗 */
-#app h1:not(.arco-*), #app h2:not(.arco-*), #app h3:not(.arco-*),
-#app h4:not(.arco-*), #app h5:not(.arco-*), #app h6:not(.arco-*) {
-  color: #f0f6fc !important;
-}
-
-#app p, #app span, #app li, #app label {
-  color: inherit;
-}
-
-/* 亮色边框 → 暗 */
-#app [class*="section"],
-#app [class*="card"] {
-  border-color: #30363d !important;
-}
-
-/* 渐变背景 → 纯深色 */
-#app [style*="linear-gradient"],
-#app [class*="gradient"] {
-  background: #161b22 !important;
-}
-
-/* 浅色badge/标签底色保留图标可见 */
-#app [class*="icon"],
-#app [class*="avatar"] {
-  background-color: transparent !important;
-}

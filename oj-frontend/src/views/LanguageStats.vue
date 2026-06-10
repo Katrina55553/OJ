@@ -370,7 +370,7 @@ onUnmounted(() => {
 <style scoped>
 .dashboard-page {
   min-height: 100vh;
-  background: linear-gradient(135deg, #f5f7fa 0%, #e4e8f0 100%);
+  background: linear-gradient(135deg, #161b22 0%, #30363d 100%);
   padding: 24px;
   display: flex;
   flex-direction: column;
@@ -394,7 +394,7 @@ onUnmounted(() => {
 .card-header {
   padding: 20px 24px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  background: linear-gradient(135deg, #161b22 0%, #fafbfc 100%);
+  background: linear-gradient(135deg, #161b22 0%, #161b22 100%);
 }
 
 .card-title {
@@ -437,7 +437,7 @@ onUnmounted(() => {
   gap: 20px;
   align-items: flex-end;
   padding: 20px;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  background: linear-gradient(135deg, #161b22 0%, #21262d 100%);
   border-radius: 12px;
   border: 1px solid rgba(0, 0, 0, 0.05);
   margin-bottom: 24px;
@@ -555,7 +555,7 @@ onUnmounted(() => {
 }
 
 .btn-secondary {
-  background: #f1f5f9;
+  background: #21262d;
   color: #475569;
   border: 2px solid #e2e8f0;
 }
@@ -577,7 +577,7 @@ onUnmounted(() => {
 }
 
 .btn-outline:hover {
-  background: #f1f5f9;
+  background: #21262d;
   border-color: #94a3b8;
   color: #334155;
 }
@@ -619,7 +619,7 @@ onUnmounted(() => {
   align-items: center;
   justify-content: center;
   gap: 16px;
-  background: #fafbfc;
+  background: #161b22;
   border-radius: 12px;
   border: 2px dashed #e2e8f0;
 }
@@ -670,7 +670,7 @@ onUnmounted(() => {
 }
 
 .empty-hint code {
-  background: #f1f5f9;
+  background: #21262d;
   padding: 2px 8px;
   border-radius: 6px;
   font-size: 12px;
@@ -698,7 +698,7 @@ onUnmounted(() => {
   justify-content: center;
   gap: 24px;
   padding: 16px 24px;
-  background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+  background: linear-gradient(135deg, #1a2a3a 0%, #1a2a3a 100%);
   border-radius: 12px;
   border: 1px solid #bae6fd;
 }

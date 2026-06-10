@@ -248,7 +248,7 @@ onMounted(() => {
 <style scoped>
 .discussion-view {
   min-height: 100vh;
-  background: #f7f8fa;
+  background: #161b22;
   padding: 24px;
 }
 
@@ -259,7 +259,7 @@ onMounted(() => {
 
 /* --- 发帖区样式 --- */
 .post-box {
-  background: #fff;
+  background: #161b22;
   padding: 24px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -268,7 +268,7 @@ onMounted(() => {
 .section-title {
   margin: 0 0 16px 0;
   font-size: 18px;
-  color: #1d2129;
+  color: #f0f6fc;
   font-weight: 600;
 }
 
@@ -282,7 +282,7 @@ onMounted(() => {
 
 /* --- 列表区样式 --- */
 .comment-list-wrapper {
-  background: #fff;
+  background: #161b22;
   padding: 24px;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
@@ -295,12 +295,12 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 20px;
   padding-bottom: 12px;
-  border-bottom: 1px solid #f2f3f5;
+  border-bottom: 1px solid #21262d;
 }
 
 .custom-list .arco-list-item {
   padding: 20px 0;
-  border-bottom: 1px solid #f2f3f5;
+  border-bottom: 1px solid #21262d;
 }
 
 /* 评论内容容器：防止 Markdown 溢出 */
@@ -313,7 +313,7 @@ onMounted(() => {
 /* 操作栏样式 */
 .action {
   cursor: pointer;
-  color: #86909c;
+  color: #8b949e;
   display: flex;
   align-items: center;
   gap: 4px;
@@ -332,7 +332,7 @@ onMounted(() => {
 /* 回复框 */
 .reply-box {
   margin-top: 12px;
-  background: #f7f8fa;
+  background: #161b22;
   padding: 12px;
   border-radius: 4px;
 }

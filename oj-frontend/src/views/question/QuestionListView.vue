@@ -202,12 +202,12 @@ const toProblemDetail = (id: number) => {
 <style scoped>
 .home-view {
   min-height: 100vh;
-  background-color: #f7f8fa;
+  background-color: #161b22;
 }
 
 .banner {
-  background: linear-gradient(135deg, #1d2129 0%, #293448 100%);
-  color: #fff;
+  background: linear-gradient(135deg, #f0f6fc 0%, #293448 100%);
+  color: #161b22;
   padding: 60px 20px 80px;
   text-align: center;
 }
@@ -235,7 +235,7 @@ const toProblemDetail = (id: number) => {
 }
 
 .search-section {
-  background: #fff;
+  background: #161b22;
   padding: 24px;
   border-radius: 12px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
@@ -252,7 +252,7 @@ const toProblemDetail = (id: number) => {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  background: #fff;
+  background: #161b22;
   padding: 16px 24px;
   border-radius: 8px;
   border: 1px solid #e5e6eb;
@@ -274,7 +274,7 @@ const toProblemDetail = (id: number) => {
 }
 
 .problem-id {
-  color: #86909c;
+  color: #8b949e;
   font-weight: bold;
   margin-right: 16px;
   min-width: 40px;
@@ -283,7 +283,7 @@ const toProblemDetail = (id: number) => {
 .problem-title {
   font-size: 16px;
   font-weight: 500;
-  color: #1d2129;
+  color: #f0f6fc;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -314,13 +314,13 @@ const toProblemDetail = (id: number) => {
 
 .stat-info .label {
   font-size: 12px;
-  color: #86909c;
+  color: #8b949e;
 }
 
 .stat-info .value {
   font-size: 14px;
   font-weight: bold;
-  color: #1d2129;
+  color: #f0f6fc;
 }
 
 .pagination-wrapper {

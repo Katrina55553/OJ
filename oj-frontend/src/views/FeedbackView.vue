@@ -208,7 +208,7 @@ const handleSubmit = async ({
 <style scoped>
 .feedback-view {
   min-height: calc(100vh - 60px);
-  background-color: #f2f3f5;
+  background-color: #21262d;
   padding: 40px 20px;
   display: flex;
   justify-content: center;
@@ -220,7 +220,7 @@ const handleSubmit = async ({
 }
 
 .content-wrapper {
-  background: #fff;
+  background: #161b22;
   padding: 40px;
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
@@ -234,13 +234,13 @@ const handleSubmit = async ({
 .title {
   margin: 0 0 8px;
   font-size: 24px;
-  color: #1d2129;
+  color: #f0f6fc;
   font-weight: 600;
 }
 
 .subtitle {
   margin: 0;
-  color: #86909c;
+  color: #8b949e;
   font-size: 14px;
 }
 

@@ -401,7 +401,7 @@ onMounted(() => {
 
 <style scoped>
 .submission-page {
-  background-color: #f7f8fa;
+  background-color: #161b22;
   padding: 16px;
   min-height: 100vh;
   max-width: 1200px;
@@ -423,12 +423,12 @@ onMounted(() => {
 .title {
   font-size: 16px;
   font-weight: 600;
-  color: #1d2129;
+  color: #f0f6fc;
 }
 
 .subtitle {
   font-size: 11px;
-  color: #86909c;
+  color: #8b949e;
   margin-top: 2px;
 }
 
@@ -457,7 +457,7 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 20px 24px;
-  background: #fff;
+  background: #161b22;
   border-radius: 6px;
   box-shadow: 0 1px 3px rgba(26, 26, 26, 0.1);
   cursor: pointer;
@@ -487,12 +487,12 @@ onMounted(() => {
 
 .username {
   font-weight: 600;
-  color: #1d2129;
+  color: #f0f6fc;
 }
 
 .submit-time {
   font-size: 13px;
-  color: #86909c;
+  color: #8b949e;
 }
 
 /* 中间状态 + 题目 */
@@ -540,7 +540,7 @@ onMounted(() => {
 .stat-icon {
   font-size: 14px;
   margin: 0 4px;
-  color: #86909c;
+  color: #8b949e;
 }
 
 .language-tag {
@@ -558,14 +558,14 @@ onMounted(() => {
   align-items: center;
   justify-content: space-between;
   padding: 16px 24px;
-  background: #fafafa;
+  background: #161b22;
   border-bottom: 1px solid #f0f0f0;
   margin: -24px -24px 20px -24px;
 }
 
 .run-id {
   font-size: 13px;
-  color: #86909c;
+  color: #8b949e;
 }
 
 .code-preview {
