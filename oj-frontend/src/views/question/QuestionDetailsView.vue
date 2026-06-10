@@ -459,6 +459,7 @@ onMounted(() => loadQuestion());
 
 .output-pre {
   background: #21262d;
+  color: #c9d1d9;
   padding: 12px;
   border-radius: 6px;
   white-space: pre-wrap;
