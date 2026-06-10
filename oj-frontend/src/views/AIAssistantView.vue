@@ -244,15 +244,15 @@ onMounted(() => {
 
 <style scoped>
 :root {
-  --primary-color: #165dff;
-  --bg-color: #f7f8fa;
-  --chat-bg: #ffffff;
+  --primary-color: #58a6ff;
+  --bg-color: #0d1117;
+  --chat-bg: #161b22;
 }
 
 .chat-layout {
   height: 100vh;
   width: 100vw;
-  background-color: #f2f3f5;
+  background-color: #0d1117;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -264,11 +264,12 @@ onMounted(() => {
   width: 100%;
   max-width: 1000px;
   height: 100%;
-  background: #ffffff;
+  background: #161b22;
   display: flex;
   flex-direction: column;
   position: relative;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+  border-left: 1px solid #30363d;
+  border-right: 1px solid #30363d;
 }
 
 /* 适配大屏幕，让它像一个App窗口 */
@@ -318,7 +319,7 @@ onMounted(() => {
 .title {
   font-weight: 600;
   font-size: 16px;
-  color: #1d2129;
+  color: #f0f6fc;
 }
 
 .status-dot {
@@ -336,7 +337,7 @@ onMounted(() => {
   flex: 1;
   overflow-y: auto;
   padding: 24px;
-  background: #fcfcfc;
+  background: #0d1117;
   scroll-behavior: smooth;
 }
 
@@ -345,7 +346,7 @@ onMounted(() => {
   width: 6px;
 }
 .messages-area::-webkit-scrollbar-thumb {
-  background: #e5e6eb;
+  background: #30363d;
   border-radius: 3px;
 }
 
@@ -373,12 +374,12 @@ onMounted(() => {
 
 .welcome-box h2 {
   font-size: 24px;
-  color: #1d2129;
+  color: #f0f6fc;
   margin-bottom: 8px;
 }
 
 .welcome-box p {
-  color: #86909c;
+  color: #8b949e;
   font-size: 14px;
 }
 
@@ -406,7 +407,7 @@ onMounted(() => {
 .ai-avatar {
   background-color: #fff;
   color: #165dff;
-  border: 1px solid #e5e6eb;
+  border: 1px solid #30363d;
 }
 
 .user-avatar {
@@ -436,9 +437,9 @@ onMounted(() => {
 /* AI Bubble */
 .assistant .bubble {
   background: #fff;
-  border: 1px solid #e5e6eb;
+  border: 1px solid #30363d;
   border-top-left-radius: 2px; /* 气泡角 */
-  color: #1d2129;
+  color: #f0f6fc;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.03);
 }
 
@@ -470,14 +471,14 @@ onMounted(() => {
 
 .action-btn {
   font-size: 12px;
-  color: #86909c;
+  color: #8b949e;
   cursor: pointer;
   padding: 2px 6px;
   border-radius: 4px;
 }
 
 .action-btn:hover {
-  background: #f2f3f5;
+  background: #21262d;
   color: #4e5969;
 }
 
@@ -487,14 +488,14 @@ onMounted(() => {
   align-items: center;
   gap: 4px;
   padding: 12px 20px !important;
-  background: #f2f3f5 !important;
+  background: #21262d !important;
   border: none !important;
 }
 
 .dot {
   width: 6px;
   height: 6px;
-  background: #86909c;
+  background: #8b949e;
   border-radius: 50%;
   animation: bounce 1.4s infinite ease-in-out both;
 }
@@ -519,7 +520,7 @@ onMounted(() => {
 
 .thinking-text {
   font-size: 12px;
-  color: #86909c;
+  color: #8b949e;
   margin-top: 4px;
   margin-left: 4px;
 }
@@ -532,7 +533,7 @@ onMounted(() => {
 }
 
 .input-box {
-  border: 1px solid #e5e6eb;
+  border: 1px solid #30363d;
   border-radius: 12px;
   padding: 12px;
   background: #fff;

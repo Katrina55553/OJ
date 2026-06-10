@@ -293,7 +293,7 @@ const buildChartOption = () => ({
       avoidLabelOverlap: true,
       itemStyle: {
         borderRadius: 10,
-        borderColor: "#fff",
+        borderColor: "#161b22",
         borderWidth: 3,
         shadowBlur: 10,
         shadowColor: "rgba(0,0,0,0.1)",
@@ -378,7 +378,7 @@ onUnmounted(() => {
 }
 
 .card {
-  background: #fff;
+  background: #161b22;
   border-radius: 16px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
   border: 1px solid rgba(0, 0, 0, 0.04);
@@ -394,7 +394,7 @@ onUnmounted(() => {
 .card-header {
   padding: 20px 24px;
   border-bottom: 1px solid rgba(0, 0, 0, 0.06);
-  background: linear-gradient(135deg, #fff 0%, #fafbfc 100%);
+  background: linear-gradient(135deg, #161b22 0%, #fafbfc 100%);
 }
 
 .card-title {
@@ -475,7 +475,7 @@ onUnmounted(() => {
   border-radius: 10px;
   font-size: 14px;
   color: #1e293b;
-  background: #fff;
+  background: #161b22;
   transition: all 0.2s ease;
   appearance: none;
   background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
@@ -540,7 +540,7 @@ onUnmounted(() => {
 
 .btn-primary {
   background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-  color: #fff;
+  color: #161b22;
   box-shadow: 0 4px 14px rgba(59, 130, 246, 0.3);
 }
 
@@ -727,7 +727,7 @@ onUnmounted(() => {
 
 .summary-badge {
   background: #3b82f6;
-  color: #fff;
+  color: #161b22;
   padding: 4px 12px;
   border-radius: 20px;
   font-size: 13px;
