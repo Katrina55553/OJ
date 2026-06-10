@@ -57,6 +57,8 @@
 
       <!-- 右侧数据展示区域保持不变 -->
       <a-col :xs="24" :md="16" :lg="18">
+        <QuestionHeatmap :userId="loginUser.id" />
+
         <a-card title="最近提交记录" :bordered="false">
           <a-empty description="暂无提交记录" />
         </a-card>
@@ -107,7 +109,7 @@ import {
   IconCalendar,
   IconEdit,
 } from "@arco-design/web-vue/es/icon";
-
+import QuestionHeatmap from "@/views/question/QuestionHeatmap.vue";
 
 const store = useStore();
 const router = useRouter();
