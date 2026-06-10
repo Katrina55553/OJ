@@ -358,3 +358,54 @@ hr, .arco-divider {
   background: #0d1117 !important;
 }
 
+/* ---- 全局兜底：所有arco组件背景强制暗色、文字强制白色 ---- */
+[class*="arco-"]:not(i):not(svg):not(img):not(.arco-icon) {
+  background-color: inherit;
+}
+.arco-trigger,
+.arco-trigger-content,
+.arco-popup,
+.arco-picker,
+.arco-picker-panel,
+.arco-cascader,
+.arco-cascader-menus,
+.arco-time-picker,
+.arco-time-picker-panel {
+  background: #161b22 !important;
+}
+
+/* 所有arco组件内文字强制白色（表单/表格/卡片内容） */
+.arco-descriptions-item-content,
+.arco-table-td,
+.arco-table-cell,
+.arco-form-item,
+.arco-card-body,
+.arco-card-header-title,
+.arco-tabs-tab,
+.arco-list-item,
+.arco-tag,
+.arco-badge-content,
+.arco-dropdown-menu-item {
+  color: #c9d1d9 !important;
+}
+
+/* 禁用所有带白色变体的arco弹出层 */
+.arco-popconfirm,
+.arco-popconfirm-popup,
+.arco-tooltip,
+.arco-tooltip-inner {
+  background: #161b22 !important;
+  color: #c9d1d9 !important;
+  border-color: #30363d !important;
+}
+
+/* 页面最外层容器强制暗色 */
+#app,
+.arco-app,
+.arco-layout,
+.arco-layout-content,
+.arco-layout-sider,
+.arco-trigger-nav-button {
+  background: #0d1117 !important;
+}
+
