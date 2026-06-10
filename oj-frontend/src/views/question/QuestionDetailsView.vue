@@ -422,6 +422,13 @@ onMounted(() => loadQuestion());
   margin-top: 24px;
 }
 
+.judge-config .arco-descriptions-item-content {
+  color: #c9d1d9 !important;
+}
+.judge-config .arco-descriptions-item-label {
+  color: #8b949e !important;
+}
+
 .right-panel {
   background: #161b22;
   border-radius: 8px;
