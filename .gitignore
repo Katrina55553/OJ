@@ -23,6 +23,10 @@ oj-frontend/dist/
 .DS_Store
 Thumbs.db
 
+# === Tools ===
+.superpowers/
+.claude/
+
 # === Env / Secrets ===
 .env
 .env.*
