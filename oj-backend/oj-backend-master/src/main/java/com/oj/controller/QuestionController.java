@@ -12,7 +12,6 @@ import com.oj.constant.UserConstant;
 import com.oj.exception.BusinessException;
 import com.oj.exception.ThrowUtils;
 import com.oj.model.dto.question.*;
-import com.oj.model.dto.question.*;
 import com.oj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.oj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.oj.model.entity.Question;

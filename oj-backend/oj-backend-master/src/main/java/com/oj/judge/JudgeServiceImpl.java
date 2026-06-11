@@ -124,7 +124,7 @@ public class JudgeServiceImpl implements JudgeService {
             }
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("判题异常", e);
 
             // 判题失败，更新状态
             questionSubmitUpdate = new QuestionSubmit();

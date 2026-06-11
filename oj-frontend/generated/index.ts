@@ -53,4 +53,3 @@ export type { UserVO } from "./models/UserVO";
 export { FileControllerService } from "./services/FileControllerService";
 export { QuestionControllerService } from "./services/QuestionControllerService";
 export { UserControllerService } from "./services/UserControllerService";
-export { WxMpControllerService } from "./services/WxMpControllerService";
