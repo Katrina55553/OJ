@@ -458,3 +458,29 @@ hr, .arco-divider {
   border-color: #30363d !important;
 }
 
+/* Message 弹窗 */
+.arco-message {
+  background: #21262d !important;
+  border-color: #30363d !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.arco-message-content {
+  color: #c9d1d9 !important;
+}
+
+/* Notification 通知弹窗 */
+.arco-notification {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.arco-notification-title {
+  color: #f0f6fc !important;
+}
+
+.arco-notification-content {
+  color: #c9d1d9 !important;
+}
+
