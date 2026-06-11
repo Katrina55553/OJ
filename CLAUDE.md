@@ -94,7 +94,6 @@ model/
 
 - **题目管理** (`QuestionController`) — 题目的 CRUD、分页查询、提交判题、在线运行代码
 - **用户系统** (`UserController`) — 注册、登录、角色管理（user/admin/ban）
-- **文件上传** (`FileController`) — 基于腾讯云 COS（配置为占位符）
 
 ### 判题系统（核心）
 
@@ -147,7 +146,6 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 
 - **Redis 7** — 用户信息缓存（`user:id:{userId}`，TTL 30 分钟）+ 接口限流计数器（`RateLimitInterceptor`）。注意：`MainApplication` 排除了 `SessionAutoConfiguration`（因为使用 JWT 无状态认证），但 Redis 本身正常运行
 - **RabbitMQ** — 判题消息队列（`JudgeMessageProducer` 发送，`JudgeMessageConsumer` 消费）。配置：手动 ACK（`acknowledge-mode: manual`），prefetch=1，重试 3 次间隔 3 秒
-- **腾讯云 COS** — 文件存储（`CosClientConfig`），配置项为占位符
 
 ### API 文档
 

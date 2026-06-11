@@ -50,6 +50,5 @@ export type { UserUpdateMyRequest } from "./models/UserUpdateMyRequest";
 export type { UserUpdateRequest } from "./models/UserUpdateRequest";
 export type { UserVO } from "./models/UserVO";
 
-export { FileControllerService } from "./services/FileControllerService";
 export { QuestionControllerService } from "./services/QuestionControllerService";
 export { UserControllerService } from "./services/UserControllerService";
