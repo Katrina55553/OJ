@@ -33,14 +33,6 @@
       </section>
 
       <section class="about-section">
-        <h2>👨‍💻 开发者</h2>
-        <p>
-          由 Katrina 独立开发，<br />
-          源码托管于 GitHub，欢迎参与共建！
-        </p>
-      </section>
-
-      <section class="about-section">
         <h2>📬 联系我们</h2>
         <p>遇到问题？欢迎通过以下方式反馈：</p>
         <ul>
@@ -50,11 +42,11 @@
             >
           </li>
           <li>
-            GitHub Issues：<a
-              href="https://github.com/Katrina55553/OJ/issues"
+            GitHub：<a
+              href="https://github.com/Katrina55553/OJ"
               target="_blank"
               rel="noopener"
-              >链接</a
+              >github.com/Katrina55553/OJ</a
             >
           </li>
         </ul>
