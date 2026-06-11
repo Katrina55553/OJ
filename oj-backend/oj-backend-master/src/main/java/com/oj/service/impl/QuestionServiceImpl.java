@@ -17,7 +17,7 @@ import com.oj.service.QuestionService;
 import com.oj.mapper.QuestionMapper;
 import com.oj.service.UserService;
 import com.oj.utils.SqlUtils;
-import org.apache.commons.lang3.CollectionUtils;
+import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
