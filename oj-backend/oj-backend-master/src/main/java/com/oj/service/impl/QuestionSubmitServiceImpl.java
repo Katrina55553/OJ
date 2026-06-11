@@ -16,6 +16,8 @@ import com.oj.model.entity.User;
 import com.oj.model.enums.QuestionSubmitLanguageEnum;
 import com.oj.model.enums.QuestionSubmitStatusEnum;
 import com.oj.model.vo.QuestionSubmitVO;
+import com.oj.model.vo.QuestionVO;
+import com.oj.model.vo.UserVO;
 import com.oj.service.QuestionService;
 import com.oj.service.QuestionSubmitService;
 import com.oj.service.UserService;
@@ -126,6 +128,20 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
             long userId = loginUser.getId();
             if (userId != questionSubmit.getUserId() && !userService.isAdmin(loginUser)) {
                 questionSubmitVO.setCode(null);
+            }
+        }
+        // 填充用户信息
+        Long userId = questionSubmit.getUserId();
+        if (userId != null && userId > 0) {
+            User user = userService.getById(userId);
+            if (user != null) {
+                UserVO userVO = new UserVO();
+                userVO.setId(user.getId());
+                userVO.setUserName(user.getUserName());
+                userVO.setUserAvatar(user.getUserAvatar());
+                userVO.setUserProfile(user.getUserProfile());
+                userVO.setUserRole(user.getUserRole());
+                questionSubmitVO.setUserVO(userVO);
             }
         }
         return questionSubmitVO;
