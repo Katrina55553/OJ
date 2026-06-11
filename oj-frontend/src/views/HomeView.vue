@@ -8,7 +8,6 @@
         <a-button type="primary" size="large" @click="router.push('/question')">
           开始刷题
         </a-button>
-        <a-button size="large" @click="router.push('/competition')"> 查看比赛 </a-button>
       </div>
     </section>
   </div>

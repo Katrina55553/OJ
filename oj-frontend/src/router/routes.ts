@@ -37,12 +37,6 @@ export const routes: Array<RouteRecordRaw> = [
     meta: { access: ACCESS_ENUM.NOT_LOGIN },
   },
   {
-    path: "/competition",
-    name: "比赛",
-    component: () => import("@/views/contest/ContestListView.vue"),
-    meta: { access: ACCESS_ENUM.NOT_LOGIN },
-  },
-  {
     path: "/submission",
     name: "评测记录",
     component: () => import("@/views/SubmissionListView.vue"),
@@ -76,11 +70,6 @@ export const routes: Array<RouteRecordRaw> = [
   {
     path: "/question/:id",
     component: () => import("@/views/question/QuestionDetailsView.vue"),
-    meta: { hideInMenu: true, access: ACCESS_ENUM.NOT_LOGIN },
-  },
-  {
-    path: "/contest/:id",
-    component: () => import("@/views/contest/ContestDetailView.vue"),
     meta: { hideInMenu: true, access: ACCESS_ENUM.NOT_LOGIN },
   },
   {
