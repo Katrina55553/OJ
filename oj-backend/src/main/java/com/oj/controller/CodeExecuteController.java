@@ -4,7 +4,7 @@ import com.oj.common.ErrorCode;
 import com.oj.exception.BusinessException;
 import com.oj.judge.codesandbox.model.ExecuteCodeRequest;
 import com.oj.judge.codesandbox.model.ExecuteCodeResponse;
-import com.oj.model.dto.JdoodleRequest;
+import com.oj.model.dto.CodeExecuteRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -28,7 +28,7 @@ public class CodeExecuteController {
     private com.oj.judge.codesandbox.impl.DockerCodeSandbox dockerCodeSandbox;
 
     /**
-     * JDoodle 语言名 → 后端内部语言名
+     * 前端语言名 → 沙箱内部语言名
      */
     private static final Map<String, String> LANGUAGE_MAPPING = new HashMap<>();
 
@@ -41,7 +41,7 @@ public class CodeExecuteController {
     }
 
     @PostMapping("/execute")
-    public Map<String, Object> executeCode(@RequestBody JdoodleRequest request) {
+    public Map<String, Object> executeCode(@RequestBody CodeExecuteRequest request) {
         String language = LANGUAGE_MAPPING.get(request.getLanguage());
         if (language == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的语言: " + request.getLanguage());

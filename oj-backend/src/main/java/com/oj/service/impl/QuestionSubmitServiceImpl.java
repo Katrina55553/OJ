@@ -28,7 +28,10 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
@@ -130,20 +133,6 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
                 questionSubmitVO.setCode(null);
             }
         }
-        // 填充用户信息
-        Long userId = questionSubmit.getUserId();
-        if (userId != null && userId > 0) {
-            User user = userService.getById(userId);
-            if (user != null) {
-                UserVO userVO = new UserVO();
-                userVO.setId(user.getId());
-                userVO.setUserName(user.getUserName());
-                userVO.setUserAvatar(user.getUserAvatar());
-                userVO.setUserProfile(user.getUserProfile());
-                userVO.setUserRole(user.getUserRole());
-                questionSubmitVO.setUserVO(userVO);
-            }
-        }
         return questionSubmitVO;
     }
 
@@ -154,8 +143,49 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (CollectionUtils.isEmpty(questionSubmitList)) {
             return questionSubmitVOPage;
         }
+
+        // 批量查询用户信息（避免 N+1）
+        Set<Long> userIds = questionSubmitList.stream()
+                .map(QuestionSubmit::getUserId)
+                .filter(id -> id != null && id > 0)
+                .collect(Collectors.toSet());
+        Map<Long, User> userMap = userIds.isEmpty() ? Collections.emptyMap() :
+                userService.listByIds(userIds).stream()
+                        .collect(Collectors.toMap(User::getId, u -> u));
+
+        // 批量查询题目信息（避免 N+1）
+        Set<Long> questionIds = questionSubmitList.stream()
+                .map(QuestionSubmit::getQuestionId)
+                .filter(id -> id != null && id > 0)
+                .collect(Collectors.toSet());
+        Map<Long, Question> questionMap = questionIds.isEmpty() ? Collections.emptyMap() :
+                questionService.listByIds(questionIds).stream()
+                        .collect(Collectors.toMap(Question::getId, q -> q));
+
         List<QuestionSubmitVO> questionSubmitVOList = questionSubmitList.stream()
-                .map(questionSubmit -> getQuestionSubmitVO(questionSubmit, loginUser))
+                .map(questionSubmit -> {
+                    QuestionSubmitVO vo = getQuestionSubmitVO(questionSubmit, loginUser);
+                    // 填充用户信息
+                    User user = userMap.get(questionSubmit.getUserId());
+                    if (user != null) {
+                        UserVO userVO = new UserVO();
+                        userVO.setId(user.getId());
+                        userVO.setUserName(user.getUserName());
+                        userVO.setUserAvatar(user.getUserAvatar());
+                        userVO.setUserProfile(user.getUserProfile());
+                        userVO.setUserRole(user.getUserRole());
+                        vo.setUserVO(userVO);
+                    }
+                    // 填充题目信息
+                    Question question = questionMap.get(questionSubmit.getQuestionId());
+                    if (question != null) {
+                        QuestionVO questionVO = new QuestionVO();
+                        questionVO.setId(question.getId());
+                        questionVO.setTitle(question.getTitle());
+                        vo.setQuestionVO(questionVO);
+                    }
+                    return vo;
+                })
                 .collect(Collectors.toList());
         questionSubmitVOPage.setRecords(questionSubmitVOList);
         return questionSubmitVOPage;
