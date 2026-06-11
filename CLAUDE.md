@@ -77,7 +77,6 @@ docker compose down -v
 ```
 controller/    → REST 接口（context-path: /api）
 service/       → 业务逻辑（接口 + impl/ 实现）
-manager/       → 可复用的业务能力封装
 mapper/        → MyBatis-Plus Mapper 接口
 judge/         → 判题系统（CodeSandbox + JudgeStrategy）
 mq/            → RabbitMQ 消息队列（生产者 + 消费者）

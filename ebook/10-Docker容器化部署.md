@@ -13,23 +13,23 @@
 
 ### 服务总览
 
-本项目使用 Docker Compose 编排 **6 个服务**、**1 个网络**、**4 个数据卷**：
+本项目使用 Docker Compose 编排 **5 个服务**、**1 个网络**、**3 个数据卷**：
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                    Docker Compose                            │
 │                                                             │
-│  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐    │
-│  │  MySQL   │  │  Redis   │  │ RabbitMQ │  │  Ollama  │    │
-│  │  :3306   │  │  :6379   │  │ :5672    │  │ :11434   │    │
-│  └────┬─────┘  └────┬─────┘  └────┬─────┘  └────┬─────┘    │
-│       │             │             │             │           │
-│       └─────────────┼─────────────┘             │           │
-│                     │ healthy                   │           │
-│                     ▼                           │           │
-│              ┌──────────────┐                   │           │
-│              │   Backend    │───────────────────┘           │
-│              │   :8101      │  Ollama API                   │
+│  ┌──────────┐  ┌──────────┐  ┌──────────┐                  │
+│  │  MySQL   │  │  Redis   │  │ RabbitMQ │                  │
+│  │  :3306   │  │  :6379   │  │ :5672    │                  │
+│  └────┬─────┘  └────┬─────┘  └────┬─────┘                  │
+│       │             │             │                         │
+│       └─────────────┼─────────────┘                         │
+│                     │ healthy                               │
+│                     ▼                                       │
+│              ┌──────────────┐                               │
+│              │   Backend    │                               │
+│              │   :8101      │                               │
 │              └──────┬───────┘                               │
 │                     │ started                               │
 │                     ▼                                       │
@@ -39,7 +39,7 @@
 │              └──────────────┘                               │
 │                                                             │
 │  网络：oj-network (bridge)                                  │
-│  卷：mysql-data, redis-data, rabbitmq-data, ollama-data     │
+│  卷：mysql-data, redis-data, rabbitmq-data                  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -154,31 +154,6 @@ rabbitmq:
 - 管理界面：http://localhost:15672（guest/guest）
 - 健康检查间隔较长（30s），因为 RabbitMQ 启动较慢
 
-### Ollama（AI 服务）
-
-```yaml
-ollama:
-  image: ollama/ollama:latest
-  container_name: oj-ollama
-  restart: unless-stopped
-  ports:
-    - "11434:11434"
-  volumes:
-    - ollama-data:/root/.ollama    # 模型持久化
-  deploy:
-    resources:
-      limits:
-        cpus: "4.0"
-        memory: 4G
-  networks:
-    - oj-network
-```
-
-**关键点**：
-- 资源需求较大（4 CPU / 4G 内存），AI 推理是计算密集型
-- 模型数据持久化到 `ollama-data` 卷
-- 如不需要 AI 功能，可注释掉此服务节省资源
-
 ---
 
 ## 10.3 后端服务构建
@@ -255,8 +230,6 @@ backend:
     RABBITMQ_USERNAME: ${RABBITMQ_USERNAME:-guest}
     RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
     JWT_SECRET: ${JWT_SECRET:-oj-default-secret-key-must-be-at-least-256-bits-long-for-hs256}
-    OLLAMA_BASE_URL: ${OLLAMA_BASE_URL:-http://ollama:11434}
-    OLLAMA_MODEL: ${OLLAMA_MODEL:-deepseek-r1:7b}
     SPRING_PROFILES_ACTIVE: prod
   # JVM 内存限制
   entrypoint: ["java", "-Xms256m", "-Xmx512m", "-jar", "app.jar"]
@@ -367,7 +340,7 @@ server {
 |------|------|
 | `try_files $uri $uri/ /index.html` | SPA 路由，Vue Router history 模式必需 |
 | `proxy_pass http://backend:8101/api/` | API 反向代理，容器间通过服务名通信 |
-| `proxy_http_version 1.1` + `Upgrade` | 支持 SSE（AI 聊天流式输出）|
+| `proxy_http_version 1.1` + `Upgrade` | 支持 WebSocket 升级 |
 | `proxy_read_timeout 120s` | 长超时，判题请求可能需要 10 秒以上 |
 | `expires 7d` + `immutable` | 静态资源 7 天缓存 |
 | `deny all` on `/\.` | 阻止访问 `.env`、`.git` 等隐藏文件 |
@@ -402,11 +375,10 @@ RabbitMQ┘
 | MySQL | 1.0 | 512M | 数据库，资源需求中等 |
 | Redis | 0.5 | 256M | 缓存，资源需求低 |
 | RabbitMQ | 0.5 | 256M | 消息队列，资源需求低 |
-| Ollama | 4.0 | 4G | AI 推理，资源需求高 |
 | Backend | 2.0 | 768M | Java 应用，JVM 内存 256-512M |
 | Frontend | 0.5 | 128M | Nginx 静态服务，资源需求最低 |
 
-**总计**：8.5 CPU / 6.125G 内存（不含 Ollama 为 4.5 CPU / 2.125G）
+**总计**：4.5 CPU / 2.125G 内存
 
 ---
 
@@ -417,7 +389,6 @@ RabbitMQ┘
 | `mysql-data` | MySQL | 数据库文件 |
 | `redis-data` | Redis | AOF 持久化文件 |
 | `rabbitmq-data` | RabbitMQ | 队列数据、用户配置 |
-| `ollama-data` | Ollama | AI 模型文件 |
 
 **警告**：`docker compose down -v` 会删除所有数据卷，**数据不可恢复**！
 
@@ -465,11 +436,11 @@ docker compose down -v
 
 | 要点 | 内容 |
 |------|------|
-| **服务数量** | 6 个服务 + 1 个网络 + 4 个数据卷 |
+| **服务数量** | 5 个服务 + 1 个网络 + 3 个数据卷 |
 | **多阶段构建** | 前端（Node→Nginx）、后端（Maven→JRE+Docker CLI）|
 | **Nginx 反代** | SPA 路由、API 代理、SSE 支持、静态缓存 |
 | **服务依赖** | healthcheck 确保数据库就绪后才启动后端 |
 | **资源限制** | 每个服务独立 CPU/内存限制 |
-| **数据持久化** | 4 个 Named Volume，`down -v` 会删除数据 |
+| **数据持久化** | 3 个 Named Volume，`down -v` 会删除数据 |
 
-> **下一章预告**：我们将了解项目的可选组件——Redis 缓存、ES 搜索、COS 存储、微信集成。
+> **下一章预告**：我们将了解项目的可选组件——Redis 缓存。
