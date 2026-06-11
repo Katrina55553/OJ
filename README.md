@@ -10,24 +10,18 @@
 - **题库管理** — 题目的增删改查，支持 Markdown + KaTeX 数学公式编辑
 - **异步判题** — RabbitMQ 消息队列解耦，支持高并发提交
 - **比赛系统** — 比赛列表、详情、进度跟踪、时间状态标识（进行中/未开始/已结束）
-- **AI 聊天助手** — 基于 Ollama 的 AI 对话，SSE 流式输出，Markdown 渲染，聊天记录持久化
 - **暗色主题** — GitHub Dark 风格暗色模式，支持跟随系统偏好自动切换，Pinia 状态管理 + localStorage 持久化
 - **用户系统** — JWT 无状态认证，三级角色权限（user/admin/ban）
-- **数据统计** — 语言分布饼图、用户提交热力图（GitHub 风格，含连续打卡统计）
-- **讨论区** — 帖子发布、点赞、收藏，支持 Elasticsearch 全文搜索
-- **反馈系统** — 用户反馈提交，支持分类（Bug / 内容错误 / 建议）和图片上传
 - **Redis 缓存** — 用户信息缓存 + 接口限流
-- **可选组件** — 微信公众号集成、腾讯云 COS 文件上传、Elasticsearch 帖子搜索、JDoodle 备用沙箱
 
 ## 技术栈
 
 | 层 | 技术 |
 |---|------|
-| 前端 | Vue 3、TypeScript、Arco Design Vue、Monaco Editor、ByteMD、ECharts |
+| 前端 | Vue 3、TypeScript、Arco Design Vue、Monaco Editor、ByteMD |
 | 后端 | Spring Boot 2.7、MyBatis-Plus、JWT |
 | 数据库 | MySQL 8.0、Redis 7 |
 | 消息队列 | RabbitMQ |
-| AI | Ollama（默认 deepseek-r1:7b）、SSE 流式输出 |
 | 代码沙箱 | Docker 容器隔离（每语言独立 Dockerfile） |
 | 部署 | Docker Compose、Nginx |
 
@@ -115,7 +109,7 @@ docker compose ps
 
 访问 `http://服务器IP:3000`
 
-> **注意**：Docker Compose 会启动 MySQL、Redis、RabbitMQ、Ollama（AI）、后端、前端共 6 个容器，自动创建网络和数据卷。首次启动需拉取/构建镜像，约 3-5 分钟。Ollama 服务占用资源较多（4GB 内存），如不需要 AI 功能可注释掉 `docker-compose.yml` 中的 `ollama` 服务。
+> **注意**：Docker Compose 会启动 MySQL、Redis、RabbitMQ、后端、前端共 5 个容器，自动创建网络和数据卷。首次启动需拉取/构建镜像，约 3-5 分钟。
 
 ## 端口说明
 
@@ -124,7 +118,6 @@ docker compose ps
 | 前端 dev server | 8080 | 本地开发 | Vue CLI 热更新 |
 | 前端（生产） | 3000 | Docker | Nginx 静态服务 + API 代理 |
 | 后端 API | 8101 | 全部 | Spring Boot（context-path: `/api`） |
-| Ollama | 11434 | Docker | AI 模型服务（deepseek-r1:7b） |
 | MySQL | 3306 | Docker | 数据库 |
 | Redis | 6379 | Docker | 缓存 |
 | RabbitMQ | 5672 | Docker | 消息队列 |
@@ -197,7 +190,6 @@ JudgeManager → JudgeStrategy（比对输出结果）
 # 后端测试
 cd oj-backend/oj-backend-master
 mvn test                          # 运行全部测试
-mvn test -Dtest=CodeSandboxTest   # 运行单个测试类
 
 # 前端检查
 cd oj-frontend
@@ -243,13 +235,8 @@ docker compose down -v
 | `RABBITMQ_USERNAME` | RabbitMQ 用户名 | `guest` |
 | `RABBITMQ_PASSWORD` | RabbitMQ 密码 | `guest` |
 | `JWT_SECRET` | JWT 签名密钥（≥32 字符） | 内置默认值（仅开发用） |
-| `JDOODLE_CLIENT_ID` | JDoodle API ID（备用沙箱） | 空 |
-| `JDOODLE_CLIENT_SECRET` | JDoodle API Secret（备用沙箱） | 空 |
-| `OLLAMA_BASE_URL` | Ollama 服务地址 | `http://ollama:11434` |
-| `OLLAMA_MODEL` | AI 模型名称 | `deepseek-r1:7b` |
-| `ES_URL` | Elasticsearch 地址（可选） | `http://localhost:9200` |
 
-> 完整变量列表见 `.env.example`，包含腾讯云 COS、微信开放平台、Elasticsearch 等可选组件的配置。
+> 完整变量列表见 `.env.example`，包含腾讯云 COS 文件上传的配置（可选）。
 
 ## API 文档
 

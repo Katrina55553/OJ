@@ -32,12 +32,6 @@ mvn package -DskipTests
 # 运行全部测试
 mvn test
 
-# 运行单个测试类
-mvn test -Dtest=CodeSandboxTest
-
-# 运行单个测试方法
-mvn test -Dtest=CodeSandboxTest#testDockerSandbox
-
 # Docker 镜像构建
 docker build -t oj-backend .
 ```
@@ -98,11 +92,9 @@ model/
 
 ### 核心业务模块
 
-- **题目管理** (`QuestionController`) — 题目的 CRUD、分页查询、提交判题
+- **题目管理** (`QuestionController`) — 题目的 CRUD、分页查询、提交判题、在线运行代码
 - **用户系统** (`UserController`) — 注册、登录、角色管理（user/admin/ban）
-- **帖子系统** (`PostController`) — 帖子的 CRUD、点赞、收藏（Elasticsearch 同步）
-- **文件上传** (`FileController`) — 基于腾讯云 COS
-- **微信公众号** (`WxMpController`) — 微信登录集成（配置为占位符）
+- **文件上传** (`FileController`) — 基于腾讯云 COS（配置为占位符）
 
 ### 判题系统（核心）
 
@@ -128,13 +120,9 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 更新数据库（SUCCEED / FAILED）
 ```
 
-- **CodeSandbox 接口** — 代码执行抽象层，实现类：
-  - `DockerCodeSandbox` — **当前实际使用**，通过 `docker build` + `docker run` 为每种语言构建独立镜像并创建容器执行。安全隔离（`--network=none`、`--read-only`、`--pids-limit=50`、`--user=nobody`、内存/CPU 限制），支持 cpp/java/python/go/javascript
-  - `RemoteCodeSandbox` — 远程沙箱（localhost:8090）
-  - `ThirdPartyCodeSandbox` — 第三方服务
-  - `JdoodleApiClient` — JDoodle API（备用方案）
+- **CodeSandbox 接口** — 代码执行抽象层，唯一实现：`DockerCodeSandbox`，通过 `docker build` + `docker run` 为每种语言构建独立镜像并创建容器执行。安全隔离（`--network=none`、`--read-only`、`--pids-limit=50`、`--user=nobody`、内存/CPU 限制），支持 cpp/java/python/go/javascript
 - **沙箱 Dockerfile** — `sandbox/` 目录下按语言分离：`Dockerfile.cpp`、`Dockerfile.java`、`Dockerfile.python`、`Dockerfile.go`、`Dockerfile.node`
-- **JudgeStrategy 策略模式** — `DefaultJudgeStrategy` 和 `JavaLanguageJudgeStrategy`，根据语言选择判题逻辑。通过 `CodeSandboxFactory` 获取沙箱实例，`JudgeManager` 协调执行
+- **JudgeStrategy 策略模式** — `DefaultJudgeStrategy` 和 `JavaLanguageJudgeStrategy`，根据语言选择判题逻辑，`JudgeManager` 协调执行
 - **判题状态流转**：`WAITING` → `RUNNING` → `SUCCEED` / `FAILED`
 - **沙箱配置**（`application.yml`）：`codesandbox.type: docker`，超时 10s，内存 256m，CPU 1 核
 
@@ -152,16 +140,14 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 
 - MySQL 8.0，数据库名 `yuoj`
 - MyBatis-Plus 配置：驼峰映射关闭、逻辑删除字段 `isDelete`、自增主键
-- 核心表：`user`、`question`、`question_submit`、`post`、`post_thumb`、`post_favour`
+- 核心表：`user`、`question`、`question_submit`
 - SQL 初始化脚本：`oj-backend/oj-backend-master/sql/create_table.sql`（Docker 部署时自动挂载执行）
 
 ### 外部依赖
 
 - **Redis 7** — 用户信息缓存（`user:id:{userId}`，TTL 30 分钟）+ 接口限流计数器（`RateLimitInterceptor`）。注意：`MainApplication` 排除了 `SessionAutoConfiguration`（因为使用 JWT 无状态认证），但 Redis 本身正常运行
 - **RabbitMQ** — 判题消息队列（`JudgeMessageProducer` 发送，`JudgeMessageConsumer` 消费）。配置：手动 ACK（`acknowledge-mode: manual`），prefetch=1，重试 3 次间隔 3 秒
-- **Elasticsearch** — 帖子搜索同步（`IncSyncPostToEs`、`FullSyncPostToEs`），当前未配置 ES 实例
 - **腾讯云 COS** — 文件存储（`CosClientConfig`），配置项为占位符
-- **微信开放平台** — 微信登录（配置项为占位符，需替换）
 
 ### API 文档
 
@@ -172,7 +158,7 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 前端详细架构、路由设计、状态管理、组件模式见 `oj-frontend/CLAUDE.md`。此处仅列关键差异点：
 
 - **路由守卫** — `src/access/index.ts` 基于 `ACCESS_ENUM` 自动校验权限（NOT_LOGIN / USER / ADMIN）
-- **API 生成** — `src/generated/` 由 `openapi-typescript-codegen` 自动生成 TypeScript 客户端
+- **API 生成** — `generated/` 由 `openapi-typescript-codegen` 自动生成 TypeScript 客户端
 - **状态管理** — Vuex 4 为主，Pinia 也已安装（渐进迁移中）
 - **HTTP 客户端** — Axios，JWT Token 通过拦截器自动附加到 `Authorization: Bearer` 头
 
@@ -182,7 +168,6 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 |------|------|------|
 | 前端 dev server | 8080 | Vue CLI，`/api` 代理到 localhost:8101 |
 | 后端 API | 8101 | Spring Boot（context-path: `/api`） |
-| 远程代码沙箱 | 8090 | `RemoteCodeSandbox` 目标地址 |
 | MySQL | 3306 | 数据库（Docker 部署时暴露） |
 | Redis | 6379 | 缓存（Docker 部署时暴露） |
 | RabbitMQ | 5672 | 消息队列 |
@@ -194,7 +179,7 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 | 文件 | 用途 |
 |------|------|
 | `oj-backend/.../application.yml` | 后端主配置（数据库、Redis、RabbitMQ、JWT、沙箱） |
-| `oj-backend/.../application-prod.yml` | 生产环境覆盖配置（数据源、Redis、ES 来自环境变量） |
+| `oj-backend/.../application-prod.yml` | 生产环境覆盖配置（数据源、Redis 来自环境变量） |
 | `oj-backend/.../application-test.yml` | 测试环境覆盖配置 |
 | `oj-frontend/vue.config.js` | Webpack 配置、Monaco 插件、API 代理 |
 | `oj-frontend/tsconfig.json` | TypeScript 编译选项 |
@@ -217,5 +202,3 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 | `RABBITMQ_USERNAME` | RabbitMQ 用户名 | `guest` |
 | `RABBITMQ_PASSWORD` | RabbitMQ 密码 | `guest` |
 | `JWT_SECRET` | JWT 签名密钥 | 内置默认值（仅开发用） |
-| `JDOODLE_CLIENT_ID` | JDoodle API ID（备用） | 空 |
-| `JDOODLE_CLIENT_SECRET` | JDoodle API Secret（备用） | 空 |
