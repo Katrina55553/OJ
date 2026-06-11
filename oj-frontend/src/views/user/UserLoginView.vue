@@ -148,4 +148,8 @@ onMounted(() => {
   align-items: center;
   margin-bottom: 20px;
 }
+
+.form-actions :deep(.arco-checkbox-label) {
+  color: #c9d1d9 !important;
+}
 </style>
