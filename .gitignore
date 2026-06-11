@@ -1,5 +1,5 @@
 # === Java / Maven ===
-oj-backend/oj-backend-master/target/
+oj-backend/target/
 *.class
 *.jar
 *.war

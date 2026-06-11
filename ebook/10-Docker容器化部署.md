@@ -63,7 +63,7 @@ mysql:
     TZ: Asia/Shanghai
   volumes:
     - mysql-data:/var/lib/mysql                    # 数据持久化
-    - ./oj-backend/oj-backend-master/sql/create_table.sql:/docker-entrypoint-initdb.d/init.sql:ro  # 自动初始化
+    - ./oj-backend/sql/create_table.sql:/docker-entrypoint-initdb.d/init.sql:ro  # 自动初始化
   command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
   healthcheck:
     test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-123456}"]
@@ -209,7 +209,7 @@ CMD ["--spring.profiles.active=prod"]
 ```yaml
 backend:
   build:
-    context: ./oj-backend/oj-backend-master
+    context: ./oj-backend
     dockerfile: Dockerfile
   container_name: oj-backend
   restart: unless-stopped
@@ -219,7 +219,7 @@ backend:
     # Docker Socket（让后端容器能调用宿主机的 Docker）
     - /var/run/docker.sock:/var/run/docker.sock
     # 沙箱 Dockerfile（挂载到容器内）
-    - ./oj-backend/oj-backend-master/sandbox:/app/sandbox
+    - ./oj-backend/sandbox:/app/sandbox
   environment:
     DB_URL: jdbc:mysql://mysql:3306/yuoj?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
     DB_USERNAME: root

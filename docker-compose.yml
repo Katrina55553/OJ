@@ -15,7 +15,7 @@ services:
       TZ: Asia/Shanghai
     volumes:
       - mysql-data:/var/lib/mysql
-      - ./oj-backend/oj-backend-master/sql/create_table.sql:/docker-entrypoint-initdb.d/init.sql:ro
+      - ./oj-backend/sql/create_table.sql:/docker-entrypoint-initdb.d/init.sql:ro
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
     healthcheck:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${DB_PASSWORD:-123456}"]
@@ -96,7 +96,7 @@ services:
   # ========== 后端 API ==========
   backend:
     build:
-      context: ./oj-backend/oj-backend-master
+      context: ./oj-backend
       dockerfile: Dockerfile
     container_name: oj-backend
     restart: unless-stopped
@@ -104,7 +104,7 @@ services:
       - "8101:8101"
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock  # Docker Socket（代码沙箱需要）
-      - ./oj-backend/oj-backend-master/sandbox:/app/sandbox  # 沙箱 Dockerfile
+      - ./oj-backend/sandbox:/app/sandbox  # 沙箱 Dockerfile
     environment:
       # 数据库
       DB_URL: jdbc:mysql://mysql:3306/yuoj?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai

@@ -9,7 +9,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | 目录 | 技术栈 | 说明 |
 |------|--------|------|
 | `oj-frontend/` | Vue 3 + TypeScript + Arco Design Vue | 前端 SPA |
-| `oj-backend/oj-backend-master/` | Spring Boot 2.7 + MyBatis-Plus + MySQL | 后端 API 服务 |
+| `oj-backend/` | Spring Boot 2.7 + MyBatis-Plus + MySQL | 后端 API 服务 |
 
 前端详细架构参见 `oj-frontend/CLAUDE.md`，改进清单参见 `todo.md`。
 
@@ -18,7 +18,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ### 后端
 
 ```bash
-cd oj-backend/oj-backend-master
+cd oj-backend
 
 # 运行（默认 dev profile，端口 8101，context-path: /api）
 mvn spring-boot:run
@@ -139,7 +139,7 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 - MySQL 8.0，数据库名 `yuoj`
 - MyBatis-Plus 配置：驼峰映射关闭、逻辑删除字段 `isDelete`、自增主键
 - 核心表：`user`、`question`、`question_submit`
-- SQL 初始化脚本：`oj-backend/oj-backend-master/sql/create_table.sql`（Docker 部署时自动挂载执行）
+- SQL 初始化脚本：`oj-backend/sql/create_table.sql`（Docker 部署时自动挂载执行）
 
 ### 外部依赖
 

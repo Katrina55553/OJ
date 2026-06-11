@@ -41,7 +41,7 @@ OJ/
 │   ├── Dockerfile              # 前端 Docker 镜像
 │   └── nginx.conf              # Nginx 配置
 │
-├── oj-backend/oj-backend-master/  # 后端项目
+├── oj-backend/  # 后端项目
 │   ├── src/main/java/com/oj/
 │   │   ├── controller/         # REST 接口
 │   │   ├── service/            # 业务逻辑
@@ -75,7 +75,7 @@ git clone https://github.com/Katrina55553/OJ.git
 cd OJ
 
 # 后端
-cd oj-backend/oj-backend-master
+cd oj-backend
 mvn spring-boot:run
 
 # 前端（新开终端）
@@ -187,7 +187,7 @@ JudgeManager → JudgeStrategy（比对输出结果）
 
 ```bash
 # 后端测试
-cd oj-backend/oj-backend-master
+cd oj-backend
 mvn test                          # 运行全部测试
 
 # 前端检查
