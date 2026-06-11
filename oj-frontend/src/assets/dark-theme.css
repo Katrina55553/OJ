@@ -484,3 +484,33 @@ hr, .arco-divider {
   color: #c9d1d9 !important;
 }
 
+/* Dropdown 下拉菜单 */
+.arco-dropdown {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+}
+
+.arco-dropdown-list-wrapper {
+  background: transparent !important;
+}
+
+.arco-dropdown-option {
+  color: #c9d1d9 !important;
+}
+
+.arco-dropdown-option:hover,
+.arco-dropdown-option-active {
+  background: #21262d !important;
+  color: #f0f6fc !important;
+}
+
+/* Popover 气泡卡片 */
+.arco-popover {
+  background: #161b22 !important;
+  border-color: #30363d !important;
+}
+
+.arco-popover-content {
+  color: #c9d1d9 !important;
+}
