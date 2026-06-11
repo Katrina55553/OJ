@@ -153,8 +153,6 @@ const loadData = async () => {
   userInfo.value = { ...loginUser };
   updateForm.userName = loginUser.userName;
   updateForm.userProfile = loginUser.userProfile;
-
-  // Todo 后续加载统计数据的逻辑...
 };
 
 const handleUpdateUser = () => {

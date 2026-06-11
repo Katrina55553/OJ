@@ -66,41 +66,11 @@ export const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: "/stats",
-    name: "统计",
-    component: () => import("@/views/LanguageStats.vue"),
-    meta: {
-      access: ACCESS_ENUM.USER,
-    },
-  },
-  {
-    path: "/discussion",
-    name: "讨论区",
-    component: () => import("@/views/question/QuestionDiscussionView.vue"),
-    meta: {
-      access: ACCESS_ENUM.NOT_LOGIN,
-    },
-  },
-  {
-    path: "/ai/assistant",
-    name: "AI智能体",
-    component: () => import("@/views/AIAssistantView.vue"),
-    meta: { title: "AI 编程助手", access: ACCESS_ENUM.NOT_LOGIN },
-  },
-  {
     path: "/about",
     name: "关于",
     component: () => import("@/views/AboutView.vue"),
     meta: {
       access: ACCESS_ENUM.NOT_LOGIN,
-    },
-  },
-  {
-    path: "/contact",
-    name: "反馈",
-    component: () => import("@/views/FeedbackView.vue"),
-    meta: {
-      access: ACCESS_ENUM.USER,
     },
   },
   {

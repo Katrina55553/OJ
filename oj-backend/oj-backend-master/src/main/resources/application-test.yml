@@ -15,8 +15,3 @@ spring:
     port: 6379
     timeout: 5000
     password: ${REDIS_PASSWORD:}
-  # Elasticsearch 配置（通过环境变量注入）
-  elasticsearch:
-    uris: ${ES_URL:http://localhost:9200}
-    username: ${ES_USERNAME:root}
-    password: ${ES_PASSWORD:}
