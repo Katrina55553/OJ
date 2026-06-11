@@ -41,7 +41,7 @@ export const routes: Array<RouteRecordRaw> = [
     name: "评测记录",
     component: () => import("@/views/SubmissionListView.vue"),
     meta: {
-      access: ACCESS_ENUM.USER,
+      access: ACCESS_ENUM.NOT_LOGIN,
     },
   },
   {

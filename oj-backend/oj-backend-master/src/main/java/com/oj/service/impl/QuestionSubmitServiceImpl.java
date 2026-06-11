@@ -119,11 +119,14 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
     @Override
     public QuestionSubmitVO getQuestionSubmitVO(QuestionSubmit questionSubmit, User loginUser) {
         QuestionSubmitVO questionSubmitVO = QuestionSubmitVO.objToVo(questionSubmit);
-        // 脱敏：仅本人和管理员能看见自己（提交 userId 和登录用户 id 不同）提交的代码
-        long userId = loginUser.getId();
-        // 处理脱敏
-        if (userId != questionSubmit.getUserId() && !userService.isAdmin(loginUser)) {
+        // 脱敏：未登录用户、非本人、非管理员均隐藏代码
+        if (loginUser == null) {
             questionSubmitVO.setCode(null);
+        } else {
+            long userId = loginUser.getId();
+            if (userId != questionSubmit.getUserId() && !userService.isAdmin(loginUser)) {
+                questionSubmitVO.setCode(null);
+            }
         }
         return questionSubmitVO;
     }
