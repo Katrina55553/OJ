@@ -1,7 +1,7 @@
 <template>
   <div class="about">
     <div class="about-page">
-      <h1>关于 OJ 在线判题系统</h1>
+      <h1>关于 Katrina's OJ</h1>
 
       <section class="about-section">
         <h2>🧩 这是什么？</h2>

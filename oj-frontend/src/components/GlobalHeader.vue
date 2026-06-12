@@ -15,7 +15,7 @@
         >
           <div class="title-bar" @click="router.push('/')">
             <img class="logo" src="../assets/logo.png" alt="OJ Logo" />
-            <div class="title">OJ 在线判题</div>
+            <div class="title">Katrina's OJ</div>
           </div>
         </a-menu-item>
 

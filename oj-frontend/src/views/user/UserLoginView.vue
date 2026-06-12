@@ -2,7 +2,7 @@
   <div class="login-view">
     <div class="login-form-container">
       <h2 class="login-title">用户登录</h2>
-      <div class="login-sub-title">欢迎使用 OJ 在线判题系统</div>
+      <div class="login-sub-title">欢迎使用 Katrina's OJ</div>
 
       <a-form
         layout="vertical"

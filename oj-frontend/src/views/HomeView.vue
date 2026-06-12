@@ -2,7 +2,7 @@
   <div class="home-page">
     <!-- Hero 区域 -->
     <section class="hero">
-      <h1 class="hero-title">在线判题系统</h1>
+      <h1 class="hero-title">Katrina's OJ</h1>
       <p class="hero-desc">多语言支持 · 实时判题</p>
       <div class="hero-actions">
         <a-button type="primary" size="large" @click="router.push('/question')">
