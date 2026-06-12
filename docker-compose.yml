@@ -1,7 +1,7 @@
 services:
   # ========== MySQL ==========
   mysql:
-    image: mysql:8.0
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/mysql:8.0
     container_name: oj-mysql
     restart: unless-stopped
     ports:
@@ -33,7 +33,7 @@ services:
 
   # ========== Redis ==========
   redis:
-    image: redis:7-alpine
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/redis:7-alpine
     container_name: oj-redis
     restart: unless-stopped
     ports:
@@ -64,7 +64,7 @@ services:
 
   # ========== RabbitMQ ==========
   rabbitmq:
-    image: rabbitmq:3-management-alpine
+    image: swr.cn-north-4.myhuaweicloud.com/ddn-k8s/docker.io/library/rabbitmq:3-management
     container_name: oj-rabbitmq
     restart: unless-stopped
     ports:
