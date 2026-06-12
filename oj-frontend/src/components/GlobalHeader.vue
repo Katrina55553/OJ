@@ -54,10 +54,6 @@
 
               <!-- 下拉菜单 -->
               <template #content>
-                <a-doption value="userCenter">
-                  <template #icon><icon-user /></template>
-                  个人主页
-                </a-doption>
                 <a-doption value="logout">
                   <template #icon><icon-export /></template>
                   退出登录
@@ -158,9 +154,7 @@ const toLogin = () => {
 };
 
 const handleSelect = async (value: string) => {
-  if (value === "userCenter") {
-    router.push("/profile");
-  } else if (value === "logout") {
+  if (value === "logout") {
     try {
       await UserControllerService.userLogoutUsingPost();
     } catch {

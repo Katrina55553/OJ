@@ -45,12 +45,6 @@ export const routes: Array<RouteRecordRaw> = [
     },
   },
   {
-    path: "/profile",
-    name: "我的",
-    component: () => import("@/views/user/UserProfileView.vue"),
-    meta: { hideInMenu: true, access: ACCESS_ENUM.USER },
-  },
-  {
     path: "/hide",
     name: "隐藏页面",
     component: () => import("@/views/question/QuestionListView.vue"),
