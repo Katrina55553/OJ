@@ -4,7 +4,7 @@
       <a-layout-header class="header">
         <a-space>
           <img src="@/assets/logo.png" class="logo" alt="OJ Logo" />
-          <div class="title">Katrina's OJ</div>
+          <div class="title">OJ 在线判题系统</div>
         </a-space>
       </a-layout-header>
 
@@ -14,7 +14,7 @@
 
       <a-layout-footer class="footer">
         <a-space direction="vertical" :size="2">
-          <span>Katrina's OJ</span>
+          <span>OJ Online Judge System</span>
           <span>Designed by Katrina</span>
         </a-space>
       </a-layout-footer>
