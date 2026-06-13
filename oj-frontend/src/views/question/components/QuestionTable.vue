@@ -141,17 +141,17 @@ const columns: TableColumnData[] = [
   border-radius: 4px;
 }
 
-.difficulty-简单 {
+.difficulty-easy {
   background: #0d4429;
   color: #3fb950;
 }
 
-.difficulty-中等 {
+.difficulty-medium {
   background: #3d2800;
   color: #f0883e;
 }
 
-.difficulty-困难 {
+.difficulty-hard {
   background: #490202;
   color: #f85149;
 }

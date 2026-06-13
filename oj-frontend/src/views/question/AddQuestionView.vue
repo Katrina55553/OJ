@@ -34,9 +34,9 @@
           <a-col :span="12">
             <a-form-item field="difficulty" label="难度" required>
               <a-select v-model="formData.difficulty" placeholder="请选择难度">
-                <a-option value="简单">简单</a-option>
-                <a-option value="中等">中等</a-option>
-                <a-option value="困难">困难</a-option>
+                <a-option value="easy">Easy</a-option>
+                <a-option value="medium">Medium</a-option>
+                <a-option value="hard">Hard</a-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -130,7 +130,7 @@ const submitting = ref(false);
 const formData = reactive({
   title: "",
   content: "",
-  difficulty: "简单",
+  difficulty: "easy",
   answer: "",
   timeLimit: 1000,
   memoryLimit: 256,

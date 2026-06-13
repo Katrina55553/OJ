@@ -32,9 +32,9 @@
         <a-col :span="12">
           <a-form-item field="difficulty" label="难度" required>
             <a-select v-model="localForm.difficulty" placeholder="请选择难度">
-              <a-option value="简单">简单</a-option>
-              <a-option value="中等">中等</a-option>
-              <a-option value="困难">困难</a-option>
+              <a-option value="easy">Easy</a-option>
+              <a-option value="medium">Medium</a-option>
+              <a-option value="hard">Hard</a-option>
             </a-select>
           </a-form-item>
         </a-col>
@@ -173,7 +173,7 @@ const localForm = ref({
   id: 0,
   title: "",
   content: "",
-  difficulty: "简单" as "简单" | "中等" | "困难",
+  difficulty: "easy" as "easy" | "medium" | "hard",
   answer: "",
   timeLimit: 1000,
   memoryLimit: 256,
@@ -201,7 +201,7 @@ watch(
       id: newVal.id || 0,
       title: newVal.title || "",
       content: newVal.content || "",
-      difficulty: (newVal.difficulty as "简单" | "中等" | "困难") || "简单",
+      difficulty: (newVal.difficulty as "easy" | "medium" | "hard") || "easy",
       answer: newVal.answer || "",
       timeLimit: newVal.timeLimit || 1000,
       memoryLimit: newVal.memoryLimit || 256,

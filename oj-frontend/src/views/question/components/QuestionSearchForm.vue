@@ -29,9 +29,9 @@
           style="width: 100px"
           @change="handleSearch"
         >
-          <a-option value="简单">简单</a-option>
-          <a-option value="中等">中等</a-option>
-          <a-option value="困难">困难</a-option>
+          <a-option value="easy">Easy</a-option>
+          <a-option value="medium">Medium</a-option>
+          <a-option value="hard">Hard</a-option>
         </a-select>
       </a-form-item>
 
