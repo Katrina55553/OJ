@@ -123,6 +123,15 @@ public class JudgeServiceImpl implements JudgeService {
                 throw new BusinessException(ErrorCode.SYSTEM_ERROR, "题目状态更新错误");
             }
 
+            // 9）更新题目提交数和通过数
+            Question questionUpdate = new Question();
+            questionUpdate.setId(questionId);
+            questionUpdate.setSubmitNum(question.getSubmitNum() + 1);
+            if (judgeInfo != null && "Accepted".equals(judgeInfo.getMessage())) {
+                questionUpdate.setAcceptedNum(question.getAcceptedNum() + 1);
+            }
+            questionService.updateById(questionUpdate);
+
         } catch (Exception e) {
             log.error("判题异常", e);
 
