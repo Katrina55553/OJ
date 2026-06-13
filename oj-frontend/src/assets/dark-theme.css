@@ -456,6 +456,7 @@ hr, .arco-divider {
 
 /* 所有arco组件内文字强制白色（表单/表格/卡片内容） */
 .arco-descriptions-item-content,
+.arco-descriptions-item-content *,
 .arco-table-td,
 .arco-table-cell,
 .arco-form-item,
@@ -466,7 +467,13 @@ hr, .arco-divider {
 .arco-tag,
 .arco-badge-content,
 .arco-dropdown-menu-item {
-  color: #c9d1d9 !important;
+  color: #f0f6fc !important;
+}
+
+/* Descriptions 标签 */
+.arco-descriptions-item-label {
+  color: #8b949e !important;
+}
 }
 
 /* 禁用所有带白色变体的arco弹出层 */

@@ -427,8 +427,9 @@ onMounted(() => loadQuestion());
   margin-top: 24px;
 }
 
-.judge-config .arco-descriptions-item-content {
-  color: #c9d1d9 !important;
+.judge-config .arco-descriptions-item-content,
+.judge-config .arco-descriptions-item-content strong {
+  color: #f0f6fc !important;
 }
 .judge-config .arco-descriptions-item-label {
   color: #8b949e !important;
