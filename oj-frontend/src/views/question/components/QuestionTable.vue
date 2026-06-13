@@ -21,11 +21,11 @@
         <!-- 通过率列 -->
         <template #passRate="{ record }">
           <a-progress
-            :percent="record.passRate"
+            :percent="record.passRate || 0"
             :stroke-width="20"
             :animation="true"
             size="small"
-            :format="(percent: number) => `${percent.toFixed(2)}%`"
+            :format="(percent: number) => `${(percent || 0).toFixed(2)}%`"
           />
         </template>
 

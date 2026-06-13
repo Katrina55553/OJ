@@ -602,8 +602,13 @@ hr, .arco-divider {
 .arco-progress-line-bar {
   background-color: #238636 !important;
 }
-.arco-progress-line-text {
-  color: #c9d1d9 !important;
+.arco-progress-line-text,
+.arco-progress-line-text span,
+.arco-progress-line-text-inner {
+  color: #f0f6fc !important;
+  font-weight: 600 !important;
+  text-shadow: 0 0 2px rgba(0, 0, 0, 0.8) !important;
+  font-size: 12px !important;
 }
 
 /* ---- ByteMD 编辑器暗色覆盖 ---- */
