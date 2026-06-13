@@ -13,7 +13,7 @@
             <template #icon><icon-play-arrow /></template>
             开始刷题
           </a-button>
-          <a-button outline size="large" @click="router.push('/submit')">
+          <a-button outline size="large" @click="router.push('/submission')">
             <template #icon><icon-history /></template>
             评测记录
           </a-button>
