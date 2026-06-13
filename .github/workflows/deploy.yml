@@ -16,13 +16,15 @@ jobs:
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
+        timeout-minutes: 30
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
+          command_timeout: 30m
           script: |
             cd ${{ secrets.VPS_PROJECT_PATH }}
             git pull origin main
-            docker compose build --no-cache backend frontend
+            docker compose build backend frontend
             docker compose up -d
             docker image prune -f
