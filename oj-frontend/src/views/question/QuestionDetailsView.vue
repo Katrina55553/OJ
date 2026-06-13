@@ -21,7 +21,7 @@
                 :class="`difficulty-${question.difficulty}`"
                 >{{ difficultyLabel(question.difficulty) }}</span
               >
-              <span>通过率：{{ question.passRate.toFixed(1) }}%</span>
+              <span>通过率：{{ question.passRate.toFixed(2) }}%</span>
               <span>提交：{{ question.submitNum }}</span>
               <span>通过：{{ question.acceptedNum }}</span>
             </div>

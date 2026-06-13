@@ -17,7 +17,7 @@
             >{{ difficultyLabel(detail.difficulty) }}</span
           >
           <span
-            ><strong>通过率：</strong>{{ detail.passRate.toFixed(1) }}%</span
+            ><strong>通过率：</strong>{{ detail.passRate.toFixed(2) }}%</span
           >
           <span><strong>时间限制：</strong>{{ detail.timeLimit }} ms</span>
           <span><strong>内存限制：</strong>{{ detail.memoryLimit }} MB</span>

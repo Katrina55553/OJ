@@ -25,7 +25,7 @@
             :stroke-width="20"
             :animation="true"
             size="small"
-            :format="(percent: number) => `${percent.toFixed(1)}%`"
+            :format="(percent: number) => `${percent.toFixed(2)}%`"
           />
         </template>
 

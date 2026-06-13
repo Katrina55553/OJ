@@ -23,8 +23,8 @@ export const calculatePassRate = (
   submitNum: number
 ): number => {
   if (!submitNum || submitNum === 0) return 0;
-  const rate = Math.round((acceptNum / submitNum) * 10000) / 100;
-  return Math.min(rate, 100);
+  const rate = (acceptNum / submitNum) * 100;
+  return Math.round(rate * 100) / 100;
 };
 
 /**
