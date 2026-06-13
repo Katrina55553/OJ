@@ -108,7 +108,7 @@
 - [x] 后端 Dockerfile 使用 `maven:3.8.1-jdk-8-slim` 但 `pom.xml` 要求 Java 17 — 修复基础镜像
 - [x] 前端缺少 Dockerfile 和 nginx 部署配置
 - [x] 添加 `docker-compose.yml` 编排前后端 + MySQL + Redis
-- [ ] 配置 CI/CD 流水线（GitHub Actions）
+- [x] 配置 CI/CD 流水线（GitHub Actions）
 
 ---
 
