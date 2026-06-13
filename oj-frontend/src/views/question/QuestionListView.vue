@@ -58,7 +58,7 @@
             <div class="row-right">
               <div class="stat-info">
                 <span class="label">通过率</span>
-                <span class="value">{{ item.passRate }}%</span>
+                <span class="value">{{ item.passRate.toFixed(1) }}%</span>
               </div>
               <a-button
                 type="primary"

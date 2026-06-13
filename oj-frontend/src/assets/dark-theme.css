@@ -595,6 +595,17 @@ hr, .arco-divider {
   color: #c9d1d9 !important;
 }
 
+/* 进度条暗色覆盖 */
+.arco-progress-line-wrapper {
+  background-color: #21262d !important;
+}
+.arco-progress-line-bar {
+  background-color: #238636 !important;
+}
+.arco-progress-line-text {
+  color: #c9d1d9 !important;
+}
+
 /* ---- ByteMD 编辑器暗色覆盖 ---- */
 .bytemd {
   background: #161b22 !important;
