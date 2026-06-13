@@ -3,19 +3,16 @@
  */
 
 /**
- * 根据难度返回 Arco Design Tag 颜色
+ * 难度英文 → 中文显示
  */
-export const difficultyColor = (difficulty: string): string => {
-  switch (difficulty) {
-    case "简单":
-      return "green";
-    case "中等":
-      return "orange";
-    case "困难":
-      return "red";
-    default:
-      return "gray";
-  }
+const DIFFICULTY_MAP: Record<string, string> = {
+  easy: "简单",
+  medium: "中等",
+  hard: "困难",
+};
+
+export const difficultyLabel = (difficulty: string): string => {
+  return DIFFICULTY_MAP[difficulty] || difficulty || "未知";
 };
 
 /**

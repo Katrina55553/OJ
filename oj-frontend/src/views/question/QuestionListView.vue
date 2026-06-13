@@ -50,7 +50,7 @@
               <span
                 class="difficulty-badge"
                 :class="`difficulty-${item.difficulty}`"
-                >{{ item.difficulty }}</span
+                >{{ difficultyLabel(item.difficulty) }}</span
               >
             </div>
 
@@ -98,7 +98,7 @@ import { IconCodeSquare, IconEdit } from "@arco-design/web-vue/es/icon";
 import { Message } from "@arco-design/web-vue";
 import QuestionSearchForm from "./components/QuestionSearchForm.vue";
 import { QuestionControllerService } from "../../../generated/index";
-import { calculatePassRate } from "@/utils/question";
+import { calculatePassRate, difficultyLabel } from "@/utils/question";
 
 const loading = ref(true);
 provide("questionListLoading", loading);

@@ -14,7 +14,7 @@
           <span
             class="difficulty-badge"
             :class="`difficulty-${detail.difficulty}`"
-            >{{ detail.difficulty }}</span
+            >{{ difficultyLabel(detail.difficulty) }}</span
           >
           <span><strong>通过率：</strong>{{ detail.passRate }}%</span>
           <span><strong>时间限制：</strong>{{ detail.timeLimit }} ms</span>
@@ -55,6 +55,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { difficultyLabel } from "@/utils/question";
 
 const props = defineProps<{
   visible: boolean;

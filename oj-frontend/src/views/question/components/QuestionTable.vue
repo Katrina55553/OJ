@@ -14,7 +14,7 @@
           <span
             class="difficulty-badge"
             :class="`difficulty-${record.difficulty}`"
-            >{{ record.difficulty }}</span
+            >{{ difficultyLabel(record.difficulty) }}</span
           >
         </template>
 
@@ -67,6 +67,7 @@
 <script setup lang="ts">
 import { IconEdit, IconEye, IconDelete } from "@arco-design/web-vue/es/icon";
 import type { TableColumnData } from "@arco-design/web-vue";
+import { difficultyLabel } from "@/utils/question";
 
 interface QuestionRecord {
   id: number;
