@@ -8,7 +8,7 @@ set -e
 
 # 配置
 BASE_URL="http://localhost:8101/api"
-USER_ACCOUNT="test"
+USER_ACCOUNT="bench"
 USER_PASSWORD="12345678"
 QUESTION_ID=1
 CONCURRENT_LEVELS=(1 10 50 100)
