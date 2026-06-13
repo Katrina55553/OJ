@@ -26,22 +26,18 @@
       <h2 class="section-title">平台特性</h2>
       <div class="features-grid">
         <div class="feature-card">
-          <div class="feature-icon">⚡</div>
           <h3>实时判题</h3>
           <p>提交代码后秒级返回结果，支持详细判题信息</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🌐</div>
           <h3>多语言支持</h3>
           <p>支持 C++、Java、Python、Go、JavaScript 等主流语言</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">📊</div>
           <h3>进度追踪</h3>
           <p>记录每次提交，追踪通过率，可视化学习进度</p>
         </div>
         <div class="feature-card">
-          <div class="feature-icon">🔒</div>
           <h3>安全隔离</h3>
           <p>Docker 容器沙箱执行，资源限制，确保系统安全</p>
         </div>
@@ -154,14 +150,9 @@ const router = useRouter();
   border-color: #58a6ff;
 }
 
-.feature-icon {
-  font-size: 32px;
-  margin-bottom: 16px;
-}
-
 .feature-card h3 {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 22px;
+  font-weight: 700;
   color: #f0f6fc;
   margin: 0 0 8px;
 }
