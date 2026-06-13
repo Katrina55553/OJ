@@ -66,10 +66,6 @@ public class QuestionController {
         Question question = new Question();
         BeanUtils.copyProperties(questionAddRequest, question);
         question.setId(null);
-        List<String> tags = questionAddRequest.getTags();
-        if (tags != null) {
-            question.setTags(GSON.toJson(tags));
-        }
         List<JudgeCase> judgeCase = questionAddRequest.getJudgeCase();
         if (judgeCase != null) {
             question.setJudgeCase(GSON.toJson(judgeCase));
@@ -128,10 +124,6 @@ public class QuestionController {
         }
         Question question = new Question();
         BeanUtils.copyProperties(questionUpdateRequest, question);
-        List<String> tags = questionUpdateRequest.getTags();
-        if (tags != null) {
-            question.setTags(GSON.toJson(tags));
-        }
         List<JudgeCase> judgeCase = questionUpdateRequest.getJudgeCase();
         if (judgeCase != null) {
             question.setJudgeCase(GSON.toJson(judgeCase));
@@ -268,10 +260,6 @@ public class QuestionController {
         }
         Question question = new Question();
         BeanUtils.copyProperties(questionEditRequest, question);
-        List<String> tags = questionEditRequest.getTags();
-        if (tags != null) {
-            question.setTags(GSON.toJson(tags));
-        }
         List<JudgeCase> judgeCase = questionEditRequest.getJudgeCase();
         if (judgeCase != null) {
             question.setJudgeCase(GSON.toJson(judgeCase));

@@ -11,7 +11,6 @@ export type QuestionAddRequest = {
     content?: string;
     judgeCase?: Array<JudgeCase>;
     judgeConfig?: JudgeConfig;
-    tags?: Array<string>;
     difficulty?: string;
     title?: string;
 };

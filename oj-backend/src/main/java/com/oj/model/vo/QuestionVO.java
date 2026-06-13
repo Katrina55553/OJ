@@ -8,7 +8,6 @@ import org.springframework.beans.BeanUtils;
 
 import java.io.Serializable;
 import java.util.Date;
-import java.util.List;
 
 /**
  * 题目封装类
@@ -30,11 +29,6 @@ public class QuestionVO implements Serializable {
      * 内容
      */
     private String content;
-
-    /**
-     * 标签列表
-     */
-    private List<String> tags;
 
     /**
      * 难度：简单/中等/困难
@@ -98,10 +92,6 @@ public class QuestionVO implements Serializable {
         }
         Question question = new Question();
         BeanUtils.copyProperties(questionVO, question);
-        List<String> tagList = questionVO.getTags();
-        if (tagList != null) {
-            question.setTags(JSONUtil.toJsonStr(tagList));
-        }
         JudgeConfig voJudgeConfig = questionVO.getJudgeConfig();
         if (voJudgeConfig != null) {
             question.setJudgeConfig(JSONUtil.toJsonStr(voJudgeConfig));
@@ -121,8 +111,6 @@ public class QuestionVO implements Serializable {
         }
         QuestionVO questionVO = new QuestionVO();
         BeanUtils.copyProperties(question, questionVO);
-        List<String> tagList = JSONUtil.toList(question.getTags(), String.class);
-        questionVO.setTags(tagList);
         String judgeConfigStr = question.getJudgeConfig();
         questionVO.setJudgeConfig(JSONUtil.toBean(judgeConfigStr, JudgeConfig.class));
         return questionVO;

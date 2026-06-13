@@ -12,7 +12,6 @@ export type QuestionUpdateRequest = {
     id?: number;
     judgeCase?: Array<JudgeCase>;
     judgeConfig?: JudgeConfig;
-    tags?: Array<string>;
     difficulty?: string;
     title?: string;
 };
