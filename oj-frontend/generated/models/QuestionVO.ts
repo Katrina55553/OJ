@@ -15,6 +15,7 @@ export type QuestionVO = {
     judgeConfig?: JudgeConfig;
     submitNum?: number;
     tags?: Array<string>;
+    difficulty?: string;
     thumbNum?: number;
     title?: string;
     updateTime?: string;

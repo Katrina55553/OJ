@@ -173,7 +173,7 @@ const handleSubmit = async () => {
     const addRequest: QuestionAddRequest = {
       title: formData.title,
       content: formData.content,
-      tags: [formData.difficulty],
+      difficulty: formData.difficulty,
       answer: formData.answer,
       judgeCase: judgeCaseArray,
       judgeConfig: {

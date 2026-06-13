@@ -48,13 +48,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         }
         String title = question.getTitle();
         String content = question.getContent();
-        String tags = question.getTags();
+        String difficulty = question.getDifficulty();
         String answer = question.getAnswer();
         String judgeCase = question.getJudgeCase();
         String judgeConfig = question.getJudgeConfig();
         // 创建时，参数不能为空
         if (add) {
-            ThrowUtils.throwIf(StringUtils.isAnyBlank(title, content, tags), ErrorCode.PARAMS_ERROR);
+            ThrowUtils.throwIf(StringUtils.isAnyBlank(title, content, difficulty), ErrorCode.PARAMS_ERROR);
         }
         // 有参数则校验
         if (StringUtils.isNotBlank(title) && title.length() > 80) {
@@ -89,7 +89,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         Long id = questionQueryRequest.getId();
         String title = questionQueryRequest.getTitle();
         String content = questionQueryRequest.getContent();
-        List<String> tags = questionQueryRequest.getTags();
+        String difficulty = questionQueryRequest.getDifficulty();
         String answer = questionQueryRequest.getAnswer();
         Long userId = questionQueryRequest.getUserId();
         String sortField = questionQueryRequest.getSortField();
@@ -99,11 +99,7 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         queryWrapper.like(StringUtils.isNotBlank(title), "title", title);
         queryWrapper.like(StringUtils.isNotBlank(content), "content", content);
         queryWrapper.like(StringUtils.isNotBlank(answer), "answer", answer);
-        if (CollectionUtils.isNotEmpty(tags)) {
-            for (String tag : tags) {
-                queryWrapper.like("tags", "\"" + tag + "\"");
-            }
-        }
+        queryWrapper.eq(StringUtils.isNotBlank(difficulty), "difficulty", difficulty);
         queryWrapper.eq(ObjectUtils.isNotEmpty(id), "id", id);
         queryWrapper.eq(ObjectUtils.isNotEmpty(userId), "userId", userId);
         queryWrapper.eq("isDelete", false);

@@ -99,26 +99,22 @@ const searchParams = ref({
 /** 构造查询参数 */
 const buildQueryParams = (): QuestionQueryRequest => {
   const params = searchParams.value;
-  const queryTags = params.difficulty ? [params.difficulty] : [];
   return {
     current: pagination.current,
     pageSize: pagination.pageSize,
     id: params.id ? Number(params.id) : undefined,
     title: params.title ? params.title.trim() : undefined,
-    tags: queryTags.length > 0 ? queryTags : undefined,
+    difficulty: params.difficulty || undefined,
   };
 };
 
 /** 将后端题目记录转为前端表格行 */
 const transformQuestionRecord = (item: any) => {
-  const tagsArr = parseJsonArray<string>(item.tags);
-  const difficultyKeywords = ["简单", "中等", "困难"];
   return {
     id: item.id || 0,
     title: item.title || "",
     content: item.content || "",
-    difficulty:
-      tagsArr.find((t: string) => difficultyKeywords.includes(t)) || "未知",
+    difficulty: item.difficulty || "未知",
     submitNum: item.submitNum || 0,
     acceptedNum: item.acceptedNum || 0,
     passRate: calculatePassRate(item.acceptedNum || 0, item.submitNum || 0),
@@ -226,15 +222,11 @@ const handleView = async (record: any) => {
       record.id
     );
     if (res.code === 0 && res.data) {
-      const tags = res.data.tags ? JSON.parse(res.data.tags) : [];
-      const difficultyKeywords = ["简单", "中等", "困难"];
-      const difficulty =
-        tags.find((t: string) => difficultyKeywords.includes(t)) || "未知";
       currentDetail.value = {
         id: res.data.id || 0,
         title: res.data.title || "",
         content: res.data.content || "",
-        difficulty: difficulty,
+        difficulty: res.data.difficulty || "未知",
         passRate: calculatePassRate(
           res.data.acceptedNum || 0,
           res.data.submitNum || 0

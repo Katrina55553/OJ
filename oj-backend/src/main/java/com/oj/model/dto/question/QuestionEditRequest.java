@@ -32,6 +32,11 @@ public class QuestionEditRequest implements Serializable {
     private List<String> tags;
 
     /**
+     * 难度：简单/中等/困难
+     */
+    private String difficulty;
+
+    /**
      * 题目答案
      */
     private String answer;

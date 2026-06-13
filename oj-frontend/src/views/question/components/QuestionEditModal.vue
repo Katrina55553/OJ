@@ -132,7 +132,6 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from "vue";
 import { Message, type FormInstance } from "@arco-design/web-vue";
-import { DIFFICULTY_TAGS } from "@/constants/question";
 import { QuestionControllerService } from "../../../../generated";
 import type {
   QuestionUpdateRequest,
@@ -147,6 +146,7 @@ const props = defineProps<{
     id?: number;
     title?: string;
     content?: string;
+    difficulty?: string;
     answer?: string;
     timeLimit?: number;
     memoryLimit?: number;
@@ -197,14 +197,11 @@ watch(
   (newVal) => {
     if (!newVal) return;
 
-    const foundDifficulty =
-      DIFFICULTY_TAGS.find((tag) => newVal.tags?.includes(tag)) || "简单";
-
     localForm.value = {
       id: newVal.id || 0,
       title: newVal.title || "",
       content: newVal.content || "",
-      difficulty: (foundDifficulty as "简单" | "中等" | "困难") || "简单",
+      difficulty: (newVal.difficulty as "简单" | "中等" | "困难") || "简单",
       answer: newVal.answer || "",
       timeLimit: newVal.timeLimit || 1000,
       memoryLimit: newVal.memoryLimit || 256,
@@ -254,7 +251,7 @@ const handleOk = async () => {
     id: localForm.value.id || undefined,
     title: localForm.value.title,
     content: localForm.value.content,
-    tags: [localForm.value.difficulty],
+    difficulty: localForm.value.difficulty,
     answer: localForm.value.answer,
     judgeCase: parsedJudgeCases,
     judgeConfig,

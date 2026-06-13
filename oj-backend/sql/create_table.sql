@@ -29,6 +29,7 @@ create table if not exists question
     title       varchar(512)                       null comment '标题',
     content     text                               null comment '内容',
     tags        varchar(1024)                      null comment '标签列表（json 数组）',
+    difficulty  varchar(32)                        null comment '难度：简单/中等/困难',
     answer      text                               null comment '题目答案',
     submitNum   int      default 0                 not null comment '题目提交数',
     acceptedNum int      default 0                 not null comment '题目通过数',

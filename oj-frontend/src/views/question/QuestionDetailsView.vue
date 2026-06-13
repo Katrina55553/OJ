@@ -145,7 +145,7 @@ import {
 import LanguageCodeEditor from "@/components/LanguageCodeEditor.vue";
 import MdPreview from "@/components/MdPreview.vue";
 import axios, { AxiosError } from "axios";
-import { parseJudgeConfig, parseJsonArray } from "@/utils/question";
+import { parseJudgeConfig } from "@/utils/question";
 
 interface QuestionDetail {
   id: number;
@@ -194,16 +194,9 @@ const loadQuestion = async () => {
       const data = res.data;
       const judgeConfig = parseJudgeConfig(data.judgeConfig);
 
-      const allTags = Array.isArray(data.tags)
-        ? data.tags
-        : parseJsonArray<string>(data.tags);
-      const difficultyKeywords = ["简单", "中等", "困难"];
-      const difficultyTag =
-        allTags.find((tag) => difficultyKeywords.includes(tag)) || "未知";
-
       question.value = {
         ...data,
-        difficulty: difficultyTag,
+        difficulty: data.difficulty || "未知",
         passRate: data.submitNum
           ? ((data.acceptedNum ?? 0) / data.submitNum) * 100
           : 0,
