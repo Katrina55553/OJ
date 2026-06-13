@@ -227,6 +227,86 @@ input[class*="arco-input"]:focus {
   border-color: transparent !important;
 }
 
+/* 标签颜色暗色覆盖 */
+.arco-tag-green,
+.arco-tag.arco-tag-green {
+  background-color: #0d4429 !important;
+  color: #3fb950 !important;
+  border-color: #238636 !important;
+}
+.arco-tag-red,
+.arco-tag.arco-tag-red {
+  background-color: #490202 !important;
+  color: #f85149 !important;
+  border-color: #da3633 !important;
+}
+.arco-tag-orange,
+.arco-tag.arco-tag-orange {
+  background-color: #3d2800 !important;
+  color: #f0883e !important;
+  border-color: #bd561d !important;
+}
+.arco-tag-gold,
+.arco-tag.arco-tag-gold {
+  background-color: #3d2800 !important;
+  color: #d29922 !important;
+  border-color: #9e6a03 !important;
+}
+.arco-tag-blue,
+.arco-tag.arco-tag-blue {
+  background-color: #0d2240 !important;
+  color: #58a6ff !important;
+  border-color: #1f6feb !important;
+}
+.arco-tag-arcoblue,
+.arco-tag.arco-tag-arcoblue {
+  background-color: #0d2240 !important;
+  color: #58a6ff !important;
+  border-color: #1f6feb !important;
+}
+.arco-tag-gray,
+.arco-tag.arco-tag-gray {
+  background-color: #21262d !important;
+  color: #8b949e !important;
+  border-color: #484f58 !important;
+}
+.arco-tag-magenta,
+.arco-tag.arco-tag-magenta {
+  background-color: #3d0d2e !important;
+  color: #f778ba !important;
+  border-color: #bc4a9b !important;
+}
+.arco-tag-purple,
+.arco-tag.arco-tag-purple {
+  background-color: #271052 !important;
+  color: #bc8cff !important;
+  border-color: #8957e5 !important;
+}
+.arco-tag-cyan,
+.arco-tag.arco-tag-cyan {
+  background-color: #0a303b !important;
+  color: #56d4dd !important;
+  border-color: #39949a !important;
+}
+.arco-tag-lime,
+.arco-tag.arco-tag-lime {
+  background-color: #1a3100 !important;
+  color: #7ee787 !important;
+  border-color: #3fb950 !important;
+}
+.arco-tag-orangered,
+.arco-tag.arco-tag-orangered {
+  background-color: #3d1500 !important;
+  color: #ff7b72 !important;
+  border-color: #da3633 !important;
+}
+.arco-tag-pinkpurple,
+.arco-tag.arco-tag-pinkpurple {
+  background-color: #3d0d2e !important;
+  color: #f778ba !important;
+  border-color: #bc4a9b !important;
+}
+
 /* 分页 */
 .arco-pagination .arco-pagination-item {
   background: #161b22 !important;

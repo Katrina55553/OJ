@@ -35,23 +35,6 @@
         </a-select>
       </a-form-item>
 
-      <a-form-item label="标签">
-        <a-select
-          v-model="formModel.tags"
-          placeholder="选择标签"
-          multiple
-          allow-search
-          allow-clear
-          :max-tag-count="1"
-          style="width: 220px"
-          @change="handleSearch"
-        >
-          <a-option v-for="tag in allTags" :key="tag" :value="tag">
-            {{ tag }}
-          </a-option>
-        </a-select>
-      </a-form-item>
-
       <a-form-item>
         <a-space>
           <a-button type="primary" @click="handleSearch" :loading="loading">
@@ -71,7 +54,6 @@
 <script setup lang="ts">
 import { ref, watch, inject } from "vue";
 import { IconSearch, IconRotateLeft } from "@arco-design/web-vue/es/icon";
-import { ALGORITHM_TAGS } from "@/constants/question";
 
 const loading = inject("questionListLoading", ref(false));
 
@@ -80,7 +62,6 @@ const props = defineProps<{
     id: string;
     title: string;
     difficulty: string;
-    tags: string[];
   };
 }>();
 
@@ -91,8 +72,6 @@ const emit = defineEmits<{
 }>();
 
 const formModel = ref({ ...props.modelValue });
-
-const allTags = ALGORITHM_TAGS;
 
 watch(
   formModel,
@@ -121,7 +100,6 @@ const handleReset = () => {
     id: "",
     title: "",
     difficulty: "",
-    tags: [],
   };
   emit("update:modelValue", formModel.value);
   emit("reset");

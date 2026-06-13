@@ -20,20 +20,6 @@
         </a-space>
       </div>
 
-      <div class="detail-tags">
-        <strong>标签：</strong>
-        <a-space wrap>
-          <a-tag
-            v-for="tag in detail.tags"
-            :key="tag"
-            color="blue"
-            size="small"
-          >
-            {{ tag }}
-          </a-tag>
-        </a-space>
-      </div>
-
       <a-divider />
 
       <div class="detail-section">
@@ -75,7 +61,6 @@ const props = defineProps<{
     id: number;
     title: string;
     content: string;
-    tags: string[];
     difficulty: string;
     passRate: number;
     timeLimit: number;
@@ -111,9 +96,6 @@ const handleCancel = () => {
 .detail-meta {
   margin: 12px 0;
   color: #8b949e;
-}
-.detail-tags {
-  margin: 16px 0;
 }
 .detail-section {
   margin: 24px 0;

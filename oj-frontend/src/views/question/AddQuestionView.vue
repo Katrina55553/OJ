@@ -29,7 +29,7 @@
           />
         </a-form-item>
 
-        <!-- 难度 + 标签 -->
+        <!-- 难度 -->
         <a-row :gutter="16">
           <a-col :span="12">
             <a-form-item field="difficulty" label="难度" required>
@@ -37,21 +37,6 @@
                 <a-option value="简单">简单</a-option>
                 <a-option value="中等">中等</a-option>
                 <a-option value="困难">困难</a-option>
-              </a-select>
-            </a-form-item>
-          </a-col>
-          <a-col :span="12">
-            <a-form-item field="tags" label="标签" required>
-              <a-select
-                v-model="formData.tags"
-                multiple
-                allow-create
-                placeholder="请选择或创建标签"
-                :max-tag-count="6"
-              >
-                <a-option v-for="tag in allTags" :key="tag" :value="tag">
-                  {{ tag }}
-                </a-option>
               </a-select>
             </a-form-item>
           </a-col>
@@ -137,7 +122,6 @@ import type { QuestionAddRequest } from "../../../generated";
 import type { FormInstance } from "@arco-design/web-vue";
 import MdEditor from "@/components/MdEditor.vue";
 import CodeEditor from "@/components/CodeEditor.vue";
-import { ALL_TAGS } from "@/constants/question";
 
 const router = useRouter();
 const formRef = ref<FormInstance>();
@@ -146,7 +130,6 @@ const submitting = ref(false);
 const formData = reactive({
   title: "",
   content: "",
-  tags: [] as string[],
   difficulty: "简单",
   answer: "",
   timeLimit: 1000,
@@ -158,13 +141,10 @@ const formRules = {
   title: [{ required: true, message: "请输入题目标题" }],
   content: [{ required: true, message: "请输入题目描述" }],
   difficulty: [{ required: true, message: "请选择难度" }],
-  tags: [{ required: true, message: "请至少选择一个标签" }],
   answer: [{ required: true, message: "请输入参考答案" }],
   timeLimit: [{ required: true, message: "请设置时间限制" }],
   memoryLimit: [{ required: true, message: "请设置内存限制" }],
 };
-
-const allTags = ALL_TAGS;
 
 const handleSubmit = async () => {
   try {
@@ -193,7 +173,7 @@ const handleSubmit = async () => {
     const addRequest: QuestionAddRequest = {
       title: formData.title,
       content: formData.content,
-      tags: formData.tags,
+      tags: [formData.difficulty],
       answer: formData.answer,
       judgeCase: judgeCaseArray,
       judgeConfig: {

@@ -27,7 +27,7 @@
         />
       </a-form-item>
 
-      <!-- 难度 + 标签 -->
+      <!-- 难度 -->
       <a-row :gutter="16">
         <a-col :span="12">
           <a-form-item field="difficulty" label="难度" required>
@@ -35,21 +35,6 @@
               <a-option value="简单">简单</a-option>
               <a-option value="中等">中等</a-option>
               <a-option value="困难">困难</a-option>
-            </a-select>
-          </a-form-item>
-        </a-col>
-        <a-col :span="12">
-          <a-form-item field="tags" label="标签" required>
-            <a-select
-              v-model="localForm.tags"
-              placeholder="请选择或创建标签"
-              multiple
-              allow-create
-              :max-tag-count="8"
-            >
-              <a-option v-for="tag in algorithmTags" :key="tag" :value="tag">
-                {{ tag }}
-              </a-option>
             </a-select>
           </a-form-item>
         </a-col>
@@ -147,7 +132,7 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from "vue";
 import { Message, type FormInstance } from "@arco-design/web-vue";
-import { ALL_TAGS, DIFFICULTY_TAGS } from "@/constants/question";
+import { DIFFICULTY_TAGS } from "@/constants/question";
 import { QuestionControllerService } from "../../../../generated";
 import type {
   QuestionUpdateRequest,
@@ -162,7 +147,6 @@ const props = defineProps<{
     id?: number;
     title?: string;
     content?: string;
-    tags?: string[];
     answer?: string;
     timeLimit?: number;
     memoryLimit?: number;
@@ -189,7 +173,6 @@ const localForm = ref({
   id: 0,
   title: "",
   content: "",
-  tags: [] as string[],
   difficulty: "简单" as "简单" | "中等" | "困难",
   answer: "",
   timeLimit: 1000,
@@ -199,13 +182,10 @@ const localForm = ref({
 
 const judgeCasesJson = ref("[]");
 
-const algorithmTags = ALL_TAGS.filter((tag) => !DIFFICULTY_TAGS.includes(tag));
-
 const formRules = {
   title: [{ required: true, message: "请输入题目标题" }],
   content: [{ required: true, message: "请输入题目描述" }],
   difficulty: [{ required: true, message: "请选择难度" }],
-  tags: [{ required: true, message: "请至少选择一个算法标签" }],
   answer: [{ required: true, message: "请输入参考答案" }],
   timeLimit: [{ required: true, message: "请设置时间限制" }],
   memoryLimit: [{ required: true, message: "请设置内存限制" }],
@@ -219,14 +199,11 @@ watch(
 
     const foundDifficulty =
       DIFFICULTY_TAGS.find((tag) => newVal.tags?.includes(tag)) || "简单";
-    const otherTags =
-      newVal.tags?.filter((tag) => !DIFFICULTY_TAGS.includes(tag)) || [];
 
     localForm.value = {
       id: newVal.id || 0,
       title: newVal.title || "",
       content: newVal.content || "",
-      tags: otherTags,
       difficulty: (foundDifficulty as "简单" | "中等" | "困难") || "简单",
       answer: newVal.answer || "",
       timeLimit: newVal.timeLimit || 1000,
@@ -273,16 +250,11 @@ const handleOk = async () => {
     stackLimit: localForm.value.stackLimit || undefined,
   };
 
-  const finalTags = [
-    localForm.value.difficulty,
-    ...localForm.value.tags,
-  ].filter(Boolean);
-
   const updateRequest: QuestionUpdateRequest = {
     id: localForm.value.id || undefined,
     title: localForm.value.title,
     content: localForm.value.content,
-    tags: finalTags,
+    tags: [localForm.value.difficulty],
     answer: localForm.value.answer,
     judgeCase: parsedJudgeCases,
     judgeConfig,

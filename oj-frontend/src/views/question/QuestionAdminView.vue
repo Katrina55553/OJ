@@ -94,22 +94,18 @@ const searchParams = ref({
   id: "",
   title: "",
   difficulty: "",
-  tags: [] as string[],
 });
 
 /** 构造查询参数 */
 const buildQueryParams = (): QuestionQueryRequest => {
   const params = searchParams.value;
-  const finalTags = [...(params.tags || [])];
-  if (params.difficulty) {
-    finalTags.push(params.difficulty);
-  }
+  const queryTags = params.difficulty ? [params.difficulty] : [];
   return {
     current: pagination.current,
     pageSize: pagination.pageSize,
     id: params.id ? Number(params.id) : undefined,
     title: params.title ? params.title.trim() : undefined,
-    tags: finalTags.length > 0 ? finalTags : undefined,
+    tags: queryTags.length > 0 ? queryTags : undefined,
   };
 };
 
@@ -121,7 +117,6 @@ const transformQuestionRecord = (item: any) => {
     id: item.id || 0,
     title: item.title || "",
     content: item.content || "",
-    tags: tagsArr,
     difficulty:
       tagsArr.find((t: string) => difficultyKeywords.includes(t)) || "未知",
     submitNum: item.submitNum || 0,
@@ -189,7 +184,6 @@ const formData = reactive({
   id: 0,
   title: "",
   content: "",
-  tags: [] as string[],
   difficulty: "",
   answer: "",
   timeLimit: 1000,
@@ -209,15 +203,11 @@ const handleEdit = (record: any) => {
   isEditMode.value = true;
   modalTitle.value = "编辑题目";
 
-  const difficulty = record.difficulty || "";
-  const pureTags = record.tags.filter((t: string) => t !== difficulty);
-
   Object.assign(formData, {
     id: record.id,
     title: record.title,
     content: record.content,
-    tags: pureTags,
-    difficulty: difficulty,
+    difficulty: record.difficulty || "",
     answer: record.answer,
     timeLimit: record.timeLimit,
     memoryLimit: record.memoryLimit,
@@ -237,11 +227,14 @@ const handleView = async (record: any) => {
     );
     if (res.code === 0 && res.data) {
       const tags = res.data.tags ? JSON.parse(res.data.tags) : [];
+      const difficultyKeywords = ["简单", "中等", "困难"];
+      const difficulty =
+        tags.find((t: string) => difficultyKeywords.includes(t)) || "未知";
       currentDetail.value = {
         id: res.data.id || 0,
         title: res.data.title || "",
         content: res.data.content || "",
-        tags: tags,
+        difficulty: difficulty,
         passRate: calculatePassRate(
           res.data.acceptedNum || 0,
           res.data.submitNum || 0

@@ -19,9 +19,6 @@
               <a-tag :color="difficultyColor(question.difficulty)">
                 {{ question.difficulty }}
               </a-tag>
-              <a-tag v-for="tag in question.tags" :key="tag" color="arcoblue">
-                {{ tag }}
-              </a-tag>
             </div>
             <div class="meta-row">
               <span>通过率：{{ question.passRate.toFixed(1) }}%</span>
@@ -158,7 +155,6 @@ interface QuestionDetail {
   id: number;
   title: string;
   content: string;
-  tags: string[];
   difficulty: string;
   passRate: number;
   timeLimit: number;
@@ -206,13 +202,9 @@ const loadQuestion = async () => {
       const difficultyKeywords = ["简单", "中等", "困难"];
       const difficultyTag =
         allTags.find((tag) => difficultyKeywords.includes(tag)) || "未知";
-      const displayTags = allTags.filter(
-        (tag) => !difficultyKeywords.includes(tag)
-      );
 
       question.value = {
         ...data,
-        tags: displayTags,
         difficulty: difficultyTag,
         passRate: data.submitNum
           ? ((data.acceptedNum ?? 0) / data.submitNum) * 100

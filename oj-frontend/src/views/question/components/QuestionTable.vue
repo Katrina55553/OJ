@@ -9,20 +9,6 @@
         @page-change="emit('page-change', $event)"
         @page-size-change="emit('page-size-change', $event)"
       >
-        <!-- 标签列 -->
-        <template #tags="{ record }">
-          <a-space wrap>
-            <a-tag
-              v-for="tag in record.tags"
-              :key="tag"
-              color="blue"
-              size="small"
-            >
-              {{ tag }}
-            </a-tag>
-          </a-space>
-        </template>
-
         <!-- 难度列 -->
         <template #difficulty="{ record }">
           <a-tag :color="getDifficultyColor(record.difficulty)" size="small">
@@ -84,7 +70,6 @@ import { difficultyColor as getDifficultyColor } from "@/utils/question";
 interface QuestionRecord {
   id: number;
   title: string;
-  tags: string[];
   difficulty: string;
   acceptedNum: number;
   submitNum: number;
@@ -121,7 +106,6 @@ const columns: TableColumnData[] = [
     align: "center",
   },
   { title: "题目标题", dataIndex: "title", ellipsis: true, tooltip: true },
-  { title: "标签", slotName: "tags", width: 200 },
   { title: "难度", slotName: "difficulty", width: 100, align: "center" },
   {
     title: "提交/通过",

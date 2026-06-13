@@ -45,23 +45,12 @@
               </span>
             </div>
 
-            <!-- 标签 & 难度 -->
+            <!-- 难度 -->
             <div class="row-middle">
-              <a-space wrap>
-                <a-tag
-                  v-for="tag in item.tags"
-                  :key="tag"
-                  color="gray"
-                  size="small"
-                  bordered
-                >
-                  {{ tag }}
-                </a-tag>
-              </a-space>
               <a-tag
                 size="small"
                 :color="difficultyColor(item.difficulty)"
-                style="margin-left: 16px; width: 50px; text-align: center"
+                style="width: 50px; text-align: center"
               >
                 {{ item.difficulty }}
               </a-tag>
@@ -122,7 +111,6 @@ interface Problem {
   id: number;
   title: string;
   difficulty: string;
-  tags: string[];
   passRate: number;
 }
 
@@ -135,7 +123,6 @@ const searchParams = ref({
   id: "",
   title: "",
   difficulty: "",
-  tags: [] as string[],
 });
 
 const loadData = async () => {
@@ -143,10 +130,7 @@ const loadData = async () => {
   try {
     const params = searchParams.value;
 
-    const queryTags = [...(params.tags || [])];
-    if (params.difficulty) {
-      queryTags.push(params.difficulty);
-    }
+    const queryTags = params.difficulty ? [params.difficulty] : [];
 
     const requestBody = {
       current: params.current,
@@ -165,7 +149,6 @@ const loadData = async () => {
         id: item.id,
         title: item.title,
         difficulty: item.difficulty || item.tags?.[0] || "未知",
-        tags: item.tags || [],
         passRate: calculatePassRate(item.acceptedNum, item.submitNum),
       }));
       total.value = Number(res.data.total) || 0;
