@@ -7,7 +7,7 @@ import { Editor } from "@bytemd/vue-next";
 import gfm from "@bytemd/plugin-gfm";
 import highlight from "@bytemd/plugin-highlight";
 import "bytemd/dist/index.css";
-import "highlight.js/styles/vs.css";
+import "highlight.js/styles/atom-one-dark.css";
 
 const props = defineProps<{
   modelValue: string;

@@ -11,9 +11,11 @@
       <div class="detail-meta">
         <a-space wrap size="large">
           <span><strong>ID：</strong>{{ detail.id }}</span>
-          <a-tag :color="getDifficultyColor(detail.difficulty)">
-            {{ detail.difficulty }}
-          </a-tag>
+          <span
+            class="difficulty-badge"
+            :class="`difficulty-${detail.difficulty}`"
+            >{{ detail.difficulty }}</span
+          >
           <span><strong>通过率：</strong>{{ detail.passRate }}%</span>
           <span><strong>时间限制：</strong>{{ detail.timeLimit }} ms</span>
           <span><strong>内存限制：</strong>{{ detail.memoryLimit }} MB</span>
@@ -53,7 +55,6 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { difficultyColor as getDifficultyColor } from "@/utils/question";
 
 const props = defineProps<{
   visible: boolean;
@@ -96,7 +97,34 @@ const handleCancel = () => {
 .detail-meta {
   margin: 12px 0;
   color: #8b949e;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
 }
+
+.difficulty-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 4px;
+}
+
+.difficulty-简单 {
+  background: #0d4429;
+  color: #3fb950;
+}
+
+.difficulty-中等 {
+  background: #3d2800;
+  color: #f0883e;
+}
+
+.difficulty-困难 {
+  background: #490202;
+  color: #f85149;
+}
+
 .detail-section {
   margin: 24px 0;
 }

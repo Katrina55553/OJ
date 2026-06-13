@@ -15,12 +15,12 @@
           <!-- 题目头部 -->
           <div class="panel-header">
             <h1 class="title">{{ question.title }}</h1>
-            <div class="tags-row">
-              <a-tag :color="difficultyColor(question.difficulty)">
-                {{ question.difficulty }}
-              </a-tag>
-            </div>
             <div class="meta-row">
+              <span
+                class="difficulty-badge"
+                :class="`difficulty-${question.difficulty}`"
+                >{{ question.difficulty }}</span
+              >
               <span>通过率：{{ question.passRate.toFixed(1) }}%</span>
               <span>提交：{{ question.submitNum }}</span>
               <span>通过：{{ question.acceptedNum }}</span>
@@ -145,11 +145,7 @@ import {
 import LanguageCodeEditor from "@/components/LanguageCodeEditor.vue";
 import MdPreview from "@/components/MdPreview.vue";
 import axios, { AxiosError } from "axios";
-import {
-  difficultyColor,
-  parseJudgeConfig,
-  parseJsonArray,
-} from "@/utils/question";
+import { parseJudgeConfig, parseJsonArray } from "@/utils/question";
 
 interface QuestionDetail {
   id: number;
@@ -395,13 +391,35 @@ onMounted(() => loadQuestion());
   font-size: 24px;
 }
 
-.tags-row,
 .meta-row {
   margin-bottom: 12px;
   display: flex;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
   color: #8b949e;
   font-size: 13px;
+}
+
+.difficulty-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 4px;
+}
+
+.difficulty-简单 {
+  background: #0d4429;
+  color: #3fb950;
+}
+
+.difficulty-中等 {
+  background: #3d2800;
+  color: #f0883e;
+}
+
+.difficulty-困难 {
+  background: #490202;
+  color: #f85149;
 }
 
 .panel-content {

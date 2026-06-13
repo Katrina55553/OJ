@@ -135,6 +135,7 @@ onMounted(() => {
 .editor-header {
   padding: 12px;
   flex-shrink: 0;
+  background: #161b22;
 }
 
 .editor-wrapper {

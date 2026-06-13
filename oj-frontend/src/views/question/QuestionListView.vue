@@ -47,13 +47,11 @@
 
             <!-- 难度 -->
             <div class="row-middle">
-              <a-tag
-                size="small"
-                :color="difficultyColor(item.difficulty)"
-                style="width: 50px; text-align: center"
+              <span
+                class="difficulty-badge"
+                :class="`difficulty-${item.difficulty}`"
+                >{{ item.difficulty }}</span
               >
-                {{ item.difficulty }}
-              </a-tag>
             </div>
 
             <!-- 数据 & 按钮 -->
@@ -100,7 +98,7 @@ import { IconCodeSquare, IconEdit } from "@arco-design/web-vue/es/icon";
 import { Message } from "@arco-design/web-vue";
 import QuestionSearchForm from "./components/QuestionSearchForm.vue";
 import { QuestionControllerService } from "../../../generated/index";
-import { difficultyColor, calculatePassRate } from "@/utils/question";
+import { calculatePassRate } from "@/utils/question";
 
 const loading = ref(true);
 provide("questionListLoading", loading);
@@ -278,6 +276,28 @@ const toProblemDetail = (id: number) => {
   justify-content: center;
   flex-basis: 300px;
   margin: 0 24px;
+}
+
+.difficulty-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 4px;
+}
+
+.difficulty-简单 {
+  background: #0d4429;
+  color: #3fb950;
+}
+
+.difficulty-中等 {
+  background: #3d2800;
+  color: #f0883e;
+}
+
+.difficulty-困难 {
+  background: #490202;
+  color: #f85149;
 }
 
 .row-right {

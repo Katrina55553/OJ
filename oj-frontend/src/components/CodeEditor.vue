@@ -129,8 +129,8 @@ watch(
   min-height: 0;
   overflow: hidden;
   border-radius: 12px;
-  border: 1px solid #363636;
-  background: #1e1e1e;
+  border: 1px solid #30363d;
+  background: #0d1117;
   box-sizing: border-box;
 }
 

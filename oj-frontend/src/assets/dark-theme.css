@@ -594,3 +594,151 @@ hr, .arco-divider {
 .arco-popover-content {
   color: #c9d1d9 !important;
 }
+
+/* ---- ByteMD 编辑器暗色覆盖 ---- */
+.bytemd {
+  background: #161b22 !important;
+  border: 1px solid #30363d !important;
+  border-radius: 8px !important;
+  color: #c9d1d9 !important;
+  height: 600px !important;
+}
+
+/* 工具栏 */
+.bytemd-toolbar {
+  background: #21262d !important;
+  border-bottom: 1px solid #30363d !important;
+}
+.bytemd-toolbar-icon,
+.bytemd-toolbar-icon svg {
+  color: #8b949e !important;
+  fill: #8b949e !important;
+}
+.bytemd-toolbar-icon:hover {
+  color: #c9d1d9 !important;
+  background: #30363d !important;
+}
+.bytemd-toolbar-active {
+  background: #0d1117 !important;
+  color: #58a6ff !important;
+}
+
+/* 分隔线 */
+.bytemd-toolbar-right {
+  border-left-color: #30363d !important;
+}
+
+/* 编辑器主体 */
+.bytemd-body {
+  background: #0d1117 !important;
+}
+
+/* 左侧编辑区 */
+.bytemd-editor {
+  background: #0d1117 !important;
+}
+.bytemd-editor .CodeMirror {
+  background: #0d1117 !important;
+  color: #c9d1d9 !important;
+}
+.bytemd-editor .CodeMirror-gutters {
+  background: #0d1117 !important;
+  border-right-color: #21262d !important;
+}
+.bytemd-editor .CodeMirror-linenumber {
+  color: #6e7681 !important;
+}
+.bytemd-editor .CodeMirror-cursor {
+  border-left-color: #c9d1d9 !important;
+}
+.bytemd-editor .CodeMirror-selected,
+.bytemd-editor .CodeMirror-selectedtext {
+  background: rgba(56, 139, 253, 0.2) !important;
+}
+.bytemd-editor .CodeMirror-activeline-background {
+  background: rgba(56, 139, 253, 0.1) !important;
+}
+.bytemd-editor .CodeMirror-matchingbracket {
+  color: #58a6ff !important;
+  text-decoration: underline;
+}
+
+/* 右侧预览区 */
+.bytemd-preview {
+  background: #161b22 !important;
+  color: #c9d1d9 !important;
+  border-left: 1px solid #30363d !important;
+}
+.bytemd-preview h1,
+.bytemd-preview h2,
+.bytemd-preview h3,
+.bytemd-preview h4,
+.bytemd-preview h5 {
+  color: #f0f6fc !important;
+  border-bottom-color: #21262d !important;
+}
+.bytemd-preview a {
+  color: #58a6ff !important;
+}
+.bytemd-preview blockquote {
+  border-left-color: #30363d !important;
+  color: #8b949e !important;
+}
+.bytemd-preview table th,
+.bytemd-preview table td {
+  border-color: #30363d !important;
+}
+.bytemd-preview table th {
+  background: #21262d !important;
+}
+.bytemd-preview table tr {
+  background: #161b22 !important;
+}
+.bytemd-preview table tr:nth-child(2n) {
+  background: #0d1117 !important;
+}
+.bytemd-preview code {
+  background: #21262d !important;
+  color: #e6edf3 !important;
+  border-radius: 4px;
+  padding: 2px 6px;
+}
+.bytemd-preview pre {
+  background: #0d1117 !important;
+  border: 1px solid #30363d !important;
+}
+.bytemd-preview pre code {
+  background: transparent !important;
+  color: #c9d1d9 !important;
+}
+.bytemd-preview hr {
+  background-color: #30363d !important;
+}
+.bytemd-preview img {
+  border-radius: 4px;
+}
+
+/* 滚动条 */
+.bytemd-scrollbar::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+.bytemd-scrollbar::-webkit-scrollbar-thumb {
+  background: #30363d !important;
+  border-radius: 3px;
+}
+.bytemd-scrollbar::-webkit-scrollbar-track {
+  background: #0d1117 !important;
+}
+
+/* 底部状态栏 */
+.bytemd-status {
+  background: #21262d !important;
+  border-top: 1px solid #30363d !important;
+  color: #8b949e !important;
+}
+
+/* 全屏模式 */
+.bytemd-fullscreen {
+  z-index: 1000 !important;
+}

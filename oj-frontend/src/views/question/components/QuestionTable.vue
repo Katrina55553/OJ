@@ -11,9 +11,11 @@
       >
         <!-- 难度列 -->
         <template #difficulty="{ record }">
-          <a-tag :color="getDifficultyColor(record.difficulty)" size="small">
-            {{ record.difficulty }}
-          </a-tag>
+          <span
+            class="difficulty-badge"
+            :class="`difficulty-${record.difficulty}`"
+            >{{ record.difficulty }}</span
+          >
         </template>
 
         <!-- 通过率列 -->
@@ -65,7 +67,6 @@
 <script setup lang="ts">
 import { IconEdit, IconEye, IconDelete } from "@arco-design/web-vue/es/icon";
 import type { TableColumnData } from "@arco-design/web-vue";
-import { difficultyColor as getDifficultyColor } from "@/utils/question";
 
 interface QuestionRecord {
   id: number;
@@ -131,5 +132,27 @@ const columns: TableColumnData[] = [
   background: #161b22;
   border-radius: 8px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.difficulty-badge {
+  font-size: 12px;
+  font-weight: 600;
+  padding: 2px 10px;
+  border-radius: 4px;
+}
+
+.difficulty-简单 {
+  background: #0d4429;
+  color: #3fb950;
+}
+
+.difficulty-中等 {
+  background: #3d2800;
+  color: #f0883e;
+}
+
+.difficulty-困难 {
+  background: #490202;
+  color: #f85149;
 }
 </style>
