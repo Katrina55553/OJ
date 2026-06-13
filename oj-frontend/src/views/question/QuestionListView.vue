@@ -143,12 +143,17 @@ const loadData = async () => {
     );
 
     if (res.code === 0 && res.data) {
-      problemList.value = res.data.records.map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        difficulty: item.difficulty || item.tags?.[0] || "未知",
-        passRate: calculatePassRate(item.acceptedNum, item.submitNum),
-      }));
+      const difficultyKeywords = ["简单", "中等", "困难"];
+      problemList.value = res.data.records.map((item: any) => {
+        const tags = Array.isArray(item.tags) ? item.tags : [];
+        return {
+          id: item.id,
+          title: item.title,
+          difficulty:
+            tags.find((t: string) => difficultyKeywords.includes(t)) || "未知",
+          passRate: calculatePassRate(item.acceptedNum, item.submitNum),
+        };
+      });
       total.value = Number(res.data.total) || 0;
     } else {
       Message.error(res.message || "加载题目失败");

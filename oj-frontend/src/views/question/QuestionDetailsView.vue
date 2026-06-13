@@ -194,7 +194,9 @@ const loadQuestion = async () => {
       const data = res.data;
       const judgeConfig = parseJudgeConfig(data.judgeConfig);
 
-      const allTags = parseJsonArray<string>(data.tags);
+      const allTags = Array.isArray(data.tags)
+        ? data.tags
+        : parseJsonArray<string>(data.tags);
       const difficultyKeywords = ["简单", "中等", "困难"];
       const difficultyTag =
         allTags.find((tag) => difficultyKeywords.includes(tag)) || "未知";
