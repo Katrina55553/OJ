@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 | `oj-frontend/` | Vue 3 + TypeScript + Arco Design Vue | 前端 SPA |
 | `oj-backend/` | Spring Boot 2.7 + MyBatis-Plus + MySQL | 后端 API 服务 |
 
-前端详细架构参见 `oj-frontend/CLAUDE.md`，改进清单参见 `todo.md`。
+前端详细架构参见 `oj-frontend/CLAUDE.md`，改进清单参见 `todo.md`，核心技术面试讲解参见 `tutorial/`。
 
 ## 常用命令
 
@@ -175,14 +175,14 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 
 | 文件 | 用途 |
 |------|------|
-| `oj-backend/.../application.yml` | 后端主配置（数据库、Redis、RabbitMQ、JWT、沙箱） |
-| `oj-backend/.../application-prod.yml` | 生产环境覆盖配置（数据源、Redis 来自环境变量） |
-| `oj-backend/.../application-test.yml` | 测试环境覆盖配置 |
+| `oj-backend/application.yml` | 后端主配置（数据库、Redis、RabbitMQ、JWT、沙箱） |
+| `oj-backend/application-prod.yml` | 生产环境覆盖配置（数据源、Redis 来自环境变量） |
+| `oj-backend/application-test.yml` | 测试环境覆盖配置 |
 | `oj-frontend/vue.config.js` | Webpack 配置、Monaco 插件、API 代理 |
 | `oj-frontend/tsconfig.json` | TypeScript 编译选项 |
 | `docker-compose.yml` | Docker 服务编排（MySQL + Redis + RabbitMQ + 后端 + 前端） |
 | `.env.example` | 环境变量模板（DB_PASSWORD、REDIS_PASSWORD、JWT_SECRET 等） |
-| `oj-backend/.../sandbox/` | 各语言代码沙箱 Dockerfile（Dockerfile.cpp/java/python/go/node） |
+| `oj-backend/sandbox/` | 各语言代码沙箱 Dockerfile（Dockerfile.cpp/java/python/go/node） |
 
 ## 环境变量
 
