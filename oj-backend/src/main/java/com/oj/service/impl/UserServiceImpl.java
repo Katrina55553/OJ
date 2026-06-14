@@ -172,11 +172,50 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 用户注销（JWT 无状态，客户端清除 Token 即可，服务端无需操作）
+     * 用户注销
+     * 将当前 Token 加入 Redis 黑名单，实现主动失效
      */
     @Override
     public boolean userLogout(HttpServletRequest request) {
+        String token = extractToken(request);
+        if (token == null) {
+            return true;
+        }
+
+        // 获取 Token 的 jti 和剩余有效期
+        String tokenId = jwtUtils.getTokenId(token);
+        if (tokenId == null) {
+            return true;
+        }
+
+        long remainingMs = jwtUtils.getTokenRemainingMs(token);
+        if (remainingMs <= 0) {
+            return true;  // Token 已过期，无需加入黑名单
+        }
+
+        // 加入黑名单，TTL 等于 Token 剩余有效期
+        String blacklistKey = "blacklist:token:" + tokenId;
+        redisCacheUtils.set(blacklistKey, "1", remainingMs, java.util.concurrent.TimeUnit.MILLISECONDS);
+        log.info("Token 已加入黑名单: tokenId={}, remainingMs={}", tokenId, remainingMs);
+
+        // 清除用户缓存
+        Long userId = jwtUtils.getUserId(token);
+        if (userId != null) {
+            clearUserCache(userId);
+        }
+
         return true;
+    }
+
+    /**
+     * 从 Request 中提取 Token
+     */
+    private String extractToken(HttpServletRequest request) {
+        String authHeader = request.getHeader("Authorization");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
+        }
+        return null;
     }
 
     @Override

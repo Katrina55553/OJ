@@ -267,6 +267,9 @@ public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest request) {
 │       │                                                  │
 │       ├── Token 为空？→ 放行（后续权限校验处理）            │
 │       │                                                  │
+│       ├── 解析 jti，检查 Redis 黑名单                      │
+│       │   └── 在黑名单中？→ 返回 401                       │
+│       │                                                  │
 │       ├── Token 过期？→ 返回 401                          │
 │       │                                                  │
 │       ├── Token 无效？→ 返回 401                          │
@@ -304,6 +307,26 @@ public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest request) {
 > 1. **无法主动失效**：Token 一旦签发，在过期前都有效。用户修改密码后，旧 Token 仍然有效。解决方案：维护一个 Token 黑名单（Redis）
 > 2. **Payload 不宜过大**：Token 每次请求都要传输，Payload 太大会影响性能
 > 3. **不能存储敏感信息**：Payload 只是 Base64 编码，不是加密
+
+### Q: Token 黑名单怎么实现的？
+
+> **Redis + jti（JWT ID）方案**：
+>
+> 1. **生成 Token 时**，添加 `jti`（UUID）作为唯一标识
+> 2. **退出登录时**，将 `blacklist:token:{jti}` 写入 Redis，TTL = Token 剩余有效期
+> 3. **每次请求时**，拦截器检查 Token 的 jti 是否在 Redis 黑名单中，如果在则返回 401
+>
+> **Redis Key 设计**：
+> ```
+> Key:   blacklist:token:{jti}
+> Value: "1"（只需 key 存在）
+> TTL:   Token 剩余有效期（毫秒）
+> ```
+>
+> **为什么用 jti 而不是存整个 Token？**
+> - jti 是固定的 UUID 字符串（36 字符），Token 是变长的（可能几百字符）
+> - jti 更省 Redis 存储空间
+> - 同一个用户多次登录会生成不同 jti，可以精确失效某一次登录的 Token
 
 ### Q: 为什么不把 Token 存在 Cookie 里？
 

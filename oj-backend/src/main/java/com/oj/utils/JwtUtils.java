@@ -12,6 +12,7 @@ import javax.annotation.PostConstruct;
 import javax.crypto.SecretKey;
 import java.nio.charset.StandardCharsets;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * JWT 工具类
@@ -45,12 +46,32 @@ public class JwtUtils {
         Date expireDate = new Date(now.getTime() + expiration);
 
         return Jwts.builder()
+                .setId(UUID.randomUUID().toString())  // jti，唯一标识 Token
                 .claim("userId", userId)
                 .claim("userRole", userRole)
                 .setIssuedAt(now)
                 .setExpiration(expireDate)
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    /**
+     * 从 Token 中获取 jti（JWT ID）
+     */
+    public String getTokenId(String token) {
+        Claims claims = parseToken(token);
+        return claims != null ? claims.getId() : null;
+    }
+
+    /**
+     * 从 Token 中获取剩余有效期（毫秒）
+     * 如果已过期返回 0
+     */
+    public long getTokenRemainingMs(String token) {
+        Claims claims = parseToken(token);
+        if (claims == null || claims.getExpiration() == null) return 0;
+        long remaining = claims.getExpiration().getTime() - System.currentTimeMillis();
+        return Math.max(remaining, 0);
     }
 
     /**
