@@ -37,6 +37,7 @@ public class DockerCodeSandbox implements CodeSandbox {
     private String cpuLimit;
 
     private static final String SANDBOX_IMAGE_PREFIX = "oj-sandbox-";
+    private static final String BASE_IMAGE_PREFIX = "oj-base-";
 
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest request) {
@@ -44,21 +45,20 @@ public class DockerCodeSandbox implements CodeSandbox {
         String code = request.getCode();
         List<String> inputList = request.getInputList();
 
-        // 1. 创建临时工作目录
         Path workDir = null;
         try {
             workDir = Files.createTempDirectory("oj-sandbox-");
 
-            // 2. 写入代码文件
             String codeFileName = getCodeFileName(language);
             Files.write(workDir.resolve(codeFileName), code.getBytes(StandardCharsets.UTF_8));
 
-            // 3. 构建 Docker 镜像
-            String imageTag = SANDBOX_IMAGE_PREFIX + language + "-" + System.currentTimeMillis();
-            String dockerfile = getDockerfileName(language);
-            buildImage(workDir, dockerfile, imageTag);
+            String baseImage = BASE_IMAGE_PREFIX + language;
+            ensureBaseImage(language, baseImage);
 
-            // 4. 执行测试用例
+            if (needsCompilation(language)) {
+                compileCodeInContainer(baseImage, workDir, language);
+            }
+
             List<String> outputList = new ArrayList<>();
             long totalTime = 0;
             long totalMemory = 0;
@@ -67,13 +67,12 @@ public class DockerCodeSandbox implements CodeSandbox {
                 String input = inputList.get(i);
                 long startTime = System.currentTimeMillis();
 
-                ContainerResult result = runContainer(imageTag, input);
+                ContainerResult result = runContainerWithMount(baseImage, workDir, language, input);
 
                 long endTime = System.currentTimeMillis();
                 long execTime = endTime - startTime;
 
                 if (result.exitCode != 0) {
-                    // 执行失败
                     String errorMsg = result.stderr.isEmpty() ? result.stdout : result.stderr;
                     outputList.add(errorMsg);
 
@@ -96,11 +95,10 @@ public class DockerCodeSandbox implements CodeSandbox {
                 totalMemory += result.memoryUsage;
             }
 
-            // 5. 构建返回结果
             JudgeInfo judgeInfo = JudgeInfo.builder()
                     .message("Accepted")
                     .time(totalTime)
-                    .memory(totalMemory / 1024) // 转为 KB
+                    .memory(totalMemory / 1024)
                     .build();
 
             return ExecuteCodeResponse.builder()
@@ -114,7 +112,6 @@ public class DockerCodeSandbox implements CodeSandbox {
             log.error("Docker 沙箱执行失败", e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "代码执行失败: " + e.getMessage());
         } finally {
-            // 6. 清理临时目录
             if (workDir != null) {
                 try {
                     deleteDirectory(workDir);
@@ -125,38 +122,111 @@ public class DockerCodeSandbox implements CodeSandbox {
         }
     }
 
-    /**
-     * 构建 Docker 镜像
-     */
-    private void buildImage(Path workDir, String dockerfile, String imageTag) throws IOException, InterruptedException {
-        // 复制 Dockerfile 到工作目录
-        Path dockerfilePath = workDir.resolve("Dockerfile");
-        Files.copy(getDockerfileResource(dockerfile), dockerfilePath, StandardCopyOption.REPLACE_EXISTING);
+    private void ensureBaseImage(String language, String baseImage) throws IOException, InterruptedException {
+        ProcessBuilder check = new ProcessBuilder("docker", "image", "inspect", baseImage);
+        check.redirectErrorStream(true);
+        Process checkProcess = check.start();
+        boolean checkFinished = checkProcess.waitFor(5, TimeUnit.SECONDS);
+        if (checkFinished && checkProcess.exitValue() == 0) {
+            return;
+        }
+
+        String dockerfile = "Dockerfile.base." + language;
+        Path tempDir = Files.createTempDirectory("oj-base-build-");
+        try {
+            Files.copy(getDockerfileResource(dockerfile), tempDir.resolve("Dockerfile"), StandardCopyOption.REPLACE_EXISTING);
+        } catch (Exception e) {
+            Files.delete(tempDir);
+            throw new IOException("复制 base Dockerfile 失败: " + dockerfile, e);
+        }
 
         ProcessBuilder pb = new ProcessBuilder(
-                "docker", "build", "-t", imageTag, "-f", dockerfilePath.toString(), workDir.toString()
+                "docker", "build", "-t", baseImage, "-f", tempDir.resolve("Dockerfile").toString(), tempDir.toString()
         );
+        pb.redirectErrorStream(true);
+        Process process = pb.start();
+        String output = readProcessOutput(process.getInputStream());
+        boolean finished = process.waitFor(300, TimeUnit.SECONDS);
+
+        try {
+            Files.walk(tempDir)
+                    .sorted((a, b) -> b.compareTo(a))
+                    .forEach(path -> {
+                        try { Files.deleteIfExists(path); } catch (IOException ignored) {}
+                    });
+        } catch (IOException ignored) {}
+
+        if (!finished) {
+            process.destroyForcibly();
+            throw new IOException("基础镜像构建超时: " + baseImage);
+        }
+        if (process.exitValue() != 0) {
+            throw new IOException("基础镜像构建失败: " + baseImage + "\n" + output);
+        }
+        log.info("基础镜像构建完成: {}", baseImage);
+    }
+
+    private boolean needsCompilation(String language) {
+        switch (language.toLowerCase()) {
+            case "cpp":
+            case "java":
+            case "go":
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private void compileCodeInContainer(String baseImage, Path workDir, String language) throws IOException, InterruptedException {
+        String compileCmd = getCompileCommand(language);
+        String containerName = "oj-compile-" + UUID.randomUUID().toString().substring(0, 8);
+
+        List<String> cmd = new ArrayList<>();
+        cmd.add("docker");
+        cmd.add("run");
+        cmd.add("--name=" + containerName);
+        cmd.add("--memory=" + memoryLimit);
+        cmd.add("--cpus=" + cpuLimit);
+        cmd.add("--network=none");
+        cmd.add("-v");
+        cmd.add(workDir.toString() + ":/code");
+        cmd.add(baseImage);
+        cmd.add("bash");
+        cmd.add("-c");
+        cmd.add(compileCmd);
+
+        ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.redirectErrorStream(true);
         Process process = pb.start();
 
         String output = readProcessOutput(process.getInputStream());
-        boolean finished = process.waitFor(60, TimeUnit.SECONDS);
+        boolean finished = process.waitFor(30, TimeUnit.SECONDS);
+
+        removeContainer(containerName);
 
         if (!finished) {
             process.destroyForcibly();
-            throw new IOException("Docker 镜像构建超时");
+            throw new IOException("代码编译超时");
         }
-
         if (process.exitValue() != 0) {
-            throw new IOException("Docker 镜像构建失败: " + output);
+            throw new IOException("代码编译错误:\n" + output);
         }
     }
 
-    /**
-     * 运行 Docker 容器
-     */
-    private ContainerResult runContainer(String imageTag, String input) throws IOException, InterruptedException {
-        // 生成唯一容器名，避免冲突
+    private String getCompileCommand(String language) {
+        switch (language.toLowerCase()) {
+            case "cpp":
+                return "g++ -o solution solution.cpp -std=c++17 -O2 -Wall 2>&1";
+            case "java":
+                return "javac Solution.java 2>&1";
+            case "go":
+                return "go build -o solution solution.go 2>&1";
+            default:
+                return "";
+        }
+    }
+
+    private ContainerResult runContainerWithMount(String baseImage, Path workDir, String language, String input) throws IOException, InterruptedException {
         String containerName = "oj-run-" + UUID.randomUUID().toString().substring(0, 8);
 
         List<String> cmd = new ArrayList<>();
@@ -169,15 +239,18 @@ public class DockerCodeSandbox implements CodeSandbox {
         cmd.add("--pids-limit=50");
         cmd.add("--read-only");
         cmd.add("--user=nobody");
-        cmd.add("-i"); // 保持 stdin 打开
-
-        cmd.add(imageTag);
+        cmd.add("-v");
+        cmd.add(workDir.toString() + ":/code:ro");
+        cmd.add("-i");
+        cmd.add(baseImage);
+        cmd.add("bash");
+        cmd.add("-c");
+        cmd.add(getRunCommand(language));
 
         ProcessBuilder pb = new ProcessBuilder(cmd);
         pb.redirectErrorStream(false);
         Process process = pb.start();
 
-        // 写入输入
         if (input != null && !input.isEmpty()) {
             try (OutputStream os = process.getOutputStream()) {
                 os.write(input.getBytes(StandardCharsets.UTF_8));
@@ -185,18 +258,14 @@ public class DockerCodeSandbox implements CodeSandbox {
             }
         }
 
-        // 启动后台线程，在容器运行期间轮询采集内存使用
         AtomicLong maxMemoryBytes = new AtomicLong(0);
         Thread statsCollector = startMemoryStatsCollector(containerName, maxMemoryBytes);
 
-        // 读取输出
         String stdout = readProcessOutput(process.getInputStream());
         String stderr = readProcessOutput(process.getErrorStream());
 
-        // 等待执行完成（带超时）
         boolean finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
 
-        // 停止内存采集
         stopMemoryStatsCollector(statsCollector);
 
         if (!finished) {
@@ -211,6 +280,23 @@ public class DockerCodeSandbox implements CodeSandbox {
         removeContainer(containerName);
 
         return new ContainerResult(exitCode, stdout.trim(), stderr.trim(), memoryUsage);
+    }
+
+    private String getRunCommand(String language) {
+        switch (language.toLowerCase()) {
+            case "cpp":
+                return "./solution";
+            case "java":
+                return "java Solution";
+            case "python":
+                return "python3 solution.py";
+            case "go":
+                return "./solution";
+            case "javascript":
+                return "node solution.js";
+            default:
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的语言: " + language);
+        }
     }
 
     /**
@@ -371,20 +457,6 @@ public class DockerCodeSandbox implements CodeSandbox {
             case "python": return "solution.py";
             case "go": return "solution.go";
             case "javascript": return "solution.js";
-            default: throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的语言: " + language);
-        }
-    }
-
-    /**
-     * 根据语言获取 Dockerfile 名称
-     */
-    private String getDockerfileName(String language) {
-        switch (language.toLowerCase()) {
-            case "cpp": return "Dockerfile.cpp";
-            case "java": return "Dockerfile.java";
-            case "python": return "Dockerfile.python";
-            case "go": return "Dockerfile.go";
-            case "javascript": return "Dockerfile.node";
             default: throw new BusinessException(ErrorCode.PARAMS_ERROR, "不支持的语言: " + language);
         }
     }
