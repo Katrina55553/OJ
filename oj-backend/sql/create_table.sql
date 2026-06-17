@@ -40,7 +40,11 @@ create table if not exists question
     createTime  datetime default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime  datetime default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
     isDelete    tinyint  default 0                 not null comment '是否删除',
-    index idx_userId (userId)
+    index idx_userId (userId),
+    index idx_difficulty (difficulty),
+    index idx_isDelete (isDelete),
+    index idx_title (title(100)),
+    index idx_difficulty_isDelete (difficulty, isDelete)
 ) comment '题目' collate = utf8mb4_unicode_ci;
 
 -- 题目提交表
