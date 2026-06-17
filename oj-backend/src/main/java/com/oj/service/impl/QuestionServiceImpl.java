@@ -16,6 +16,7 @@ import com.oj.model.vo.UserVO;
 import com.oj.service.QuestionService;
 import com.oj.mapper.QuestionMapper;
 import com.oj.service.UserService;
+import com.oj.utils.RedisCacheUtils;
 import com.oj.utils.SqlUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -24,7 +25,10 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
@@ -32,9 +36,14 @@ import java.util.stream.Collectors;
 public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     implements QuestionService{
 
+    private static final String QUESTION_CACHE_KEY_PREFIX = "question:page:";
+    private static final long QUESTION_CACHE_EXPIRE_MINUTES = 5;
 
     @Resource
     private UserService userService;
+
+    @Resource
+    private RedisCacheUtils redisCacheUtils;
 
     /**
      * 校验题目是否合法
@@ -148,9 +157,83 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
         return questionVOPage;
     }
 
+    @Override
+    public Page<QuestionVO> getQuestionVOPageWithCache(QuestionQueryRequest questionQueryRequest, HttpServletRequest request) {
+        long current = questionQueryRequest.getCurrent();
+        long size = questionQueryRequest.getPageSize();
+        
+        String cacheKey = generateCacheKey(questionQueryRequest);
+        Page<QuestionVO> cachedPage = redisCacheUtils.get(cacheKey, Page.class);
+        if (cachedPage != null) {
+            return cachedPage;
+        }
+
+        Page<Question> questionPage = this.page(new Page<>(current, size), getQueryWrapper(questionQueryRequest));
+        Page<QuestionVO> questionVOPage = getQuestionVOPage(questionPage, request);
+
+        redisCacheUtils.set(cacheKey, questionVOPage, QUESTION_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+        return questionVOPage;
+    }
+
+    private String generateCacheKey(QuestionQueryRequest request) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(request.getCurrent()).append(":")
+          .append(request.getPageSize()).append(":")
+          .append(request.getId() != null ? request.getId() : "0").append(":")
+          .append(StringUtils.defaultString(request.getTitle())).append(":")
+          .append(StringUtils.defaultString(request.getDifficulty())).append(":")
+          .append(StringUtils.defaultString(request.getSortField())).append(":")
+          .append(StringUtils.defaultString(request.getSortOrder()));
+        
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] hash = digest.digest(sb.toString().getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return QUESTION_CACHE_KEY_PREFIX + hexString.toString();
+        } catch (Exception e) {
+            return QUESTION_CACHE_KEY_PREFIX + sb.toString().hashCode();
+        }
+    }
+
+    @Override
+    public void clearQuestionCache() {
+        Set<String> keys = redisCacheUtils.getRedisTemplate().keys(QUESTION_CACHE_KEY_PREFIX + "*");
+        if (CollectionUtils.isNotEmpty(keys)) {
+            redisCacheUtils.getRedisTemplate().delete(keys);
+        }
+    }
+
+    @Override
+    public boolean save(Question question) {
+        boolean result = super.save(question);
+        if (result) {
+            clearQuestionCache();
+        }
+        return result;
+    }
+
+    @Override
+    public boolean updateById(Question question) {
+        boolean result = super.updateById(question);
+        if (result) {
+            clearQuestionCache();
+        }
+        return result;
+    }
+
+    @Override
+    public boolean removeById(java.io.Serializable id) {
+        boolean result = super.removeById(id);
+        if (result) {
+            clearQuestionCache();
+        }
+        return result;
+    }
 
 }
-
-
-
 

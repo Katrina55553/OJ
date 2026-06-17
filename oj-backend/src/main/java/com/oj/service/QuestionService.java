@@ -47,4 +47,18 @@ public interface QuestionService extends IService<Question> {
      */
     Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request);
     
+    /**
+     * 分页获取题目封装（带缓存）
+     *
+     * @param questionQueryRequest
+     * @param request
+     * @return
+     */
+    Page<QuestionVO> getQuestionVOPageWithCache(QuestionQueryRequest questionQueryRequest, HttpServletRequest request);
+
+    /**
+     * 清除题目缓存
+     */
+    void clearQuestionCache();
+    
 }

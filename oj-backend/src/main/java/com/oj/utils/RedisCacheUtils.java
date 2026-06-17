@@ -19,6 +19,10 @@ public class RedisCacheUtils {
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
 
+    public RedisTemplate<String, Object> getRedisTemplate() {
+        return redisTemplate;
+    }
+
     private static final ObjectMapper objectMapper = new ObjectMapper();
 
     // ==================== String 操作 ====================
