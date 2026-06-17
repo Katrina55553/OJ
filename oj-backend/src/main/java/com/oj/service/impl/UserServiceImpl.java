@@ -27,6 +27,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.util.DigestUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 /**
  * 用户服务实现
@@ -36,11 +37,12 @@ import org.springframework.util.DigestUtils;
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
     /**
-     * 盐值，混淆密码
+     * 盐值，混淆密码（用于 BCrypt 自动加盐，无需显式 salt 仅用于兼容旧数据
      */
     private static final String SALT = "Katrina";
     private static final String USER_CACHE_KEY = "user:id:";
     private static final long USER_CACHE_EXPIRE_MINUTES = 30;
+    private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
     private final JwtUtils jwtUtils;
     private final RedisCacheUtils redisCacheUtils;
@@ -71,7 +73,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (count > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
-            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+            String encryptPassword = PASSWORD_ENCODER.encode(userPassword);
             User user = new User();
             user.setUserAccount(userAccount);
             user.setUserPassword(encryptPassword);
@@ -95,14 +97,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
         }
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
-        queryWrapper.eq("userPassword", encryptPassword);
         User user = this.baseMapper.selectOne(queryWrapper);
         if (user == null) {
-            log.info("user login failed, userAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+        }
+        // 优先尝试 BCrypt，失败则回退到旧的 MD5（兼容历史数据
+        String storedPassword = user.getUserPassword();
+        boolean passwordOk = false;
+        try {
+            passwordOk = PASSWORD_ENCODER.matches(userPassword, storedPassword);
+        } catch (Exception e) {
+            passwordOk = false;
+        }
+        if (!passwordOk) {
+            // 回退到 MD5 校验
+            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+            if (!storedPassword.equals(encryptPassword)) {
+                log.info("user login failed, userAccount cannot match userPassword");
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+            }
         }
         // 生成 JWT Token
         String token = jwtUtils.generateToken(user.getId(), user.getUserRole());
