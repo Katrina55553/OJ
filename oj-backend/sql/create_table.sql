@@ -44,7 +44,8 @@ create table if not exists question
     index idx_difficulty (difficulty),
     index idx_isDelete (isDelete),
     index idx_title (title(100)),
-    index idx_difficulty_isDelete (difficulty, isDelete)
+    index idx_difficulty_isDelete (difficulty, isDelete),
+    index idx_userId_createTime (userId, createTime)
 ) comment '题目' collate = utf8mb4_unicode_ci;
 
 -- 题目提交表
@@ -64,6 +65,8 @@ create table if not exists question_submit
     index idx_userId (userId),
     index idx_status (status),
     index idx_questionId_status (questionId, status),
-    index idx_userId_status (userId, status)
+    index idx_userId_status (userId, status),
+    index idx_questionId_createTime (questionId, createTime),
+    index idx_userId_createTime (userId, createTime)
 ) comment '题目提交';
 
