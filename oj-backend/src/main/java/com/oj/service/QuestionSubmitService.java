@@ -46,4 +46,14 @@ public interface QuestionSubmitService extends IService<QuestionSubmit> {
      * @return
      */
     Page<QuestionSubmitVO> getQuestionSubmitVOPage(Page<QuestionSubmit> questionSubmitPage, User loginUser);
+
+    /**
+     * 缓存判题结果
+     *
+     * @param questionId
+     * @param language
+     * @param code
+     * @param judgeInfo
+     */
+    void cacheSubmitResult(long questionId, String language, String code, String judgeInfo);
 }

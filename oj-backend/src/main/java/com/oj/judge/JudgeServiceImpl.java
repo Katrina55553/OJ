@@ -132,6 +132,10 @@ public class JudgeServiceImpl implements JudgeService {
             }
             questionService.updateById(questionUpdate);
 
+            // 10）缓存判题结果（5分钟内相同代码可直接返回）
+            questionSubmitService.cacheSubmitResult(questionId, questionSubmit.getLanguage(),
+                    questionSubmit.getCode(), JSONUtil.toJsonStr(judgeInfo));
+
         } catch (Exception e) {
             log.error("判题异常", e);
 

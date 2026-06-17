@@ -7,7 +7,6 @@ import com.oj.common.ErrorCode;
 import com.oj.constant.CommonConstant;
 import com.oj.exception.BusinessException;
 import com.oj.mapper.QuestionSubmitMapper;
-import com.oj.mq.JudgeMessageProducer;
 import com.oj.model.dto.questionsubmit.QuestionSubmitAddRequest;
 import com.oj.model.dto.questionsubmit.QuestionSubmitQueryRequest;
 import com.oj.model.entity.Question;
@@ -21,6 +20,7 @@ import com.oj.model.vo.UserVO;
 import com.oj.service.QuestionService;
 import com.oj.service.QuestionSubmitService;
 import com.oj.service.UserService;
+import com.oj.utils.RedisCacheUtils;
 import com.oj.utils.SqlUtils;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.ObjectUtils;
@@ -28,17 +28,23 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 
 @Service
 public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper, QuestionSubmit>
     implements QuestionSubmitService{
-    
+
+    private static final String SUBMIT_CACHE_KEY_PREFIX = "submit:cache:";
+    private static final long SUBMIT_CACHE_EXPIRE_MINUTES = 5;
+
     @Resource
     private QuestionService questionService;
 
@@ -47,6 +53,9 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
 
     @Resource
     private JudgeMessageProducer judgeMessageProducer;
+
+    @Resource
+    private RedisCacheUtils redisCacheUtils;
 
     /**
      * 提交题目
@@ -69,13 +78,33 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         if (question == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        // 是否已提交题目
+
         long userId = loginUser.getId();
+        String code = questionSubmitAddRequest.getCode();
+
+        // 检查是否有相同的代码在缓存中（5分钟内相同题目+语言+代码直接返回缓存结果）
+        String cacheKey = generateSubmitCacheKey(questionId, language, code);
+        String cachedResult = redisCacheUtils.get(cacheKey);
+        if (cachedResult != null) {
+            // 使用缓存结果创建提交记录
+            QuestionSubmit questionSubmit = new QuestionSubmit();
+            questionSubmit.setUserId(userId);
+            questionSubmit.setQuestionId(questionId);
+            questionSubmit.setCode(code);
+            questionSubmit.setLanguage(language);
+            questionSubmit.setStatus(QuestionSubmitStatusEnum.SUCCEED.getValue());
+            questionSubmit.setJudgeInfo(cachedResult);
+            this.save(questionSubmit);
+
+            // 更新题目统计（不增加submitNum，因为用的是缓存结果）
+            return questionSubmit.getId();
+        }
+
         // 每个用户串行提交题目
         QuestionSubmit questionSubmit = new QuestionSubmit();
         questionSubmit.setUserId(userId);
         questionSubmit.setQuestionId(questionId);
-        questionSubmit.setCode(questionSubmitAddRequest.getCode());
+        questionSubmit.setCode(code);
         questionSubmit.setLanguage(language);
         // 设置初始状态
         questionSubmit.setStatus(QuestionSubmitStatusEnum.WAITING.getValue());
@@ -88,6 +117,32 @@ public class QuestionSubmitServiceImpl extends ServiceImpl<QuestionSubmitMapper,
         // 发送判题消息到 RabbitMQ
         judgeMessageProducer.sendJudgeMessage(questionSubmitId);
         return questionSubmitId;
+    }
+
+    private String generateSubmitCacheKey(long questionId, String language, String code) {
+        String raw = questionId + ":" + language + ":" + code;
+        try {
+            MessageDigest digest = MessageDigest.getInstance("MD5");
+            byte[] hash = digest.digest(raw.getBytes(StandardCharsets.UTF_8));
+            StringBuilder hexString = new StringBuilder();
+            for (byte b : hash) {
+                String hex = Integer.toHexString(0xff & b);
+                if (hex.length() == 1) hexString.append('0');
+                hexString.append(hex);
+            }
+            return SUBMIT_CACHE_KEY_PREFIX + hexString.toString();
+        } catch (Exception e) {
+            return SUBMIT_CACHE_KEY_PREFIX + raw.hashCode();
+        }
+    }
+
+    /**
+     * 缓存判题结果（供判题服务调用）
+     */
+    @Override
+    public void cacheSubmitResult(long questionId, String language, String code, String judgeInfo) {
+        String cacheKey = generateSubmitCacheKey(questionId, language, code);
+        redisCacheUtils.set(cacheKey, judgeInfo, SUBMIT_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
     }
 
 
