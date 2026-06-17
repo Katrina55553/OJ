@@ -197,7 +197,139 @@ redisCacheUtils.set(cacheKey, currentUser, ttl, TimeUnit.MINUTES);
 
 ---
 
-## 5. 面试常见追问
+## 5. 本项目新增缓存策略
+
+### 5.1 题目列表缓存
+
+```java
+// QuestionServiceImpl.java
+private static final String QUESTION_CACHE_KEY_PREFIX = "question:page:";
+private static final long QUESTION_CACHE_EXPIRE_MINUTES = 5;
+
+@Override
+public Page<QuestionVO> getQuestionVOPageWithCache(
+        QuestionQueryRequest questionQueryRequest,
+        HttpServletRequest request) {
+
+    // 1. 根据查询参数生成缓存 key
+    String cacheKey = QUESTION_CACHE_KEY_PREFIX
+        + questionQueryRequest.getCurrent() + ":"
+        + questionQueryRequest.getPageSize() + ":"
+        + questionQueryRequest.getTitle() + ":"
+        + questionQueryRequest.getDifficulty();
+
+    // 2. 查 Redis
+    String cacheValue = redisCacheUtils.get(cacheKey);
+    if (cacheValue != null) {
+        return JSONUtil.toBean(cacheValue, Page.class);
+    }
+
+    // 3. 缓存未命中，走数据库
+    Page<QuestionVO> result = getQuestionVOPage(buildPage(questionQueryRequest), request);
+
+    // 4. 写入 Redis（5 分钟）
+    redisCacheUtils.set(cacheKey, JSONUtil.toJsonStr(result),
+        QUESTION_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+
+    return result;
+}
+
+// 题目增删改时清空缓存
+@Override
+public void clearQuestionCache() {
+    Set<String> keys = redisCacheUtils.getRedisTemplate()
+        .keys(QUESTION_CACHE_KEY_PREFIX + "*");
+    if (CollectionUtils.isNotEmpty(keys)) {
+        redisCacheUtils.getRedisTemplate().delete(keys);
+    }
+}
+```
+
+**缓存 key 设计**：包含分页参数和查询条件，避免不同查询互相污染。
+
+### 5.2 题目详情缓存
+
+```java
+// QuestionServiceImpl.java
+private static final String QUESTION_DETAIL_CACHE_KEY_PREFIX = "question:detail:";
+private static final long QUESTION_DETAIL_CACHE_EXPIRE_MINUTES = 10;
+
+public QuestionVO getQuestionVOByIdWithCache(long id, HttpServletRequest request) {
+    String cacheKey = QUESTION_DETAIL_CACHE_KEY_PREFIX + id;
+    QuestionVO cached = redisCacheUtils.get(cacheKey, QuestionVO.class);
+    if (cached != null) {
+        return cached;
+    }
+    Question question = this.getById(id);
+    if (question == null) {
+        throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+    }
+    QuestionVO result = getQuestionVO(question, request);
+    redisCacheUtils.set(cacheKey, result,
+        QUESTION_DETAIL_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+    return result;
+}
+```
+
+**过期时间**：详情页变化频率较低，设为 10 分钟。题目更新时通过 `clearQuestionCache` 同步清除。
+
+### 5.3 相同代码提交缓存
+
+```java
+// QuestionSubmitServiceImpl.java
+private static final String SUBMIT_CACHE_KEY_PREFIX = "submit:cache:";
+private static final long SUBMIT_CACHE_EXPIRE_MINUTES = 5;
+
+@Override
+public long doQuestionSubmit(QuestionSubmitAddRequest request, User loginUser) {
+    long questionId = request.getQuestionId();
+    String language = request.getLanguage();
+    String code = request.getCode();
+
+    // 生成缓存 key: questionId + language + MD5(code)
+    String cacheKey = SUBMIT_CACHE_KEY_PREFIX
+        + questionId + ":" + language + ":"
+        + DigestUtils.md5DigestAsHex(code.getBytes()).substring(0, 8);
+
+    // 命中缓存：直接返回缓存结果（无需判题）
+    String cachedResult = redisCacheUtils.get(cacheKey);
+    if (cachedResult != null) {
+        QuestionSubmit submit = new QuestionSubmit();
+        submit.setUserId(loginUser.getId());
+        submit.setQuestionId(questionId);
+        submit.setCode(code);
+        submit.setLanguage(language);
+        submit.setStatus(QuestionSubmitStatusEnum.SUCCEED.getValue());
+        submit.setJudgeInfo(cachedResult);
+        this.save(submit);
+        return submit.getId();
+    }
+
+    // 未命中：走正常判题流程
+    ...
+}
+
+// 判题完成后写入缓存
+public void cacheSubmitResult(long questionId, String language,
+                              String code, String judgeInfo) {
+    String cacheKey = SUBMIT_CACHE_KEY_PREFIX
+        + questionId + ":" + language + ":"
+        + DigestUtils.md5DigestAsHex(code.getBytes()).substring(0, 8);
+    redisCacheUtils.set(cacheKey, judgeInfo,
+        SUBMIT_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+}
+```
+
+**设计考量**：
+- **TTL 5 分钟**：较短的过期时间，避免题目更新后缓存仍然有效
+- **MD5(code)**：相同代码 → 相同 key → 相同缓存结果
+- **只缓存成功判题结果**：失败的提交可能是代码问题，不值得缓存
+
+**性能预估**：相同代码重复提交（练习场景常见）响应从 10+ 秒降到 <100ms。
+
+---
+
+## 6. 面试常见追问
 
 ### Q: 缓存穿透用布隆过滤器不是更好？
 

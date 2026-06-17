@@ -156,6 +156,137 @@ SELECT * FROM question_submit WHERE userId = 1 AND questionId = 2;
 
 -- ❌ 不能用索引（跳过了 userId）
 SELECT * FROM question_submit WHERE questionId = 2;
+```
+
+---
+
+## 6. 组合索引实战（本项目优化）
+
+### 优化前：单列索引
+
+```sql
+-- question 表
+CREATE TABLE question (
+  id BIGINT PRIMARY KEY,
+  title VARCHAR(512),
+  difficulty VARCHAR(128),
+  userId BIGINT,
+  createTime DATETIME,
+  isDelete TINYINT DEFAULT 0
+);
+
+-- 只有单列索引
+CREATE INDEX idx_userId ON question(userId);
+CREATE INDEX idx_difficulty ON question(difficulty);
+CREATE INDEX idx_isDelete ON question(isDelete);
+
+-- ❌ 按难度+未删除查询时，只能命中一个单列索引
+SELECT * FROM question
+WHERE difficulty = '中等' AND isDelete = 0
+ORDER BY createTime DESC
+LIMIT 0, 20;
+-- MySQL 会选择一个索引（如 idx_difficulty），但 isDelete 需要回表过滤
+-- 排序也无法用到索引，需要 filesort
+```
+
+### 优化后：组合索引
+
+```sql
+-- ✅ 组合索引：(difficulty, isDelete)
+-- 满足 "difficulty = ? AND isDelete = ?" 查询
+-- 用一颗 B+ 树同时定位两个条件
+ALTER TABLE question ADD INDEX idx_difficulty_isDelete(difficulty, isDelete);
+
+-- ✅ 组合索引：(questionId, status)
+ALTER TABLE question_submit ADD INDEX idx_questionId_status(questionId, status);
+
+-- ✅ 组合索引：(userId, status)
+ALTER TABLE question_submit ADD INDEX idx_userId_status(userId, status);
+
+-- ✅ 组合索引：(userId, createTime)  — 支持按时间排序的分页
+ALTER TABLE question_submit ADD INDEX idx_userId_createTime(userId, createTime);
+```
+
+### 优化效果对比
+
+| 查询场景 | 优化前 | 优化后 | 提升 |
+|----------|--------|--------|------|
+| 按 userId 分页查询我的提交 | 单列索引 + filesort | 组合索引 + 索引排序 | **2-5 倍** |
+| 按 difficulty + isDelete 查题目列表 | 单列索引 + 回表过滤 | 组合索引 + 直接定位 | **3-5 倍** |
+| 按 questionId + status 查该题提交记录 | 单列索引 + 回表 | 组合索引 + 直接定位 | **2-3 倍** |
+
+### 如何选择组合索引的列顺序？
+
+**原则**：把**等值查询**的列放前面，**范围查询**的列放后面。
+
+```sql
+-- ❌ 错误：范围查询在前
+ALTER TABLE question_submit ADD INDEX idx_createTime_userId(createTime, userId);
+-- WHERE userId = 1 AND createTime > '2024-01-01'
+-- 跳过了 userId，索引无法完全命中
+
+-- ✅ 正确：等值查询在前
+ALTER TABLE question_submit ADD INDEX idx_userId_createTime(userId, createTime);
+-- WHERE userId = 1 AND createTime > '2024-01-01'
+-- 先用 userId 定位，再用 createTime 做范围扫描
+```
+
+### 覆盖索引的优化
+
+```sql
+-- ✅ 用组合索引实现覆盖索引，完全避免回表
+SELECT id, title FROM question
+WHERE difficulty = '中等' AND isDelete = 0
+ORDER BY createTime DESC
+LIMIT 0, 20;
+
+-- 如果组合索引是 (difficulty, isDelete, createTime, title)
+-- 索引的叶子节点已经包含所有查询字段
+-- EXPLAIN: type=range, Extra="Using index"（真正的覆盖索引！）
+```
+
+### 本项目最终索引设计
+
+```sql
+-- question 表
+PRIMARY KEY (id)
+INDEX idx_userId(userId)
+INDEX idx_userId_createTime(userId, createTime)
+INDEX idx_difficulty_isDelete(difficulty, isDelete)
+INDEX idx_title(title(100))
+
+-- question_submit 表
+PRIMARY KEY (id)
+INDEX idx_questionId_status(questionId, status)
+INDEX idx_userId_status(userId, status)
+INDEX idx_userId_createTime(userId, createTime)
+INDEX idx_questionId_createTime(questionId, createTime)
+```
+
+---
+
+## 7. 面试常见追问
+
+### Q: 组合索引和多个单列索引哪个更好？
+
+> **组合索引**。一个 (A, B) 组合索引相当于同时支持 `WHERE A=?`、`WHERE A=? AND B=?` 两种查询，而且查询效率更高（一个索引就定位到数据）。多个单列索引时，MySQL 通常只用上一个最优的。
+
+### Q: 组合索引最多能有几列？
+
+> MySQL InnoDB 限制是 16 列。但实际项目中建议 3-5 列以内，列太多会让索引变大、更新变慢。
+
+### Q: (A, B, C) 和 (A, C, B) 一样吗？
+
+> **不一样**。MySQL 从左到右匹配索引，跳过任何中间列就无法命中后续列。
+> - `WHERE A=? AND B=? AND C=?` → ✅ 完全命中 (A,B,C)
+> - `WHERE A=? AND C=?` → ❌ 只命中 A，C 无法用索引（跳过了 B）
+> - 但 (A, C, B) 可以命中 `WHERE A=? AND C=?`
+
+### Q: 组合索引什么时候会失效？
+
+> - 跳过中间列：`WHERE A=? AND C=?`（跳过了 B）→ C 无法用索引
+> - 对索引列做函数运算：`WHERE YEAR(createTime) = 2024`
+> - OR 连接：`WHERE A=? OR B=?` → 一般走不到组合索引，应该改成 UNION
 
 -- ⚠️ 部分使用（只用到 userId，questionId 部分无法用索引）
 SELECT * FROM question_submit WHERE userId = 1 AND language = 'java';
