@@ -110,4 +110,33 @@ public class JwtUtils {
         Claims claims = parseToken(token);
         return claims != null ? (String) claims.get("userRole") : null;
     }
+
+    /**
+     * 判断 Token 是否已过期
+     * 先从 token 结构中快速判断 exp 字段，避免不必要的解析开销
+     */
+    public boolean isTokenExpired(String token) {
+        try {
+            // 快速定位 exp 位置（避免完整解析 JWT）
+            String[] parts = token.split("\\.");
+            if (parts.length != 3) return true;
+
+            // Base64 解码 payload
+            String payload = new String(java.util.Base64.getUrlDecoder().decode(parts[1]), StandardCharsets.UTF_8);
+            // 查找 exp 字段
+            int expIndex = payload.indexOf("\"exp\"");
+            if (expIndex == -1) return true;
+
+            // 定位 exp 值
+            int colonIndex = payload.indexOf(":", expIndex);
+            int commaIndex = payload.indexOf(",", expIndex);
+            String expStr = payload.substring(colonIndex + 1, commaIndex > 0 ? commaIndex : payload.indexOf("}", expIndex)).trim();
+            long expTime = Long.parseLong(expStr);
+
+            return System.currentTimeMillis() > expTime * 1000;
+        } catch (Exception e) {
+            // 解析失败假定已过期
+            return true;
+        }
+    }
 }

@@ -43,9 +43,10 @@ public class JwtInterceptor implements HandlerInterceptor {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
 
-            // 检查 Token 是否在黑名单中
+            // 检查 Token 是否在黑名单中（仅对未过期的 token 检查黑名单）
             String tokenId = jwtUtils.getTokenId(token);
-            if (tokenId != null && redisCacheUtils.hasKey(TOKEN_BLACKLIST_PREFIX + tokenId)) {
+            if (tokenId != null && !jwtUtils.isTokenExpired(token)
+                    && redisCacheUtils.hasKey(TOKEN_BLACKLIST_PREFIX + tokenId)) {
                 log.info("Token 已失效（已加入黑名单）: tokenId={}", tokenId);
                 response.setStatus(401);
                 response.setContentType("application/json;charset=UTF-8");
