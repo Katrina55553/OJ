@@ -54,6 +54,7 @@
 <script setup lang="ts">
 import { ref, watch, inject } from "vue";
 import { IconSearch, IconRotateLeft } from "@arco-design/web-vue/es/icon";
+import { debounce } from "@/utils/debounce";
 
 const loading = inject("questionListLoading", ref(false));
 
@@ -91,8 +92,12 @@ watch(
   { deep: true }
 );
 
-const handleSearch = () => {
+const debouncedSearch = debounce(() => {
   emit("search");
+}, 300);
+
+const handleSearch = () => {
+  debouncedSearch();
 };
 
 const handleReset = () => {
