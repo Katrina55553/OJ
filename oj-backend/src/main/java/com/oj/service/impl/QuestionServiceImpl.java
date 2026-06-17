@@ -37,7 +37,9 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     implements QuestionService{
 
     private static final String QUESTION_CACHE_KEY_PREFIX = "question:page:";
+    private static final String QUESTION_DETAIL_CACHE_KEY_PREFIX = "question:detail:";
     private static final long QUESTION_CACHE_EXPIRE_MINUTES = 5;
+    private static final long QUESTION_DETAIL_CACHE_EXPIRE_MINUTES = 10;
 
     @Resource
     private UserService userService;
@@ -132,6 +134,30 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
     }
 
     @Override
+    public QuestionVO getQuestionVOByIdWithCache(long id, HttpServletRequest request) {
+        String cacheKey = QUESTION_DETAIL_CACHE_KEY_PREFIX + id;
+        QuestionVO cachedVO = redisCacheUtils.get(cacheKey, QuestionVO.class);
+        if (cachedVO != null) {
+            return cachedVO;
+        }
+
+        Question question = this.getById(id);
+        if (question == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
+        }
+
+        QuestionVO questionVO = getQuestionVO(question, request);
+        redisCacheUtils.set(cacheKey, questionVO, QUESTION_DETAIL_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+        return questionVO;
+    }
+
+    @Override
+    public void clearQuestionDetailCache(long id) {
+        String cacheKey = QUESTION_DETAIL_CACHE_KEY_PREFIX + id;
+        redisCacheUtils.delete(cacheKey);
+    }
+
+    @Override
     public Page<QuestionVO> getQuestionVOPage(Page<Question> questionPage, HttpServletRequest request) {
         List<Question> questionList = questionPage.getRecords();
         Page<QuestionVO> questionVOPage = new Page<>(questionPage.getCurrent(), questionPage.getSize(), questionPage.getTotal());
@@ -202,9 +228,13 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
     @Override
     public void clearQuestionCache() {
-        Set<String> keys = redisCacheUtils.getRedisTemplate().keys(QUESTION_CACHE_KEY_PREFIX + "*");
-        if (CollectionUtils.isNotEmpty(keys)) {
-            redisCacheUtils.getRedisTemplate().delete(keys);
+        Set<String> pageKeys = redisCacheUtils.getRedisTemplate().keys(QUESTION_CACHE_KEY_PREFIX + "*");
+        if (CollectionUtils.isNotEmpty(pageKeys)) {
+            redisCacheUtils.getRedisTemplate().delete(pageKeys);
+        }
+        Set<String> detailKeys = redisCacheUtils.getRedisTemplate().keys(QUESTION_DETAIL_CACHE_KEY_PREFIX + "*");
+        if (CollectionUtils.isNotEmpty(detailKeys)) {
+            redisCacheUtils.getRedisTemplate().delete(detailKeys);
         }
     }
 
