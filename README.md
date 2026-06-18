@@ -105,7 +105,7 @@ OJ/
 ├── docker-compose.yml          # Docker 编排配置
 ├── .env.example                # 环境变量模板
 ├── CLAUDE.md                   # 项目架构文档（AI 辅助开发用）
-└── todo.md                     # 改进清单
+└── README.md                   # 本文档
 ```
 
 ## 快速开始
@@ -313,10 +313,8 @@ docker compose down -v            # 停止 + 删除数据
 | 路径 | 内容 |
 |------|------|
 | [CLAUDE.md](CLAUDE.md) | 项目架构总览（AI 辅助开发用） |
-| [oj-frontend/CLAUDE.md](oj-frontend/CLAUDE.md) | 前端组件 / 路由 / 状态详细指南 |
 | [ebook/](ebook/) | 12 章架构 eBook（基础架构 → 进阶扩展） |
 | [tutorial/](tutorial/) | 12 篇面试教程（核心架构 / 数据库优化 / 压测方案） |
-| [todo.md](todo.md) | 改进清单 |
 
 ## 核心亮点（面试话术）
 
