@@ -40,7 +40,7 @@
             登录
           </a-button>
           <div style="width: 100%; text-align: center; margin-top: 16px">
-            还没有账号？<a-link href="/user/register">立即注册</a-link>
+            还没有账号？<a-link @click.prevent="handleRegister">立即注册</a-link>
           </div>
         </a-form-item>
       </a-form>
@@ -61,6 +61,10 @@ const handleForgotPassword = () => {
   Message.info("功能暂未开放，如有需要请联系管理员");
   // TODO: 跳转到忘记密码页面
   // router.push("/user/forgot-password");
+};
+
+const handleRegister = () => {
+  router.push("/user/register");
 };
 
 const form = reactive({

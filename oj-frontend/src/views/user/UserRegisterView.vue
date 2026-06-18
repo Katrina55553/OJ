@@ -47,7 +47,7 @@
             注册
           </a-button>
           <div style="width: 100%; text-align: center; margin-top: 16px">
-            已有账号？<a-link href="/user/login">立即登录</a-link>
+            已有账号？<a-link @click.prevent="handleLogin">立即登录</a-link>
           </div>
         </a-form-item>
       </a-form>
@@ -61,6 +61,10 @@ import { UserControllerService } from "../../../generated";
 import { Message } from "@arco-design/web-vue";
 import { IconUser, IconLock } from "@arco-design/web-vue/es/icon";
 import router from "@/router";
+
+const handleLogin = () => {
+  router.push("/user/login");
+};
 
 // 表单数据，包含确认密码字段
 const form = reactive({
