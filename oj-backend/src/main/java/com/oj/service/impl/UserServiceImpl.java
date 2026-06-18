@@ -103,7 +103,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
-        // 优先尝试 BCrypt，失败则回退到旧的 MD5（兼容历史数据）
+        // 优先尝试 BCrypt，失败则回退到旧的 MD5（兼容历史数据
         String storedPassword = user.getUserPassword();
         boolean passwordOk = false;
         try {

@@ -10,14 +10,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import jakarta.annotation.PreDestroy;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 
 /**
@@ -39,23 +38,6 @@ public class DockerCodeSandbox implements CodeSandbox {
 
     private static final String SANDBOX_IMAGE_PREFIX = "oj-sandbox-";
     private static final String BASE_IMAGE_PREFIX = "oj-base-";
-
-    /**
-     * 内存采集线程池：复用线程避免每次提交都 new Thread()，降低高并发下线程创建开销
-     */
-    private static final ScheduledExecutorService MEMORY_STATS_EXECUTOR =
-            Executors.newScheduledThreadPool(
-                    Math.max(2, Runtime.getRuntime().availableProcessors() / 2),
-                    r -> {
-                        Thread t = new Thread(r, "oj-sandbox-mem-stats");
-                        t.setDaemon(true);
-                        return t;
-                    });
-
-    @PreDestroy
-    public void shutdown() {
-        MEMORY_STATS_EXECUTOR.shutdownNow();
-    }
 
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest request) {
@@ -277,14 +259,14 @@ public class DockerCodeSandbox implements CodeSandbox {
         }
 
         AtomicLong maxMemoryBytes = new AtomicLong(0);
-        ScheduledFuture<?> statsTask = startMemoryStatsCollector(containerName, maxMemoryBytes);
+        Thread statsCollector = startMemoryStatsCollector(containerName, maxMemoryBytes);
 
         String stdout = readProcessOutput(process.getInputStream());
         String stderr = readProcessOutput(process.getErrorStream());
 
         boolean finished = process.waitFor(timeoutSeconds, TimeUnit.SECONDS);
 
-        stopMemoryStatsCollector(statsTask);
+        stopMemoryStatsCollector(statsCollector);
 
         if (!finished) {
             process.destroyForcibly();
@@ -318,38 +300,48 @@ public class DockerCodeSandbox implements CodeSandbox {
     }
 
     /**
-     * 启动后台任务轮询 docker stats 采集容器内存峰值
-     * 使用 ScheduledExecutorService 复用线程，避免每次提交都创建新线程
-     * 容器停止后（pollContainerMemory 返回 -1）自动终止任务
-     *
-     * @return ScheduledFuture，可用于取消任务
+     * 启动后台线程轮询 docker stats 采集容器内存峰值
      */
-    private ScheduledFuture<?> startMemoryStatsCollector(String containerName, AtomicLong maxMemoryBytes) {
-        return MEMORY_STATS_EXECUTOR.scheduleWithFixedDelay(() -> {
+    private Thread startMemoryStatsCollector(String containerName, AtomicLong maxMemoryBytes) {
+        Thread thread = new Thread(() -> {
             try {
-                long mem = pollContainerMemory(containerName);
-                if (mem > 0) {
-                    maxMemoryBytes.updateAndGet(current -> Math.max(current, mem));
-                } else if (mem < 0) {
-                    // 容器已停止或不可访问，终止本任务（用 CancellationException 跳出）
-                    throw new CancellationException("container stopped");
-                }
-            } catch (CancellationException e) {
-                throw e;
-            } catch (Exception e) {
-                // 静默忽略单次采样错误，下次继续
+                // 等待容器启动（给 docker 一点时间初始化）
+                Thread.sleep(500);
+            } catch (InterruptedException e) {
+                return;
             }
-        }, 500, 500, TimeUnit.MILLISECONDS);
+
+            while (!Thread.currentThread().isInterrupted()) {
+                try {
+                    long mem = pollContainerMemory(containerName);
+                    if (mem > 0) {
+                        maxMemoryBytes.updateAndGet(current -> Math.max(current, mem));
+                    }
+                    Thread.sleep(500); // 每 500ms 采样一次
+                } catch (InterruptedException e) {
+                    break;
+                } catch (Exception e) {
+                    // 容器已停止或查询失败，终止轮询
+                    break;
+                }
+            }
+        });
+        thread.setDaemon(true);
+        thread.start();
+        return thread;
     }
 
     /**
-     * 停止内存采集任务
+     * 停止内存采集线程
      */
-    private void stopMemoryStatsCollector(ScheduledFuture<?> task) {
-        if (task == null) {
-            return;
+    private void stopMemoryStatsCollector(Thread thread) {
+        if (thread != null && thread.isAlive()) {
+            thread.interrupt();
+            try {
+                thread.join(2000);
+            } catch (InterruptedException ignored) {
+            }
         }
-        task.cancel(false);
     }
 
     /**

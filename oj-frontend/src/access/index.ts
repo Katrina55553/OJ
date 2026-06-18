@@ -14,8 +14,7 @@ router.beforeEach(async (to, from, next) => {
   const needAccess = (to.meta?.access as string) ?? ACCESS_ENUM.NOT_LOGIN;
   if (needAccess !== ACCESS_ENUM.NOT_LOGIN) {
     if (!loginUser || !loginUser.userRole) {
-      // 使用 encodeURIComponent 防止 query 中的 ?/& 截断参数
-      next(`/user/login?redirectUrl=${encodeURIComponent(to.fullPath)}`);
+      next(`/user/login?redirectUrl=${to.fullPath}`);
       return;
     }
     if (!checkAccess(loginUser, needAccess)) {

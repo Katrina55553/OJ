@@ -1,6 +1,5 @@
 package com.oj.controller;
 
-import com.oj.annotation.RateLimit;
 import com.oj.common.ErrorCode;
 import com.oj.exception.BusinessException;
 import com.oj.judge.codesandbox.model.ExecuteCodeRequest;
@@ -42,7 +41,6 @@ public class CodeExecuteController {
     }
 
     @PostMapping("/execute")
-    @RateLimit(count = 30, windowSeconds = 60, key = "code_execute")
     public Map<String, Object> executeCode(@RequestBody CodeExecuteRequest request) {
         String language = LANGUAGE_MAPPING.get(request.getLanguage());
         if (language == null) {
