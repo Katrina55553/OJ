@@ -172,6 +172,9 @@ import MdPreview from "@/components/MdPreview.vue";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 dayjs.extend(utc);
+import router from "@/router";
+import store from "@/store";
+import ACCESS_ENUM from "@/access/ACCESS_ENUM";
 
 import {
   QuestionControllerService,
@@ -269,6 +272,16 @@ const markdownCode = computed(() => {
 
 // 点击打开代码模态框
 const openCodeModal = (record: any) => {
+  // 未登录状态下点击代码，跳转登录页
+  const loginUser = store.state.user.loginUser;
+  if (!loginUser || loginUser.userRole === ACCESS_ENUM.NOT_LOGIN) {
+    Message.warning("请先登录后查看代码");
+    router.push({
+      path: "/user/login",
+      query: { redirectUrl: `/submission` },
+    });
+    return;
+  }
   currentRunId.value = record.id;
   currentLanguage.value = record.language;
   currentSource.value = record.code || "// 无代码内容";

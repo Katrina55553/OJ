@@ -87,7 +87,14 @@ const handleSubmit = async () => {
 
       store.commit("user/updateUser", res.data);
 
-      router.push({ path: "/", replace: true });
+      // 登录成功后，优先跳转到 redirectUrl 指定的页面（如未登录访问受限页面被引导过来）
+      const redirectUrl = router.currentRoute.value.query.redirectUrl as
+        | string
+        | undefined;
+      router.push({
+        path: redirectUrl || "/",
+        replace: true,
+      });
     } else {
       Message.error(res.message || "登录失败");
     }
