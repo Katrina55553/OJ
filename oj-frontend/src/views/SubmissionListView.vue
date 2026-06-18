@@ -176,11 +176,7 @@ import router from "@/router";
 import store from "@/store";
 import ACCESS_ENUM from "@/access/ACCESS_ENUM";
 
-import {
-  QuestionControllerService,
-  UserControllerService,
-  UserQueryRequest,
-} from "../../generated";
+import { QuestionControllerService } from "../../generated";
 import type { QuestionSubmitQueryRequest } from "../../generated";
 
 /**

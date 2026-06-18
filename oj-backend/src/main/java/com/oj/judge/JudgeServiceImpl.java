@@ -20,6 +20,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -56,7 +57,8 @@ public class JudgeServiceImpl implements JudgeService {
         }
 
         // 2）检查状态
-        if (!questionSubmit.getStatus().equals(QuestionSubmitStatusEnum.WAITING.getValue())) {
+        // 防御：status 为 null 时走 Objects.equals 避免 NPE（数据库未初始化场景）
+        if (!Objects.equals(questionSubmit.getStatus(), QuestionSubmitStatusEnum.WAITING.getValue())) {
             throw new BusinessException(ErrorCode.OPERATION_ERROR, "题目正在判题中");
         }
 
@@ -127,7 +129,8 @@ public class JudgeServiceImpl implements JudgeService {
             Question questionUpdate = new Question();
             questionUpdate.setId(questionId);
             questionUpdate.setSubmitNum(question.getSubmitNum() + 1);
-            if (judgeInfo != null && "Accepted".equals(judgeInfo.getMessage())) {
+            // judgeInfo 可能为 null（异常边界场景），使用 null-safe 比较
+            if (judgeInfo != null && Objects.equals(judgeInfo.getMessage(), "Accepted")) {
                 questionUpdate.setAcceptedNum(question.getAcceptedNum() + 1);
             }
             questionService.updateById(questionUpdate);

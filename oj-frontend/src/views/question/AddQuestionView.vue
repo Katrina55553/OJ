@@ -148,9 +148,11 @@ const formRules = {
 
 const handleSubmit = async () => {
   try {
-    // 验证表单
+    // 验证表单（Arco Design validate() 返回 Promise<undefined | Record<string, ValidatedError>>
+    //   undefined 表示验证通过
+    //   出现验证错误时返回错误对象
     const valid = await formRef.value?.validate();
-    if (valid) return; // 如果有错误返回对象，则停止提交
+    if (valid) return; // 验证失败，停止提交
 
     submitting.value = true;
 

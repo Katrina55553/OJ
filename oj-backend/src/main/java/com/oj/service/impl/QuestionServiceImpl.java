@@ -228,13 +228,33 @@ public class QuestionServiceImpl extends ServiceImpl<QuestionMapper, Question>
 
     @Override
     public void clearQuestionCache() {
-        Set<String> pageKeys = redisCacheUtils.getRedisTemplate().keys(QUESTION_CACHE_KEY_PREFIX + "*");
-        if (CollectionUtils.isNotEmpty(pageKeys)) {
-            redisCacheUtils.getRedisTemplate().delete(pageKeys);
-        }
-        Set<String> detailKeys = redisCacheUtils.getRedisTemplate().keys(QUESTION_DETAIL_CACHE_KEY_PREFIX + "*");
-        if (CollectionUtils.isNotEmpty(detailKeys)) {
-            redisCacheUtils.getRedisTemplate().delete(detailKeys);
+        // 使用 SCAN 替代 KEYS，避免生产环境大数据量下阻塞 Redis 主循环
+        scanAndDelete(QUESTION_CACHE_KEY_PREFIX + "*");
+        scanAndDelete(QUESTION_DETAIL_CACHE_KEY_PREFIX + "*");
+    }
+
+    /**
+     * 使用 SCAN 游标分批扫描并删除匹配的 key，避免 O(N) 的 KEYS 命令阻塞 Redis
+     */
+    private void scanAndDelete(String pattern) {
+        try {
+            org.springframework.data.redis.core.Cursor<String> cursor = redisCacheUtils
+                    .getRedisTemplate()
+                    .scan(org.springframework.data.redis.core.ScanOptions.scanOptions().match(pattern).count(100).build());
+            List<String> batch = new ArrayList<>();
+            while (cursor.hasNext()) {
+                batch.add(cursor.next());
+                if (batch.size() >= 100) {
+                    redisCacheUtils.getRedisTemplate().delete(batch);
+                    batch.clear();
+                }
+            }
+            if (!batch.isEmpty()) {
+                redisCacheUtils.getRedisTemplate().delete(batch);
+            }
+            cursor.close();
+        } catch (Exception e) {
+            log.warn("清理 Redis 缓存失败: pattern={}, error={}", pattern, e.getMessage());
         }
     }
 

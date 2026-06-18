@@ -8,6 +8,7 @@ import com.oj.model.entity.Question;
 import com.oj.model.enums.JudgeInfoMessageEnum;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -22,9 +23,10 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
      */
     @Override
     public JudgeInfo doJudge(JudgeContext judgeContext) {
+        // 防御：JudgeInfo 可能为 null（旧沙箱未返回）
         JudgeInfo judgeInfo = judgeContext.getJudgeInfo();
-        Long memory = Optional.ofNullable(judgeInfo.getMemory()).orElse(0L);
-        Long time = Optional.ofNullable(judgeInfo.getTime()).orElse(0L);
+        Long memory = judgeInfo == null ? 0L : Optional.ofNullable(judgeInfo.getMemory()).orElse(0L);
+        Long time = judgeInfo == null ? 0L : Optional.ofNullable(judgeInfo.getTime()).orElse(0L);
         List<String> inputList = judgeContext.getInputList();
         List<String> outputList = judgeContext.getOutputList();
         Question question = judgeContext.getQuestion();
@@ -34,26 +36,34 @@ public class JavaLanguageJudgeStrategy implements JudgeStrategy {
         judgeInfoResponse.setMemory(memory);
         judgeInfoResponse.setTime(time);
 
+        // 防御：输入输出列表为 null 时直接返回错误
+        if (inputList == null || outputList == null) {
+            judgeInfoResponse.setMessage(JudgeInfoMessageEnum.SYSTEM_ERROR.getValue());
+            return judgeInfoResponse;
+        }
+
         // 先判断沙箱执行的结果输出数量是否和预期输出数量相等
         if (outputList.size() != inputList.size()) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
             judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
             return judgeInfoResponse;
         }
-        // 依次判断每一项输出和预期输出是否相等
+        // 依次判断每一项输出和预期输出是否相等（用 Objects.equals 防止 outputList.get(i) 为 null 时 NPE）
         for (int i = 0; i < judgeCaseList.size(); i++) {
             JudgeCase judgeCase = judgeCaseList.get(i);
-            if (!judgeCase.getOutput().equals(outputList.get(i))) {
+            if (!Objects.equals(judgeCase.getOutput(), outputList.get(i))) {
                 judgeInfoMessageEnum = JudgeInfoMessageEnum.WRONG_ANSWER;
                 judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
                 return judgeInfoResponse;
             }
         }
-        // 判断题目限制
+        // 判断题目限制（judgeConfig 可能为 null，字段也可能为 null）
         String judgeConfigStr = question.getJudgeConfig();
-        JudgeConfig judgeConfig = JSONUtil.toBean(judgeConfigStr, JudgeConfig.class);
-        Long needMemoryLimit = judgeConfig.getMemoryLimit();
-        Long needTimeLimit = judgeConfig.getTimeLimit();
+        JudgeConfig judgeConfig = judgeConfigStr == null
+                ? new JudgeConfig()
+                : JSONUtil.toBean(judgeConfigStr, JudgeConfig.class);
+        Long needMemoryLimit = judgeConfig.getMemoryLimit() != null ? judgeConfig.getMemoryLimit() : Long.MAX_VALUE;
+        Long needTimeLimit = judgeConfig.getTimeLimit() != null ? judgeConfig.getTimeLimit() : Long.MAX_VALUE;
         if (memory > needMemoryLimit) {
             judgeInfoMessageEnum = JudgeInfoMessageEnum.MEMORY_LIMIT_EXCEEDED;
             judgeInfoResponse.setMessage(judgeInfoMessageEnum.getValue());
