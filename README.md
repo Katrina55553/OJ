@@ -1,10 +1,19 @@
+<div align="center">
+
 # OJ 在线判题系统
 
-> 面向编程学习者的在线判题平台，支持多语言代码提交与自动判题，采用前后端分离架构，Docker 容器化部署，配套完整 eBook 和面试教程。
+**面向编程学习者的在线判题平台 · 多语言代码提交与自动判题 · 前后端分离 · Docker 容器化**
 
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7-brightgreen)](https://spring.io/projects/spring-boot)
 [![Vue](https://img.shields.io/badge/Vue-3-4FC08D)](https://vuejs.org/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1)](https://www.mysql.com/)
+[![Redis](https://img.shields.io/badge/Redis-7-DC382D)](https://redis.io/)
+[![Docker](https://img.shields.io/badge/Docker-✓-2496ED)](https://www.docker.com/)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+
+[快速开始](#快速开始) · [核心架构](#核心架构) · [API 文档](#api-文档) · [文档资源](#文档资源)
+
+</div>
 
 ## 功能特性
 
