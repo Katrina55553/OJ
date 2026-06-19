@@ -1,5 +1,11 @@
 <template>
   <div id="userLayout">
+    <!-- 背景光晕装饰 -->
+    <div class="bg-decoration">
+      <div class="glow glow-blue"></div>
+      <div class="glow glow-green"></div>
+    </div>
+
     <a-layout style="min-height: 100vh">
       <a-layout-header class="header">
         <a-space>
@@ -28,6 +34,42 @@
 #userLayout {
   text-align: center;
   background: #0d1117;
+  position: relative;
+  overflow: hidden;
+}
+
+/* 背景光晕装饰 */
+.bg-decoration {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  pointer-events: none;
+  z-index: 0;
+}
+
+.glow {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: 0.4;
+}
+
+.glow-blue {
+  width: 500px;
+  height: 500px;
+  background: #1f6feb;
+  top: -100px;
+  left: -100px;
+}
+
+.glow-green {
+  width: 400px;
+  height: 400px;
+  background: #238636;
+  bottom: -100px;
+  right: -100px;
 }
 
 #userLayout :deep(.arco-layout),
@@ -35,6 +77,8 @@
 #userLayout :deep(.arco-layout-content),
 #userLayout :deep(.arco-layout-footer) {
   background-color: transparent !important;
+  position: relative;
+  z-index: 1;
 }
 
 #userLayout .header {

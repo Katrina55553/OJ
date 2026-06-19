@@ -40,7 +40,9 @@
             登录
           </a-button>
           <div style="width: 100%; text-align: center; margin-top: 16px">
-            还没有账号？<a-link @click.prevent="handleRegister">立即注册</a-link>
+            还没有账号？<a-link @click.prevent="handleRegister"
+              >立即注册</a-link
+            >
           </div>
         </a-form-item>
       </a-form>
@@ -128,18 +130,20 @@ onMounted(() => {
 .login-form-container {
   width: 100%;
   max-width: 400px;
-  background: #161b22;
-  padding: 32px 40px;
-  border-radius: 8px;
+  background: rgba(22, 27, 34, 0.85);
+  backdrop-filter: blur(12px);
+  padding: 40px;
+  border-radius: 16px;
   border: 1px solid #30363d;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .login-title {
   text-align: center;
   margin-bottom: 8px;
   color: #f0f6fc;
-  font-weight: bold;
-  font-size: 24px;
+  font-weight: 700;
+  font-size: 26px;
 }
 
 .login-sub-title {

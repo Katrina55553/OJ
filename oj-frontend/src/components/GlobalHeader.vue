@@ -184,13 +184,15 @@ const handleSelect = async (value: string) => {
   cursor: pointer;
 }
 .logo {
-  height: 40px;
+  height: 36px;
   margin-right: 12px;
+  border-radius: 6px;
 }
 .title {
   color: #f0f6fc;
   font-size: 18px;
-  font-weight: 600;
+  font-weight: 700;
+  letter-spacing: 0.5px;
 }
 .right-actions {
   display: flex;
@@ -204,12 +206,13 @@ const handleSelect = async (value: string) => {
   display: flex;
   align-items: center;
   color: #c9d1d9;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 6px 10px;
+  border-radius: 8px;
   transition: all 0.2s;
 }
 .user-avatar-trigger:hover {
   background-color: #21262d;
+  color: #f0f6fc;
 }
 .user-name-text {
   margin-left: 8px;

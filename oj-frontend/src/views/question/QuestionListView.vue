@@ -181,27 +181,49 @@ const toProblemDetail = (id: number) => {
 <style scoped>
 .home-view {
   min-height: 100vh;
-  background-color: #161b22;
+  background-color: #0d1117;
 }
 
 .banner {
-  background: linear-gradient(135deg, #1a2a3a 0%, #293448 100%);
-  color: #161b22;
-  padding: 60px 20px 80px;
+  background: linear-gradient(135deg, #161b22 0%, #1a2a3a 50%, #0d2d4d 100%);
+  padding: 56px 20px 80px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.banner::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: radial-gradient(
+    circle at 50% 50%,
+    rgba(56, 139, 253, 0.1) 0%,
+    transparent 60%
+  );
+  pointer-events: none;
 }
 
 .page-title {
+  position: relative;
+  z-index: 1;
   font-size: 32px;
   margin: 0 0 8px;
+  color: #f0f6fc;
+  font-weight: 700;
   display: flex;
   align-items: center;
   justify-content: center;
 }
 
 .page-sub-title {
+  position: relative;
+  z-index: 1;
   margin: 0;
-  color: rgba(255, 255, 255, 0.8);
+  color: #8b949e;
   font-size: 16px;
 }
 
@@ -217,14 +239,15 @@ const toProblemDetail = (id: number) => {
   background: #161b22;
   padding: 24px;
   border-radius: 12px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+  border: 1px solid #30363d;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
   margin-bottom: 24px;
 }
 
 .problem-list-container {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 12px;
 }
 
 .problem-row-item {
@@ -232,16 +255,16 @@ const toProblemDetail = (id: number) => {
   align-items: center;
   justify-content: space-between;
   background: #161b22;
-  padding: 16px 24px;
-  border-radius: 8px;
+  padding: 18px 24px;
+  border-radius: 10px;
   border: 1px solid #30363d;
   transition: all 0.2s ease;
   cursor: pointer;
 }
 
 .problem-row-item:hover {
-  border-color: #c9cdd4;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  border-color: #58a6ff;
+  box-shadow: 0 4px 16px rgba(56, 139, 253, 0.1);
   transform: translateY(-2px);
 }
 
