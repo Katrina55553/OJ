@@ -288,6 +288,7 @@ INDEX idx_questionId_createTime(questionId, createTime)
 > - 对索引列做函数运算：`WHERE YEAR(createTime) = 2024`
 > - OR 连接：`WHERE A=? OR B=?` → 一般走不到组合索引，应该改成 UNION
 
+```sql
 -- ⚠️ 部分使用（只用到 userId，questionId 部分无法用索引）
 SELECT * FROM question_submit WHERE userId = 1 AND language = 'java';
 -- userId 走索引，language 不走索引
@@ -297,7 +298,7 @@ SELECT * FROM question_submit WHERE userId = 1 AND language = 'java';
 
 ---
 
-## 6. 面试常见追问
+## 8. 面试常见追问
 
 ### Q: 为什么 InnoDB 用 B+ 树而不用 B 树？
 
@@ -313,17 +314,17 @@ SELECT * FROM question_submit WHERE userId = 1 AND language = 'java';
 
 ### Q: 本项目的索引设计思路？
 
-> ```
-> user 表：
->   - 主键 id（聚簇索引）
->   - uk_userAccount（唯一索引，加速登录）
->
-> question 表：
->   - 主键 id（聚簇索引）
->   - idx_userId（普通索引，加速"我的题目"查询）
->
-> question_submit 表：
->   - 主键 id（聚簇索引）
->   - idx_questionId（普通索引，加速按题目查提交）
->   - idx_userId（普通索引，加速按用户查提交）
-> ```
+```text
+user 表：
+  - 主键 id（聚簇索引）
+  - uk_userAccount（唯一索引，加速登录）
+
+question 表：
+  - 主键 id（聚簇索引）
+  - idx_userId（普通索引，加速"我的题目"查询）
+
+question_submit 表：
+  - 主键 id（聚簇索引）
+  - idx_questionId（普通索引，加速按题目查提交）
+  - idx_userId（普通索引，加速按用户查提交）
+```
