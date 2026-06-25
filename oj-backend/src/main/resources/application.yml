@@ -14,13 +14,14 @@ spring:
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:123456}
 
-  # Redis 配置
-  redis:
-    database: 1
-    host: ${REDIS_HOST:localhost}
-    port: 6379
-    timeout: 5000
-    password: ${REDIS_PASSWORD:}
+  # Redis 配置（Spring Boot 3 前缀为 spring.data.redis）
+  data:
+    redis:
+      database: 1
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+      timeout: 5000
+      password: ${REDIS_PASSWORD:}
 
   # RabbitMQ 配置
   rabbitmq:

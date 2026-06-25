@@ -8,10 +8,11 @@ spring:
     url: ${DB_URL:jdbc:mysql://localhost:3306/my_db}
     username: ${DB_USERNAME:root}
     password: ${DB_PASSWORD:}
-  # Redis 配置（通过环境变量注入）
-  redis:
-    database: 1
-    host: ${REDIS_HOST:localhost}
-    port: 6379
-    timeout: 5000
-    password: ${REDIS_PASSWORD:}
+  # Redis 配置（Spring Boot 3 前缀为 spring.data.redis，通过环境变量注入）
+  data:
+    redis:
+      database: 1
+      host: ${REDIS_HOST:localhost}
+      port: 6379
+      timeout: 5000
+      password: ${REDIS_PASSWORD:}
