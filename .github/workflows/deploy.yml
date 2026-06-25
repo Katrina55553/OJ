@@ -24,6 +24,7 @@ jobs:
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 30m
+          script_stop: true
           script: |
             cd ${{ env.VPS_PROJECT_PATH }}
             git pull origin main
