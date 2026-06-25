@@ -27,12 +27,11 @@ public class RedisConfig {
         template.setKeySerializer(stringSerializer);
         template.setHashKeySerializer(stringSerializer);
 
-        // Value 序列化：JSON
-        Jackson2JsonRedisSerializer<Object> jsonSerializer = new Jackson2JsonRedisSerializer<>(Object.class);
+        // Value 序列化：JSON（Spring Data Redis 3.x 需通过构造器传入 ObjectMapper）
         ObjectMapper om = new ObjectMapper();
         om.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
         om.activateDefaultTyping(LaissezFaireSubTypeValidator.instance, ObjectMapper.DefaultTyping.NON_FINAL);
-        jsonSerializer.setObjectMapper(om);
+        Jackson2JsonRedisSerializer<Object> jsonSerializer = new Jackson2JsonRedisSerializer<>(om, Object.class);
 
         template.setValueSerializer(jsonSerializer);
         template.setHashValueSerializer(jsonSerializer);

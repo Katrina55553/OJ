@@ -7,7 +7,7 @@ import com.oj.model.entity.Question;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.oj.model.vo.QuestionVO;
 
-import javax.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 public interface QuestionService extends IService<Question> {
