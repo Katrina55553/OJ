@@ -75,7 +75,7 @@
         </div>
         <div class="feature-card">
           <div class="feature-icon icon-orange">
-            <icon-chart-bar />
+            <icon-bar-chart />
           </div>
           <h3>进度追踪</h3>
           <p>记录每次提交，追踪通过率，可视化学习进度</p>
@@ -101,7 +101,7 @@ import {
   IconFire,
   IconThunderbolt,
   IconCode,
-  IconChartBar,
+  IconBarChart,
   IconSafe,
 } from "@arco-design/web-vue/es/icon";
 
