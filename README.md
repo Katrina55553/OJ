@@ -4,8 +4,9 @@
 
 **面向编程学习者的在线判题平台 · 多语言代码提交与自动判题 · 前后端分离 · Docker 容器化**
 
-[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-2.7-brightgreen)](https://spring.io/projects/spring-boot)
+[![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2-brightgreen)](https://spring.io/projects/spring-boot)
 [![Vue](https://img.shields.io/badge/Vue-3-4FC08D)](https://vuejs.org/)
+[![Vite](https://img.shields.io/badge/Vite-5-646CFF)](https://vitejs.dev/)
 [![MySQL](https://img.shields.io/badge/MySQL-8.0-4479A1)](https://www.mysql.com/)
 [![Redis](https://img.shields.io/badge/Redis-7-DC382D)](https://redis.io/)
 [![Docker](https://img.shields.io/badge/Docker-✓-2496ED)](https://www.docker.com/)
@@ -54,13 +55,13 @@
 
 | 层 | 技术 |
 |---|------|
-| 前端 | Vue 3、TypeScript、Arco Design Vue、Monaco Editor、ByteMD、Vuex 4 |
-| 后端 | Spring Boot 2.7、MyBatis-Plus 3.5、JWT、Spring AOP |
+| 前端 | Vue 3、TypeScript、Vite 5、Arco Design Vue、Monaco Editor、ByteMD、Vuex 4 |
+| 后端 | Spring Boot 3.2（Java 17 / Jakarta EE）、MyBatis-Plus 3.5、JWT、Spring AOP |
 | 数据库 | MySQL 8.0、Redis 7 |
 | 消息队列 | RabbitMQ 3.x |
 | 代码沙箱 | Docker 容器（每语言独立基础镜像） |
 | 部署 | Docker Compose、Nginx |
-| 文档 | Knife4j、Markdown 教程（12 篇 + eBook 12 章） |
+| 文档 | Knife4j（OpenAPI3）、Markdown 教程（12 篇 + eBook 12 章） |
 
 ## 项目结构
 
@@ -124,7 +125,7 @@ mvn spring-boot:run
 # 前端（新开终端，需 Node.js 18+）
 cd oj-frontend
 npm install
-npm run serve
+npm run dev
 ```
 
 访问 `http://localhost:8080`
@@ -155,7 +156,7 @@ docker compose ps
 
 | 服务 | 端口 | 环境 | 说明 |
 |------|------|------|------|
-| 前端 dev server | 8080 | 本地开发 | Vue CLI 热更新 |
+| 前端 dev server | 8080 | 本地开发 | Vite 开发服务器（HMR） |
 | 前端（生产） | 3000 | Docker | Nginx 静态服务 + `/api` 反代 |
 | 后端 API | 8101 | 全部 | Spring Boot（context-path: `/api`） |
 | MySQL | 3306 | Docker | 数据库 |
@@ -163,7 +164,7 @@ docker compose ps
 | RabbitMQ | 5672 | Docker | 消息队列 |
 | RabbitMQ 管理 | 15672 | Docker | guest / guest |
 
-本地开发时，前端 `/api` 请求通过 `vue.config.js` 的 devServer proxy 转发到 `localhost:8101`。
+本地开发时，前端 `/api` 请求通过 `vite.config.ts` 的 server.proxy 转发到 `localhost:8101`。
 
 ## 核心架构
 

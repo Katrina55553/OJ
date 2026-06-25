@@ -8,8 +8,8 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 | 目录 | 技术栈 | 说明 |
 |------|--------|------|
-| `oj-frontend/` | Vue 3 + TypeScript + Arco Design Vue | 前端 SPA |
-| `oj-backend/` | Spring Boot 2.7 + MyBatis-Plus + MySQL | 后端 API 服务 |
+| `oj-frontend/` | Vue 3 + TypeScript + Vite + Arco Design Vue | 前端 SPA |
+| `oj-backend/` | Spring Boot 3.2 (Java 17 / Jakarta EE) + MyBatis-Plus + MySQL | 后端 API 服务 |
 
 前端详细架构参见 `oj-frontend/CLAUDE.md`，改进清单参见 `todo.md`，核心技术面试讲解参见 `tutorial/`。
 
@@ -41,7 +41,7 @@ docker build -t oj-backend .
 ```bash
 cd oj-frontend
 npm install
-npm run serve    # 开发服务器 → localhost:8080，/api 代理到 localhost:8101
+npm run dev      # Vite 开发服务器 → localhost:8080，/api 代理到 localhost:8101（HMR）
 npm run build    # 生产构建
 npm run lint     # ESLint + Prettier
 ```
@@ -163,7 +163,7 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 
 | 服务 | 端口 | 说明 |
 |------|------|------|
-| 前端 dev server | 8080 | Vue CLI，`/api` 代理到 localhost:8101 |
+| 前端 dev server | 8080 | Vite，`/api` 代理到 localhost:8101 |
 | 后端 API | 8101 | Spring Boot（context-path: `/api`） |
 | MySQL | 3306 | 数据库（Docker 部署时暴露） |
 | Redis | 6379 | 缓存（Docker 部署时暴露） |
@@ -178,7 +178,7 @@ JudgeManager → JudgeStrategy（策略模式比对结果）
 | `oj-backend/application.yml` | 后端主配置（数据库、Redis、RabbitMQ、JWT、沙箱） |
 | `oj-backend/application-prod.yml` | 生产环境覆盖配置（数据源、Redis 来自环境变量） |
 | `oj-backend/application-test.yml` | 测试环境覆盖配置 |
-| `oj-frontend/vue.config.js` | Webpack 配置、Monaco 插件、API 代理 |
+| `oj-frontend/vite.config.ts` | Vite 配置（Vue 插件、`@` 别名、`/api` 代理、Monaco worker） |
 | `oj-frontend/tsconfig.json` | TypeScript 编译选项 |
 | `docker-compose.yml` | Docker 服务编排（MySQL + Redis + RabbitMQ + 后端 + 前端） |
 | `.env.example` | 环境变量模板（DB_PASSWORD、REDIS_PASSWORD、JWT_SECRET 等） |
