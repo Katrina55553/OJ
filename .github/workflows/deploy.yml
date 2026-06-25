@@ -13,6 +13,8 @@ jobs:
     name: Deploy to VPS
     needs: ci
     runs-on: ubuntu-latest
+    env:
+      VPS_PROJECT_PATH: /home/ubuntu/oj
     steps:
       - name: Deploy via SSH
         uses: appleboy/ssh-action@v1
@@ -23,7 +25,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           command_timeout: 30m
           script: |
-            cd ${{ secrets.VPS_PROJECT_PATH }}
+            cd ${{ env.VPS_PROJECT_PATH }}
             git pull origin main
             docker compose build backend frontend
             docker compose up -d
