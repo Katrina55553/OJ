@@ -147,7 +147,7 @@ const handleCancel = () => {
   background: #1e1e1e;
   color: #d4d4d4;
   border-radius: 4px;
-  font-family: "Consolas", "Monaco", monospace;
+  font-family: Consolas, "Courier New", Menlo, Monaco, monospace;
   overflow-x: auto;
 }
 </style>

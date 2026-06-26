@@ -553,7 +553,7 @@ onMounted(() => {
 }
 
 .stats-line {
-  font-family: "Menlo", "Monaco", "Courier New", monospace;
+  font-family: Consolas, "Courier New", Menlo, Monaco, monospace;
   font-size: 14px;
   color: #4e5969;
   white-space: nowrap;

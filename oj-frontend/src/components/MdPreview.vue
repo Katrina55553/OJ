@@ -79,7 +79,7 @@ const rendered = computed(() => {
   padding: 16px;
   border-radius: 8px;
   margin: 16px 0;
-  font-family: Consolas, Monaco, "Andale Mono", "Ubuntu Mono", monospace;
+  font-family: Consolas, "Courier New", Menlo, Monaco, monospace;
 }
 
 .md-preview :deep(pre code) {

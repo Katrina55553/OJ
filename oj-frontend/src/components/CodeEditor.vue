@@ -202,7 +202,8 @@ watch(
 }
 
 :deep(.cm-scroller) {
-  font-family: "Menlo", "Monaco", "Courier New", monospace;
+  font-family: Consolas, "Courier New", Menlo, Monaco, monospace;
+  font-feature-settings: "liga" 0, "calt" 0;
 }
 
 :deep(.cm-gutters) {
