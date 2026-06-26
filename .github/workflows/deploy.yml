@@ -28,6 +28,6 @@ jobs:
           script: |
             cd ${{ env.VPS_PROJECT_PATH }}
             git pull origin main
-            docker compose build backend frontend
-            docker compose up -d
+            docker compose build --no-cache backend frontend
+            docker compose up -d --force-recreate backend frontend
             docker image prune -f
