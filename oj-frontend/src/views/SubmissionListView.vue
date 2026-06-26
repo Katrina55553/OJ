@@ -136,13 +136,16 @@
 
       <!-- 分页 -->
       <a-pagination
-        v-if="pagination.total > pagination.pageSize"
         v-model:current="pagination.current"
         :page-size="pagination.pageSize"
         :total="pagination.total"
-        show-less-items
-        style="margin-top: 24px; text-align: center"
+        show-total
+        show-jumper
+        show-page-size
+        :page-size-options="['10', '20', '50', '100']"
+        style="margin-top: 24px; text-align: center; justify-content: center"
         @change="onPageChange"
+        @page-size-change="onPageSizeChange"
       />
     </a-card>
 
@@ -223,7 +226,7 @@ const renderData = ref<SubmitRecord[]>([]);
 
 const pagination = reactive({
   current: 1,
-  pageSize: 20,
+  pageSize: 10,
   total: 0,
 });
 
@@ -395,6 +398,12 @@ const reset = () => {
 
 const onPageChange = (page: number) => {
   pagination.current = page;
+  fetchData();
+};
+
+const onPageSizeChange = (size: number) => {
+  pagination.pageSize = size;
+  pagination.current = 1;
   fetchData();
 };
 
