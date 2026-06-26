@@ -180,16 +180,21 @@ public class DockerCodeSandbox implements CodeSandbox {
     }
 
     private void ensureBaseImage(String language, String baseImage) throws IOException, InterruptedException {
+        // 1. 检查镜像是否已存在。容器通过 docker socket 调用宿主机 docker，socket 通信有延迟，给 15 秒
         ProcessBuilder check = new ProcessBuilder("docker", "image", "inspect", baseImage);
         check.redirectErrorStream(true);
         Process checkProcess = check.start();
-        boolean checkFinished = checkProcess.waitFor(5, TimeUnit.SECONDS);
+        String checkOutput = readProcessOutput(checkProcess.getInputStream());
+        boolean checkFinished = checkProcess.waitFor(15, TimeUnit.SECONDS);
         if (checkFinished && checkProcess.exitValue() == 0) {
+            log.info("基础镜像已存在，跳过构建: {}", baseImage);
             return;
         }
+        log.warn("基础镜像检查未通过（exitCode={}, finished={}），开始构建: {}\n检查输出: {}",
+                checkFinished ? checkProcess.exitValue() : -1, checkFinished, baseImage, checkOutput);
 
         String dockerfile = "Dockerfile.base." + language;
-        // tempDir 必须建在宿主机与后端容器共享的卷上，否则宿主机 docker daemon 看不到 build context
+        // 2. tempDir 必须建在宿主机与后端容器共享的卷上，否则宿主机 docker daemon 看不到 build context
         Path baseDir = Paths.get(workDirBase);
         Files.createDirectories(baseDir);
         Path tempDir = Files.createTempDirectory(baseDir, "oj-base-build-");
@@ -200,8 +205,32 @@ public class DockerCodeSandbox implements CodeSandbox {
             throw new IOException("复制 base Dockerfile 失败: " + dockerfile, e);
         }
 
-        // docker build 的 context 和 -f 必须用宿主机绝对路径（后端容器通过 docker socket 调用宿主机 docker）
+        // 3. 给 tempDir 和 Dockerfile 设置可读权限，确保宿主机 docker daemon 能读取（容器以 root 运行，
+        //    但卷是宿主机文件系统，nobody 可能无权读 root 创建的文件）
+        try {
+            Set<PosixFilePermission> dirPerms = new HashSet<>();
+            dirPerms.add(PosixFilePermission.OWNER_READ);
+            dirPerms.add(PosixFilePermission.OWNER_WRITE);
+            dirPerms.add(PosixFilePermission.OWNER_EXECUTE);
+            dirPerms.add(PosixFilePermission.GROUP_READ);
+            dirPerms.add(PosixFilePermission.GROUP_EXECUTE);
+            dirPerms.add(PosixFilePermission.OTHERS_READ);
+            dirPerms.add(PosixFilePermission.OTHERS_EXECUTE);
+            Files.setPosixFilePermissions(tempDir, dirPerms);
+            Path dockerfilePath = tempDir.resolve("Dockerfile");
+            Set<PosixFilePermission> filePerms = new HashSet<>();
+            filePerms.add(PosixFilePermission.OWNER_READ);
+            filePerms.add(PosixFilePermission.OWNER_WRITE);
+            filePerms.add(PosixFilePermission.GROUP_READ);
+            filePerms.add(PosixFilePermission.OTHERS_READ);
+            Files.setPosixFilePermissions(dockerfilePath, filePerms);
+        } catch (UnsupportedOperationException ignored) {
+            // 非 POSIX 文件系统（如 Windows 本地开发）忽略
+        }
+
+        // 4. docker build 的 context 和 -f 必须用宿主机绝对路径（后端容器通过 docker socket 调用宿主机 docker）
         String hostTempDir = getVolumePath(tempDir);
+        log.info("开始构建基础镜像: baseImage={}, context={}", baseImage, hostTempDir);
         ProcessBuilder pb = new ProcessBuilder(
                 "docker", "build", "-t", baseImage, "-f", hostTempDir + "/Dockerfile", hostTempDir
         );
@@ -223,7 +252,7 @@ public class DockerCodeSandbox implements CodeSandbox {
             throw new IOException("基础镜像构建超时: " + baseImage);
         }
         if (process.exitValue() != 0) {
-            throw new IOException("基础镜像构建失败: " + baseImage + "\n" + output);
+            throw new IOException("基础镜像构建失败: " + baseImage + "\n退出码: " + process.exitValue() + "\n构建输出:\n" + output);
         }
         log.info("基础镜像构建完成: {}", baseImage);
     }
