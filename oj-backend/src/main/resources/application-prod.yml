@@ -20,3 +20,10 @@ mybatis-plus:
   configuration:
     # 生产环境关闭日志
     log-impl: ''
+# 代码沙箱配置
+# workDir：后端容器内路径，Java 用它创建临时目录/写代码文件（docker-compose 挂载 ./oj-backend/sandbox:/app/sandbox）
+# hostWorkDir：宿主机绝对路径，docker run -v 挂载源必须用宿主机路径（后端容器通过 docker socket 调用宿主机 docker）
+codesandbox:
+  docker:
+    workDir: /app/sandbox/tmp
+    hostWorkDir: ${SANDBOX_HOST_DIR:}

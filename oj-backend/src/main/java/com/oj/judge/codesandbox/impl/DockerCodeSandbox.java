@@ -41,14 +41,34 @@ public class DockerCodeSandbox implements CodeSandbox {
     private String cpuLimit;
 
     /**
-     * 工作目录基路径（必须宿主机和后端容器共享的卷，docker run -v 才能正确挂载到沙箱容器）
+     * 工作目录基路径（容器内路径，用于 Java 创建临时目录、写代码文件）
      * docker-compose.yml 挂载了 ./oj-backend/sandbox:/app/sandbox，所以默认用 /app/sandbox/tmp
      */
     @Value("${codesandbox.docker.workDir:/app/sandbox/tmp}")
     private String workDirBase;
 
+    /**
+     * 宿主机上沙箱工作目录的绝对路径（docker run -v 挂载源必须用宿主机路径）
+     * 后端容器通过 docker socket 调用宿主机 docker 时，宿主机 docker daemon 只认宿主机路径，
+     * 不会做容器内路径转换。本地开发留空即可（此时直接用 workDir）。
+     */
+    @Value("${codesandbox.docker.hostWorkDir:}")
+    private String hostWorkDirBase;
+
     private static final String SANDBOX_IMAGE_PREFIX = "oj-sandbox-";
     private static final String BASE_IMAGE_PREFIX = "oj-base-";
+
+    /**
+     * 返回 docker run -v 应该使用的挂载源路径（宿主机绝对路径）
+     * 若未配置 hostWorkDir（本地开发场景），直接返回容器内 workDir 路径
+     */
+    private String getVolumePath(Path workDir) {
+        if (hostWorkDirBase == null || hostWorkDirBase.isEmpty()) {
+            return workDir.toString();
+        }
+        // workDir 形如 /app/sandbox/tmp/oj-sandbox-xxx，提取末段目录名拼接为宿主机路径
+        return hostWorkDirBase + "/" + workDir.getFileName().toString();
+    }
 
     @Override
     public ExecuteCodeResponse executeCode(ExecuteCodeRequest request) {
@@ -277,7 +297,7 @@ public class DockerCodeSandbox implements CodeSandbox {
         cmd.add("--read-only");
         cmd.add("--user=nobody");
         cmd.add("-v");
-        cmd.add(workDir.toString() + ":/code:ro");
+        cmd.add(getVolumePath(workDir) + ":/code:ro");
         cmd.add("-i");
         cmd.add(baseImage);
         cmd.add("bash");

@@ -117,6 +117,9 @@ services:
       RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-guest}
       # JWT
       JWT_SECRET: ${JWT_SECRET:-oj-default-secret-key-must-be-at-least-256-bits-long-for-hs256}
+      # 代码沙箱（后端容器通过 docker socket 调用宿主机 docker，docker run -v 必须用宿主机绝对路径）
+      # ${PWD} 由 docker compose 在宿主机上展开为执行目录（即 /home/ubuntu/oj）
+      SANDBOX_HOST_DIR: ${PWD}/oj-backend/sandbox/tmp
       # Spring
       SPRING_PROFILES_ACTIVE: prod
     # JVM 内存限制
