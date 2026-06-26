@@ -12,8 +12,7 @@ RUN npm ci --registry=https://registry.npmmirror.com --prefer-offline && \
 # 复制源码
 COPY . .
 
-# 构建（禁用 source-map 减小体积，加大 node 内存避免 Vite OOM）
-ENV NODE_OPTIONS=--max-old-space-size=2048
+# 构建（禁用 source-map 减小体积）
 RUN npm run build
 
 # 运行阶段

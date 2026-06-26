@@ -1,24 +1,35 @@
 <template>
-  <div ref="editorRef" class="monaco-editor-container" />
+  <div ref="editorRef" class="cm-editor-container" />
 </template>
 
 <script setup lang="ts">
-import * as monaco from "monaco-editor";
-import { ref, onMounted, watch, shallowRef, onBeforeUnmount, toRaw } from "vue";
+import { ref, onMounted, watch, onBeforeUnmount, shallowRef } from "vue";
+import { EditorState, Compartment } from "@codemirror/state";
+import { EditorView, keymap, lineNumbers, highlightActiveLine, highlightActiveLineGutter } from "@codemirror/view";
+import { defaultKeymap, history, historyKeymap } from "@codemirror/commands";
+import { searchKeymap } from "@codemirror/search";
+import { indentOnInput, bracketMatching, foldGutter, foldKeymap } from "@codemirror/language";
+import { autocompletion, completionKeymap, closeBrackets, closeBracketsKeymap } from "@codemirror/autocomplete";
+import { oneDark } from "@codemirror/theme-one-dark";
+import { cpp } from "@codemirror/lang-cpp";
+import { java } from "@codemirror/lang-java";
+import { python } from "@codemirror/lang-python";
+import { go } from "@codemirror/lang-go";
+import { javascript } from "@codemirror/lang-javascript";
 
 interface Props {
   modelValue: string;
   language?: string;
   readOnly?: boolean;
-  theme?: "vs-dark" | "vs-light"; // 可选主题
-  minimapEnabled?: boolean; // 是否显示小地图
+  theme?: "dark" | "light";
+  minimapEnabled?: boolean; // 兼容旧 props，CodeMirror 无 minimap，忽略
 }
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: "",
   language: "cpp",
   readOnly: false,
-  theme: "vs-dark",
+  theme: "dark",
   minimapEnabled: true,
 });
 
@@ -27,78 +38,110 @@ const emit = defineEmits<{
 }>();
 
 const editorRef = ref<HTMLDivElement | null>(null);
-const editorInstance = shallowRef<monaco.editor.IStandaloneCodeEditor | null>(
-  null
-);
+const editorView = shallowRef<EditorView | null>(null);
+
+// 动态配置 compartments，支持切换语言/主题不重建编辑器
+const languageCompartment = new Compartment();
+const themeCompartment = new Compartment();
+const readOnlyCompartment = new Compartment();
+
+function getLanguageExtension(lang: string) {
+  switch (lang.toLowerCase()) {
+    case "cpp":
+    case "c":
+    case "c++":
+      return cpp();
+    case "java":
+      return java();
+    case "python":
+    case "python3":
+      return python();
+    case "go":
+      return go();
+    case "javascript":
+    case "js":
+    case "typescript":
+    case "ts":
+      return javascript();
+    default:
+      return cpp();
+  }
+}
+
+function getThemeExtension(theme: string) {
+  return theme === "dark" ? oneDark : [];
+}
 
 onMounted(() => {
   if (!editorRef.value) return;
 
-  editorInstance.value = monaco.editor.create(editorRef.value, {
-    value: props.modelValue,
-    language: props.language,
-    readOnly: props.readOnly,
-    theme: props.theme,
-    automaticLayout: true, // 自动调整布局
-    fontSize: 15, // 字体更大，更舒适
-    lineHeight: 24,
-    minimap: { enabled: props.minimapEnabled },
-    scrollBeyondLastLine: false,
-    wordWrap: "on", // 自动换行（可选，防止横向滚动）
-    renderWhitespace: "selection",
-    scrollbar: {
-      verticalScrollbarSize: 12,
-      horizontalScrollbarSize: 12,
-      alwaysConsumeMouseWheel: false,
-    },
-    suggestOnTriggerCharacters: true,
-    quickSuggestions: true,
-    parameterHints: { enabled: true },
-    folding: true, // 代码折叠
-    glyphMargin: true,
-    lineNumbers: "on",
-    roundedSelection: true,
-    cursorBlinking: "smooth",
-    smoothScrolling: true,
-    padding: { top: 16, bottom: 16 },
+  const updateListener = EditorView.updateListener.of((vu) => {
+    if (vu.docChanged) {
+      emit("update:modelValue", vu.state.doc.toString());
+    }
   });
 
-  // 内容变化时通知父组件
-  editorInstance.value.onDidChangeModelContent(() => {
-    const value = editorInstance.value?.getValue() || "";
-    emit("update:modelValue", value);
+  const state = EditorState.create({
+    doc: props.modelValue,
+    extensions: [
+      lineNumbers(),
+      highlightActiveLine(),
+      highlightActiveLineGutter(),
+      history(),
+      foldGutter(),
+      indentOnInput(),
+      bracketMatching(),
+      closeBrackets(),
+      autocompletion(),
+      keymap.of([
+        ...closeBracketsKeymap,
+        ...defaultKeymap,
+        ...searchKeymap,
+        ...historyKeymap,
+        ...foldKeymap,
+        ...completionKeymap,
+      ]),
+      languageCompartment.of(getLanguageExtension(props.language)),
+      themeCompartment.of(getThemeExtension(props.theme)),
+      readOnlyCompartment.of(EditorState.readOnly.of(props.readOnly)),
+      EditorView.lineWrapping,
+      updateListener,
+    ],
   });
 
-  // 监听焦点
-  editorInstance.value.onDidFocusEditorText(() => {
-    editorInstance.value?.revealLineInCenter(
-      editorInstance.value.getPosition()?.lineNumber || 1
-    );
+  editorView.value = new EditorView({
+    state,
+    parent: editorRef.value,
   });
 });
 
 onBeforeUnmount(() => {
-  if (editorInstance.value) {
-    editorInstance.value.dispose();
-  }
+  editorView.value?.destroy();
+  editorView.value = null;
 });
 
 // 外部调用：填充代码
 const fillValue = (val: string) => {
-  if (!editorInstance.value) return;
-  toRaw(editorInstance.value).setValue(val);
+  const view = editorView.value;
+  if (!view) return;
+  view.dispatch({
+    changes: { from: 0, to: view.state.doc.length, insert: val },
+  });
 };
 
 defineExpose({ fillValue });
 
-// 监听 modelValue 变化
+// 监听 modelValue 变化（外部修改时同步到编辑器）
 watch(
   () => props.modelValue,
   (newVal) => {
-    if (!editorInstance.value) return;
-    const editor = toRaw(editorInstance.value);
-    if (editor.getValue() !== newVal) {
-      editor.setValue(newVal);
+    const view = editorView.value;
+    if (!view) return;
+    const current = view.state.doc.toString();
+    if (current !== newVal) {
+      view.dispatch({
+        changes: { from: 0, to: current.length, insert: newVal },
+      });
     }
   }
 );
@@ -107,8 +150,11 @@ watch(
 watch(
   () => props.language,
   (newLang) => {
-    if (!editorInstance.value || !newLang) return;
-    monaco.editor.setModelLanguage(editorInstance.value.getModel()!, newLang);
+    const view = editorView.value;
+    if (!view || !newLang) return;
+    view.dispatch({
+      effects: languageCompartment.reconfigure(getLanguageExtension(newLang)),
+    });
   }
 );
 
@@ -116,14 +162,29 @@ watch(
 watch(
   () => props.theme,
   (newTheme) => {
-    if (!editorInstance.value) return;
-    monaco.editor.setTheme(newTheme);
+    const view = editorView.value;
+    if (!view) return;
+    view.dispatch({
+      effects: themeCompartment.reconfigure(getThemeExtension(newTheme)),
+    });
+  }
+);
+
+// 监听 readOnly 变化
+watch(
+  () => props.readOnly,
+  (newReadOnly) => {
+    const view = editorView.value;
+    if (!view) return;
+    view.dispatch({
+      effects: readOnlyCompartment.reconfigure(EditorState.readOnly.of(newReadOnly)),
+    });
   }
 );
 </script>
 
 <style scoped>
-.monaco-editor-container {
+.cm-editor-container {
   width: 100%;
   height: 100%;
   min-height: 0;
@@ -134,22 +195,18 @@ watch(
   box-sizing: border-box;
 }
 
-/* 美化滚动条（Webkit 浏览器） */
-:deep(.monaco-scrollable-element > .scrollbar > .slider) {
-  background: rgba(121, 121, 121, 0.4);
-  border-radius: 6px;
-}
-:deep(.monaco-scrollable-element > .scrollbar > .slider:hover) {
-  background: rgba(100, 100, 100, 0.7);
+:deep(.cm-editor) {
+  height: 100%;
+  font-size: 15px;
+  line-height: 1.6;
 }
 
-/* 光标更柔和 */
-:deep(.monaco-editor .cursor) {
-  transition: all 0.1s;
+:deep(.cm-scroller) {
+  font-family: "Menlo", "Monaco", "Courier New", monospace;
 }
 
-/* 选中高亮更柔和 */
-:deep(.monaco-editor .selected-text) {
-  background-color: rgba(38, 79, 120, 0.5);
+:deep(.cm-gutters) {
+  background: transparent;
+  border-right: 1px solid #30363d;
 }
 </style>

@@ -25,17 +25,8 @@ export default defineConfig({
     },
   },
   build: {
-    // 禁用 source map 减小构建体积（与原 Dockerfile 构建策略一致）
+    // 禁用 source map 减小构建体积
     sourcemap: false,
-    // 对于 Monaco 等大依赖，适当提高 chunk 大小警告阈值
     chunkSizeWarningLimit: 1500,
-    rollupOptions: {
-      output: {
-        manualChunks: {
-          // 把 Monaco Editor 单独拆成一个 chunk，避免每次都重新打包
-          monaco: ["monaco-editor"],
-        },
-      },
-    },
   },
 });
