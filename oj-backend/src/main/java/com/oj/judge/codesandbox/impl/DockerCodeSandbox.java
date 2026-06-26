@@ -280,7 +280,7 @@ public class DockerCodeSandbox implements CodeSandbox {
         cmd.add("--cpus=" + cpuLimit);
         cmd.add("--network=none");
         cmd.add("-v");
-        cmd.add(workDir.toString() + ":/code");
+        cmd.add(getVolumePath(workDir) + ":/code");
         cmd.add(baseImage);
         cmd.add("bash");
         cmd.add("-c");
