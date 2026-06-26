@@ -44,8 +44,8 @@
           </div>
           <h2>技术栈</h2>
           <ul>
-            <li>前端：Vue 3 + TypeScript + Arco Design Vue + Monaco Editor</li>
-            <li>后端：Spring Boot 2.7 + MyBatis-Plus + MySQL 8.0</li>
+            <li>前端：Vue 3 + TypeScript + Vite + Arco Design Vue + Monaco Editor</li>
+            <li>后端：Spring Boot 3.2 + MyBatis-Plus + MySQL 8.0</li>
             <li>基础设施：Redis 7 + RabbitMQ + Docker Compose</li>
           </ul>
         </section>
