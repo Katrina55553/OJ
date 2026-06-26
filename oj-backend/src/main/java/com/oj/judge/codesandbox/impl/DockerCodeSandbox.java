@@ -13,8 +13,12 @@ import org.springframework.stereotype.Component;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
+import java.nio.file.attribute.PosixFilePermission;
+import java.nio.file.attribute.PosixFilePermissions;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
@@ -36,6 +40,13 @@ public class DockerCodeSandbox implements CodeSandbox {
     @Value("${codesandbox.docker.cpu:1}")
     private String cpuLimit;
 
+    /**
+     * 工作目录基路径（必须宿主机和后端容器共享的卷，docker run -v 才能正确挂载到沙箱容器）
+     * docker-compose.yml 挂载了 ./oj-backend/sandbox:/app/sandbox，所以默认用 /app/sandbox/tmp
+     */
+    @Value("${codesandbox.docker.workDir:/app/sandbox/tmp}")
+    private String workDirBase;
+
     private static final String SANDBOX_IMAGE_PREFIX = "oj-sandbox-";
     private static final String BASE_IMAGE_PREFIX = "oj-base-";
 
@@ -47,10 +58,36 @@ public class DockerCodeSandbox implements CodeSandbox {
 
         Path workDir = null;
         try {
-            workDir = Files.createTempDirectory("oj-sandbox-");
+            // 工作目录必须建在宿主机与后端容器共享的卷上（docker-compose 挂载 ./sandbox:/app/sandbox）
+            // 否则 docker run -v 挂载的是后端容器内的路径，沙箱容器看不到文件
+            Path baseDir = Paths.get(workDirBase);
+            Files.createDirectories(baseDir);
+            workDir = Files.createTempDirectory(baseDir, "oj-sandbox-");
 
             String codeFileName = getCodeFileName(language);
-            Files.write(workDir.resolve(codeFileName), code.getBytes(StandardCharsets.UTF_8));
+            Path codeFile = workDir.resolve(codeFileName);
+            Files.write(codeFile, code.getBytes(StandardCharsets.UTF_8));
+
+            // 沙箱以 --user=nobody 运行，需要给 workDir 和代码文件设置可读权限
+            try {
+                Set<PosixFilePermission> perms = new HashSet<>();
+                perms.add(PosixFilePermission.OWNER_READ);
+                perms.add(PosixFilePermission.OWNER_WRITE);
+                perms.add(PosixFilePermission.OWNER_EXECUTE);
+                perms.add(PosixFilePermission.GROUP_READ);
+                perms.add(PosixFilePermission.GROUP_EXECUTE);
+                perms.add(PosixFilePermission.OTHERS_READ);
+                perms.add(PosixFilePermission.OTHERS_EXECUTE);
+                Files.setPosixFilePermissions(workDir, perms);
+                Set<PosixFilePermission> filePerms = new HashSet<>();
+                filePerms.add(PosixFilePermission.OWNER_READ);
+                filePerms.add(PosixFilePermission.OWNER_WRITE);
+                filePerms.add(PosixFilePermission.GROUP_READ);
+                filePerms.add(PosixFilePermission.OTHERS_READ);
+                Files.setPosixFilePermissions(codeFile, filePerms);
+            } catch (UnsupportedOperationException ignored) {
+                // 非 POSIX 文件系统（如 Windows 本地开发）忽略
+            }
 
             String baseImage = BASE_IMAGE_PREFIX + language;
             ensureBaseImage(language, baseImage);
@@ -216,11 +253,11 @@ public class DockerCodeSandbox implements CodeSandbox {
     private String getCompileCommand(String language) {
         switch (language.toLowerCase()) {
             case "cpp":
-                return "g++ -o solution solution.cpp -std=c++17 -O2 -Wall 2>&1";
+                return "g++ -o solution solution.cpp -std=c++17 -O2 -Wall 2>&1 && chmod 755 solution";
             case "java":
-                return "javac Solution.java 2>&1";
+                return "javac Solution.java 2>&1 && chmod 644 *.class";
             case "go":
-                return "go build -o solution solution.go 2>&1";
+                return "go build -o solution solution.go 2>&1 && chmod 755 solution";
             default:
                 return "";
         }
