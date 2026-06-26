@@ -29,5 +29,13 @@ export default defineConfig({
     sourcemap: false,
     // 对于 Monaco 等大依赖，适当提高 chunk 大小警告阈值
     chunkSizeWarningLimit: 1500,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // 把 Monaco Editor 单独拆成一个 chunk，避免每次都重新打包
+          monaco: ["monaco-editor"],
+        },
+      },
+    },
   },
 });
