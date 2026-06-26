@@ -189,7 +189,10 @@ public class DockerCodeSandbox implements CodeSandbox {
         }
 
         String dockerfile = "Dockerfile.base." + language;
-        Path tempDir = Files.createTempDirectory("oj-base-build-");
+        // tempDir 必须建在宿主机与后端容器共享的卷上，否则宿主机 docker daemon 看不到 build context
+        Path baseDir = Paths.get(workDirBase);
+        Files.createDirectories(baseDir);
+        Path tempDir = Files.createTempDirectory(baseDir, "oj-base-build-");
         try {
             Files.copy(getDockerfileResource(dockerfile), tempDir.resolve("Dockerfile"), StandardCopyOption.REPLACE_EXISTING);
         } catch (Exception e) {
@@ -197,8 +200,10 @@ public class DockerCodeSandbox implements CodeSandbox {
             throw new IOException("复制 base Dockerfile 失败: " + dockerfile, e);
         }
 
+        // docker build 的 context 和 -f 必须用宿主机绝对路径（后端容器通过 docker socket 调用宿主机 docker）
+        String hostTempDir = getVolumePath(tempDir);
         ProcessBuilder pb = new ProcessBuilder(
-                "docker", "build", "-t", baseImage, "-f", tempDir.resolve("Dockerfile").toString(), tempDir.toString()
+                "docker", "build", "-t", baseImage, "-f", hostTempDir + "/Dockerfile", hostTempDir
         );
         pb.redirectErrorStream(true);
         Process process = pb.start();
