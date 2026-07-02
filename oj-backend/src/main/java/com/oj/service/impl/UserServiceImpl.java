@@ -19,6 +19,7 @@ import com.oj.utils.RedisCacheUtils;
 import com.oj.utils.SqlUtils;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import jakarta.servlet.http.HttpServletRequest;
@@ -43,6 +44,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private static final String USER_CACHE_KEY = "user:id:";
     private static final long USER_CACHE_EXPIRE_MINUTES = 30;
     private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+
+    // 缓存防护配置
+    private static final String USER_LOCK_KEY = "lock:user:";
+    private static final long USER_LOCK_EXPIRE_SECONDS = 10;      // 互斥锁过期时间（防死锁）
+    private static final long USER_EMPTY_EXPIRE_MINUTES = 2;       // 空值缓存短 TTL（防内存浪费）
+    private static final int MAX_RETRY_COUNT = 5;                 // 互斥锁重试上限（防 StackOverflow）
+    private static final long RETRY_SLEEP_MS = 50;                // 重试间隔
+    private static final long RANDOM_TTL_BOUND_MINUTES = 5;       // 随机 TTL 偏移上限（防雪崩）
 
     private final JwtUtils jwtUtils;
     private final RedisCacheUtils redisCacheUtils;
@@ -128,7 +137,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 获取当前登录用户（从 JwtInterceptor 设置的 Request Attribute 中读取）
-     * 优先从 Redis 缓存获取，未命中再查数据库
+     * 带缓存防护：防穿透（缓存空值）+ 防击穿（互斥锁）+ 防雪崩（随机 TTL）
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
@@ -136,23 +145,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userId == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-
-        // 1. 先查缓存
-        String cacheKey = USER_CACHE_KEY + userId;
-        User currentUser = redisCacheUtils.get(cacheKey, User.class);
-        if (currentUser != null) {
-            return currentUser;
-        }
-
-        // 2. 缓存未命中，查数据库
-        currentUser = this.getById(userId);
-        if (currentUser == null) {
+        User user = getUserWithCacheProtection(userId);
+        if (user == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
         }
-
-        // 3. 写入缓存
-        redisCacheUtils.set(cacheKey, currentUser, USER_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
-        return currentUser;
+        return user;
     }
 
     @Override
@@ -161,18 +158,76 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userId == null) {
             return null;
         }
-        // 先查缓存
+        return getUserWithCacheProtection(userId);
+    }
+
+    /**
+     * 带三大缓存防护的用户查询：
+     * 1. 防穿透：DB 查不到时缓存空值占位符（User.id = null），短 TTL
+     * 2. 防击穿：缓存未命中时用 SETNX 互斥锁，只有一个请求查 DB，其他重试
+     * 3. 防雪崩：正常缓存的 TTL 加随机偏移，避免同时过期
+     *
+     * @return 用户对象；如果用户不存在返回 null（包括命中空值占位符的情况）
+     */
+    private User getUserWithCacheProtection(Long userId) {
         String cacheKey = USER_CACHE_KEY + userId;
-        User user = redisCacheUtils.get(cacheKey, User.class);
-        if (user != null) {
-            return user;
+
+        // 1. 先查缓存
+        User cachedUser = redisCacheUtils.get(cacheKey, User.class);
+        if (cachedUser != null) {
+            // 空值占位符：id 为 null 表示用户不存在
+            if (cachedUser.getId() == null) {
+                return null;
+            }
+            return cachedUser;
         }
-        // 缓存未命中，查数据库
-        user = this.getById(userId);
-        if (user != null) {
-            redisCacheUtils.set(cacheKey, user, USER_CACHE_EXPIRE_MINUTES, TimeUnit.MINUTES);
+
+        // 2. 缓存未命中，获取互斥锁防击穿
+        String lockKey = USER_LOCK_KEY + userId;
+        int retryCount = 0;
+        while (retryCount < MAX_RETRY_COUNT) {
+            boolean locked = redisCacheUtils.setIfAbsent(
+                    lockKey, "1", USER_LOCK_EXPIRE_SECONDS, TimeUnit.SECONDS);
+            if (locked) {
+                try {
+                    // 双重检查：可能其他线程已经查完写入了
+                    cachedUser = redisCacheUtils.get(cacheKey, User.class);
+                    if (cachedUser != null) {
+                        return cachedUser.getId() == null ? null : cachedUser;
+                    }
+
+                    // 查数据库
+                    User dbUser = this.getById(userId);
+                    if (dbUser == null) {
+                        // 防穿透：缓存空值占位符，短 TTL（2 分钟）
+                        redisCacheUtils.set(cacheKey, new User(),
+                                USER_EMPTY_EXPIRE_MINUTES, TimeUnit.MINUTES);
+                        return null;
+                    }
+
+                    // 防雪崩：基础 TTL + 随机偏移（30~35 分钟）
+                    long ttl = USER_CACHE_EXPIRE_MINUTES
+                            + ThreadLocalRandom.current().nextLong(0, RANDOM_TTL_BOUND_MINUTES);
+                    redisCacheUtils.set(cacheKey, dbUser, ttl, TimeUnit.MINUTES);
+                    return dbUser;
+                } finally {
+                    redisCacheUtils.delete(lockKey);
+                }
+            }
+
+            // 未获取到锁，短暂等待后重试
+            retryCount++;
+            try {
+                Thread.sleep(RETRY_SLEEP_MS);
+            } catch (InterruptedException e) {
+                Thread.currentThread().interrupt();
+                break;
+            }
         }
-        return user;
+
+        // 重试耗尽，降级直接查 DB（避免请求永远失败）
+        log.warn("获取用户缓存锁失败，重试耗尽，降级查 DB: userId={}", userId);
+        return this.getById(userId);
     }
 
     @Override

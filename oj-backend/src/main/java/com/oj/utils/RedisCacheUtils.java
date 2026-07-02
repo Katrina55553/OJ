@@ -72,6 +72,19 @@ public class RedisCacheUtils {
     }
 
     /**
+     * 不存在才设置（互斥锁用），原子操作
+     * @return true 表示获取到锁/设置成功
+     */
+    public boolean setIfAbsent(String key, Object value, long timeout, TimeUnit unit) {
+        try {
+            return Boolean.TRUE.equals(redisTemplate.opsForValue().setIfAbsent(key, value, timeout, unit));
+        } catch (Exception e) {
+            log.warn("Redis setIfAbsent 失败, key={}, error={}", key, e.getMessage());
+            return false;
+        }
+    }
+
+    /**
      * 删除缓存
      */
     public boolean delete(String key) {
